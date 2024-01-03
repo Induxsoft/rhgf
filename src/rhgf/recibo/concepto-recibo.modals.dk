@@ -1,0 +1,57 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #$
+    div(class="modal fade" id="modal_concepto" "data-keyboard"="false" "data-backdrop"="static" tabindex="-1" role="dialog" "aria-labelledby"="modalforms" "aria-hidden"="true")
+    {
+        div(class= "modal-dialog modal-md modal-dialog-centered" role ="document")
+        {
+            div(class="modal-content")
+            {
+                div(class="modal-header")
+                {
+                    h5(class="modal-title" id="textomdl"){"Propiedades de partida de recibo de nómina"}
+                    button(type="button" class="close" "data-bs-dismiss"="modal" "aria-label"="Close" style="border: 1px solid #F0F0F0;")
+                    {
+                        span ("aria-hidden"="true") {$"&times;"}
+                    }
+                }
+                div(class="modal-body" id="bdy")
+                {
+                    label(id="lblalert-concepto" style="color:red"){""}
+                    br{}
+                    label(class=""){"Concepto:"}
+                    $' <input-key 
+                            id="concepto"
+                            name="concepto"
+                            data-key="sys_pk"
+                            data-search="codigo"
+                            data-text="descripcion"
+                            data-source="#<@CONCEPTO_NOMINA>?s=@search"
+                            box-title-text="Seleccione un concepto"
+                            box-placeholder-text="Buscar concepto"
+                            box-nodata-text="No se encontraron datos"
+                            value=""
+                            search-value=""
+                            text-value=""
+                            disabled="false"
+                            columns="codigo,descripcion"
+                            colcaptions="Código,Descripción">
+                        </input-key>'
+
+                    label{"Importe:"}
+                    input(class="induxsoft-form-control" id="importe" type="Number")
+
+                    label(class=""){"Leyenda:"}
+                    input(class="induxsoft-form-control control_hide" id="leyenda" )
+                }
+                div(class="modal-footer" id="ftrAddClt")
+                {
+                    button(type="button" id="btn_save_recibo_concepto" class="btn btn-info induxsoft-corners") { "Agregar"}
+                    button(type="button" class="btn btn-danger induxsoft-corners" "data-bs-dismiss"="modal") { "Cerrar"}
+                }
+            }
+        }		
+    }
+}

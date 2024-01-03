@@ -1,0 +1,58 @@
+#include "dkli.dkh"
+#!
+module "list nomina"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+    do @context.begin(@crud_context)
+
+    #$
+    div(class="container")
+    {
+        h1(class="h4"){$"Nóminas"}
+        div
+        {
+            p(style="color:red"){$"#<@('$error/message')>"}
+            div(class="bg-light my-1")
+            {
+                div(class="btn-group" role="group")
+                {
+                    a(href="#<@MENU>" class="btn btn-sm"){"<--"}
+                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar()"){"Editar"}
+                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteNomina()"){"Eliminar"}
+                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
+                }
+            }
+
+            "edit-table"(class="w-100" id="lst_nominas" data="#<to.json(@('&./recibos'))>" "hidde-selector"="true")
+            {
+                "edit-thead"
+                {
+                    "edit-tr"
+                    {
+                        "edit-th"(type="NoEditable" field="inicio"){$"Inicio"}
+                        "edit-th"(type="NoEditable" field="fin"){$"Finalización"}
+                        "edit-th"(type="NoEditable" field="fpago"){$"F.Pago"}
+                        "edit-th"(type="NoEditable" field="dias"){$"Días"}
+                        "edit-th"(type="NoEditable" field="nombre"){$"Nombre"}
+                        "edit-th"(type="NoEditable" field="tipo_nomina"){$"Tipo"}
+                        "edit-th"(type="NoEditable" field="percepciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Percepciones"}
+                        "edit-th"(type="NoEditable" field="deducciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Deducciones"}
+                        "edit-th"(type="NoEditable" field="liquido" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Liquido"}
+                        "edit-th"(type="NoEditable" field="obligaciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Obligaciones"}
+                        "edit-th"(type="NoEditable" field="status"){$"Status"}
+                        "edit-th"(type="NoEditable" field="error_log"){$"Info"}
+                    }
+                }
+            }
+        }
+        script
+        {
+            $'
+            nomina.url_nomina="#<@NOMINAS>";
+            nomina.url_recibos="#<@NOMINA.RECIBOS>";
+            '
+        }
+    }
+}

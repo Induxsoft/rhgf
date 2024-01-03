@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @list_query="select * from rh_concepto_nomina 
+	where (codigo like concat('%',@s,'%') or descripcion like concat('%',@s,'%')) and  if (isnull(@p_tipo),true,tipo=@p_tipo) 
+    order by descripcion;"
+
+    create::&db,&params,&data
+    {
+        return entity.create(db,params,data)
+    }
+    update::&db,&params,&data
+    {
+        return entity.update(db,params,data)
+    }
+
+    point @create to create
+    point @update to update
+}

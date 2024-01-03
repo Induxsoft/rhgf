@@ -1,0 +1,60 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+    do @context.begin(@crud_context)
+
+    ref data=@("&./data")
+   #$
+    div(class="container")
+    {
+        h1(class="h4"){$"Nómina #<@@(data,'$nombre')>"}
+        div
+        {
+            p(style="color:red"){$"#<@('$error/message')>"}
+            div(class="bg-light my-1")
+            {
+                div(class="btn-group" role="group")
+                {
+                    a(href="#<@NOMINAS>" class="btn btn-sm"){"<--"}
+                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="nomina.Add()"){"Agregar"}
+                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar_Recibo()"){"Editar"}
+                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1"){"Eliminar"}
+                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
+                }
+            }
+            "edit-table"(class="w-100" id="lst_recibos" data="#<to.json(@('&./recibos'))>" "hidde-selector"="true")
+            {
+                "edit-thead"
+                {
+                    "edit-tr"
+                    {
+                        "edit-th"(type="NoEditable" field="apellido1"){$"Apellido paterno"}
+                        "edit-th"(type="NoEditable" field="apellido2"){$"Apellido materno"}
+                        "edit-th"(type="NoEditable" field="nombre_empleado"){$"Nombre(s)"}
+                        "edit-th"(type="NoEditable" field="rfc"){$"R.F.C."}
+                        "edit-th"(type="NoEditable" field="curp"){$"C.U.R.P"}
+                        "edit-th"(type="NoEditable" field="nss"){$"Núm. Seguridad social"}
+                        "edit-th"(type="NoEditable" field="percepciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Percepciones"}
+                        "edit-th"(type="NoEditable" field="deducciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Deducciones"}
+                        "edit-th"(type="NoEditable" field="liquido" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Liquido"}
+                        "edit-th"(type="NoEditable" field="obligaciones" textalign="end" format="true" decs="2" prefix="$" thousandssep="true"){$"Obligaciones"}
+                        "edit-th"(type="NoEditable" field="desc_puesto"){$"Puesto"}
+                        "edit-th"(type="NoEditable" field="nom_tipocontrato"){$"Tipo de contrato"}
+                        "edit-th"(type="NoEditable" field="fechainicio"){$"Inicio contrato"}
+                        "edit-th"(type="NoEditable" field="fechavencimiento"){$"Finalización"}
+                    }
+                }
+            }
+        }
+        script
+        {
+            $'
+            nomina.url_recibo="#<@NOMINA.RECIBOS>";
+            '
+        }
+    }
+}

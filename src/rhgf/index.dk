@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module "index"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+
+    #$
+    div(class="container")
+    {
+        div(class="card")
+        {
+            div(class="card-body")
+            {
+                a(href="#<@NOMINAS>"){"Nóminas"}
+            }
+        }
+    }
+}

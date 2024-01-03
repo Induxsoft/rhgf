@@ -1,0 +1,8 @@
+"id","title","icon96x96","src","_blank","appid","cat"
+"nomina.list","Nóminas","/$/rhgf/img/icons/nominas-96x96.png","/!/rhgf/nomina/","0","nomina","ges_fin_rh"
+"variables.list","Variables y fórmulas","/$/rhgf/img/icons/var-formulas-96x96.png","/!/rhgf/variable/","0","variables","ges_fin_rh"
+"tcontratos.list","Tipo de contratos","/$/rhgf/img/icons/tcontratos-96x96.png","/!/rhgf/tipocontrato/","0","tcontratos","ges_fin_rh"
+"cnomina.list","Conceptos de cálculo Nóminas","/$/rhgf/img/icons/cnomina-96x96.png","/!/rhgf/conceptonomina/","0","cnomina","ges_fin_rh"
+"tablas.list","Tablas de cálculos fiscales","/$/rhgf/img/icons/tablas-96x96.png","/!/rhgf/tablas/","0","tablas","ges_fin_rh"
+"gconceptos.list","Grupos de conceptos","/$/rhgf/img/icons/gconceptos-96x96.png","/!/rhgf/gruposconceptos/","0","gconceptos","ges_fin_rh"
+"tnomina.list","Tipos de nóminas","/$/rhgf/img/icons/tnomina-96x96.png","/!/rhgf/tiponomina/","0","tnomina","ges_fin_rh"

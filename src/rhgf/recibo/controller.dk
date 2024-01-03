@@ -1,0 +1,26 @@
+#include "dkli.dkh"
+#!
+module "controller"
+{
+   ref getData=@@(@http_context,"&request/get")
+    _entity_id=@@(getData,"$_entity_id")
+    _entities_type=@@(getData,"$_entities_type")
+   
+   switch _entities_type
+   {
+       case "recibo"
+       {
+            if trim(_entity_id)!=""
+            {
+                @form_view="list.dk"
+                point @read to list
+            }
+           break
+       }
+       default
+       {
+           // code...
+           break
+       }
+   }
+}

@@ -1,0 +1,50 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @list_query="select n.sys_pk, n.sys_timestamp, n.sys_guid, n.sys_dtcreated, n.sys_recver, n.sys_deleted, n.sys_lock, n.inicio, n.fin, n.ref_tipo, n.fpago, n.notas,n.dias,n.nombre,n.fproceso,n.fcancelada,n.status,n.variables, ifnull(n.error_log,'')error_log,n.sat_entidad, tn.nombre tipo_nomina,tn.sat_tiponomina, s.const status_nomina,
+    sum(if(c.tipo=0,dnc.importe,0)) percepciones,
+    sum(if(c.tipo=1,dnc.importe,0)) deducciones,
+    sum(if(c.tipo=0,dnc.importe,0)-if(c.tipo=1,dnc.importe,0)) liquido,
+    sum(if(c.tipo=2,dnc.importe,0)) obligaciones
+    from rh_nomina n inner join rh_tipo_nomina tn on n.ref_tipo=tn.sys_pk inner join rh_status_nomina s on n.status=s.id left join rh_detalle_nomina dn on dn.ref_nomina=n.sys_pk left join rh_detalle_nomina_concepto dnc on dnc.ref_detalle_nomina=dn.sys_pk left join rh_concepto_nomina c on dnc.ref_concepto=c.sys_pk 
+    group by n.sys_pk, n.sys_timestamp, n.sys_guid, n.sys_dtcreated, n.sys_recver, n.sys_deleted, n.sys_lock, n.inicio, n.fin, n.ref_tipo, n.fpago, n.notas,n.dias,n.nombre,n.fproceso,n.fcancelada,n.status,n.variables,  n.error_log,n.sat_entidad, tn.nombre,tn.sat_tiponomina, s.const
+    order by inicio desc;"
+
+    @_detalle_nomina="select e.codigo codigo_empleado, t.nombre nom_tipocontrato, p.descripcion desc_puesto, e.apellido1, e.apellido2, e.nombre nombre_empleado, e.curp, e.rfc, e.nss, 
+    dn.sys_pk, dn.sys_timestamp, dn.sys_guid, dn.sys_dtcreated, dn.sys_recver, dn.sys_deleted, dn.sys_lock,
+    dn.ref_nomina, dn.ref_contrato, dn.notas, 
+    date_format(c.fechainicio,'%Y-%m-%d')fechainicio, date_format(c.fechavencimiento,'%Y-%m-%d')fechavencimiento, c.referencia,
+    sum(if(cpt.tipo=0,dnc.importe,0)) percepciones,
+    sum(if(cpt.tipo=1,dnc.importe,0)) deducciones,
+    sum(if(cpt.tipo=0,dnc.importe,0)-if(cpt.tipo=1,dnc.importe,0)) liquido,
+    sum(if(cpt.tipo=2,dnc.importe,0)) obligaciones,
+    e.sys_pk empleadopk
+    from rh_contrato_empleado c inner join rh_puesto_org p on c.ref_puesto=p.sys_pk inner join rh_empleado_org e on c.ref_empleado=e.sys_pk inner join rh_tipo_contrato t on c.tipo=t.sys_pk inner join rh_unidad_org u on p.ref_unidad_org=u.sys_pk inner join rh_detalle_nomina dn on c.sys_pk=dn.ref_contrato 
+    left join rh_detalle_nomina_concepto dnc on dnc.ref_detalle_nomina=dn.sys_pk left join rh_concepto_nomina cpt on dnc.ref_concepto=cpt.sys_pk
+    where dn.ref_nomina=@_entity_id
+    group by e.codigo, t.nombre, p.descripcion, e.apellido1, e.apellido2, e.nombre, e.curp, e.rfc, e.nss, 
+    dn.sys_pk, dn.sys_timestamp, dn.sys_guid, dn.sys_dtcreated, dn.sys_recver, dn.sys_deleted, dn.sys_lock,
+    dn.ref_nomina, dn.ref_contrato, dn.notas,c.fechainicio, c.fechavencimiento, c.referencia
+    order by e.apellido1, e.apellido2, e.nombre;"
+
+    @table_name="rh_nomina"
+    list::&db,&params
+    {
+        new entity
+        {
+            @"data*":dbr.rec(db,"select * from rh_nomina where sys_pk=@_entity_id",params)
+        }
+        if @@(params,"$_entity_id")!=""{@list_query=@_detalle_nomina}
+        
+        entity<"recibos*">:entity.list(db,params)
+        return entity
+    }
+    delete::&db,&params
+    {
+        do entity.delete(db,params)
+    }
+
+    point @list to list
+    point @delete to delete
+}

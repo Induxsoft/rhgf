@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module "config"
+{
+    @MENU="/!/rhgf/"
+    @NOMINAS="/!/rhgf/nomina/"
+
+    @NOMINA.RECIBOS="/!/rhgf/recibo/"
+    @NOMINA_RECIBOS=@NOMINA.RECIBOS + "_new/?parent_id=@nomina"
+
+    @NOMINA.DETALLE.RECIBO="/!/rhgf/concepto-recibo/"
+    @ADD_CONCEPTO_RECIBO=@NOMINA.DETALLE.RECIBO + "_new/?parent_id=@recibo"
+
+    @VARIABLES="/!/rhgf/variable/"
+    @TIPO_CONTRATO="/!/rhgf/tipocontrato/"
+    @CONCEPTO_NOMINA="/!/rhgf/conceptonomina/"
+    @TABLAS="/!/rhgf/tablas/"
+    @GRUPOS_CONCEPTOS="/!/rhgf/gruposconceptos/"
+    @TIPO_NOMINA="/!/rhgf/tiponomina/"
+}

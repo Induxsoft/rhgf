@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_detalle_nomina_concepto"
+    save::&db,&params,&data
+    {
+        if @@(params,"$parent_id")!="" && @@(params,"$_entity_id")=="_new"
+        {
+            data<"ref_detalle_nomina">:@@(params,"#parent_id")
+            ref nedata= dbr.save(db,@table_name,data)
+            params<"_entity_id">:@@(nedata,"sys_pk")
+        }
+        else{do dbr.update(db,@table_name,data,"sys_pk=@_entity_id",params)}
+
+        return entity.read(db,params)
+    }
+    point @create to save
+    point @update to save
+}

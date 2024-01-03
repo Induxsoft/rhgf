@@ -1,0 +1,276 @@
+#include "ddm.dkh"
+
+model "rhgf"
+{
+    #include "induxsoft.abstracts.ddm"
+    /* uod.rh_variable */
+    entity "rh_variable" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"formula" string(4096) required
+        @"notas" string(4096) 
+    }
+    /* uod.rh_detalle_nomina_concepto */
+    entity "rh_detalle_nomina_concepto" : "TableModel"
+    {
+        @"ref_detalle_nomina" int ref:"rh_detalle_nomina" ["sys_pk"] required
+        @"ref_concepto" int ref:"rh_concepto_nomina" ["sys_pk"] required
+        @"leyenda" string(1024) 
+        @"importe" decimal(16,4) 
+    }
+    /* uod.rh_tabla_calculo */
+    entity "rh_tabla_calculo" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"datos" memo 
+    }
+
+    /* uod.rh_tipo_nomina */
+    entity "rh_tipo_nomina" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"dias" decimal(5,1) required
+        @"sat_tiponomina" string(5) 
+        @"sat_periodicidad" string(5) 
+        @"ref_grupo_conceptos" int ref:"rh_grupo_conceptos" ["sys_pk"] 
+        @"sel_manual_empleados" bool 
+        @"var_general" memo 
+        @"var_empleado" memo 
+    }
+    /* uod.rh_tipo_contrato */
+    entity "rh_tipo_contrato" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"texto" memo 
+        @"sat_tipocontrato" string(5) 
+        @"ref_tipo_nominaordinaria" int ref:"rh_tipo_nomina" ["sys_pk"] 
+    }
+    /* uod.rh_grupo_conceptos */
+    entity "rh_grupo_conceptos" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+    }
+    /* uod.rh_tipo_concepto */
+    entity "rh_tipo_concepto" : "EnumModel" {}
+    /* uod.rh_sat_elemento */
+    entity "rh_sat_elemento" : "EnumModel" {}
+    /* uod.cb_tipo_asiento_contable */
+    entity "cb_tipo_asiento_contable" : "EnumModel" {}
+
+    /* uod.rh_tipo_nomina */
+    entity "rh_tipo_nomina" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"dias" decimal(5,1) required
+        @"sat_tiponomina" string(5) 
+        @"sat_periodicidad" string(5) 
+        @"ref_grupo_conceptos" int ref:"rh_grupo_conceptos" ["sys_pk"] 
+        @"sel_manual_empleados" bool 
+        @"var_general" memo 
+        @"var_empleado" memo 
+    }
+    /* uod.rh_concepto_nomina */
+    entity "rh_concepto_nomina" : "TableModel"
+    {
+        @"descripcion" string(150) required
+        @"notas" string(4096) 
+        @"formula" string(4096) required
+        @"tipo" int ref:"rh_tipo_concepto" ["id"] required
+        @"gravable" bool 
+        @"especie" bool 
+        @"sat_elemento" int ref:"rh_sat_elemento" ["id"] required
+        @"sat_clave" string(5) 
+        @"cuenta_contable" string(50) 
+        @"contra_cuenta" string(50) 
+        @"tipo_asiento" int ref:"cb_tipo_asiento_contable" ["id"] 
+        @"ref_tiponomina" int ref:"rh_tipo_nomina" ["sys_pk"] 
+        @"manual" bool 
+        @"polizadetallada" bool 
+        @"codigo" string(60) unique required
+    }
+    /* uod.rh_status_nomina */
+    entity "rh_status_nomina" : "EnumModel" {}
+
+    /* uod.rh_nomina */
+    entity "rh_nomina" : "TableModel"
+    {
+        @"inicio" date required
+        @"fin" date required
+        @"ref_tipo" int ref:"rh_tipo_nomina" ["sys_pk"] required
+        @"fpago" date required
+        @"notas" string(4096) 
+        @"dias" decimal(5,1) required
+        @"nombre" string(150) unique required
+        @"fproceso" datetime 
+        @"fcancelada" datetime 
+        @"status" int ref:"rh_status_nomina" ["id"] required
+        @"variables" memo 
+        @"error_log" string(4096) 
+        @"sat_entidad" string(5) 
+    }
+
+    /* uod.rh_detalle_nomina */
+    entity "rh_detalle_nomina" : "TableModel"
+    {
+        @"ref_nomina" int ref:"rh_nomina" ["sys_pk"] required
+        @"ref_contrato" int ref:"rh_contrato_empleado" ["sys_pk"] required
+        @"notas" string(4096) 
+    }
+
+    /* uod.rh_status_contrato */
+    entity "rh_status_contrato" : "EnumModel" {}
+
+    /* uod.rh_tipo_contrato */
+    entity "rh_tipo_contrato" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"texto" memo 
+        @"sat_tipocontrato" string(5) 
+        @"ref_tipo_nominaordinaria" int ref:"rh_tipo_nomina" ["sys_pk"] 
+    }
+    /* uod.rh_edo_civil */
+    entity "rh_edo_civil" : "EnumModel" {}
+    /* uod.rh_tipo_vivienda */
+    entity "rh_tipo_vivienda" : "EnumModel" {}
+    /* uod.rh_nvl_escolaridad */
+    entity "rh_nvl_escolaridad" : "EnumModel" {}
+
+    /* uod.rh_categoria_empleado */
+    entity "rh_categoria_empleado" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"notas" string(4096) 
+    }
+    /* uod.rh_empleado_org */
+    entity "rh_empleado_org" : "TableModel"
+    {
+        @"codigo" string(32) unique required
+        @"nombre" string(100) required
+        @"apellido1" string(100) 
+        @"apellido2" string(100) 
+        @"rfc" string(15) unique required
+        @"curp" string(25) unique required
+        @"fnacimiento" date required
+        @"fingreso" date 
+        @"fcontratacion" date 
+        @"sat_regimenfiscal" string(5) 
+        @"sat_cp" string(5) 
+        @"foto" string(32) 
+        @"factualizacionfoto" datetime 
+        @"nacionalidad" string(50) 
+        @"edocivil" int ref:"rh_edo_civil" ["id"] required
+        @"conyuge" string(150) 
+        @"depeconomicos" int 
+        @"hijos" int 
+        @"pension" bool 
+        @"ingresonecesario" decimal(14,4) 
+        @"tipovivienda" int ref:"rh_tipo_vivienda" ["id"] 
+        @"gastofamiliarmensual" decimal(14,4) 
+        @"aportaciongasto" decimal(6,2) 
+        @"fechaestudiosocioe" date 
+        @"escolaridad" int ref:"rh_nvl_escolaridad" ["id"] required
+        @"titulos" string(150) 
+        @"competencias" string(4096) 
+        @"estrellas" int 
+        @"cerebros" int 
+        @"focos" int 
+        @"tachas" int 
+        @"notas" string(4096) 
+        @"totalmiembrosfam" int 
+        @"obs_socio" string(4096) 
+        @"ref_categoria" int ref:"rh_categoria_empleado" ["sys_pk"] 
+        @"nss" string(50) 
+    }
+    /* uod.rh_nvl_escolaridad */
+    entity "rh_nvl_escolaridad" : "EnumModel" {}
+     /* uod.rh_puesto_org */
+    entity "rh_puesto_org" : "TableModel"
+    {
+        @"codigo" string(32) unique required
+        @"descripcion" string(150) required
+        @"sat_riesgopuesto" string(5) 
+        @"perfil" string(4096) 
+        @"responsabilidades" string(4096) 
+        @"funciones" string(4096) 
+        @"beneficios" string(4096) 
+        @"salariomensualbruto" decimal(16,4) 
+        @"divisa" string(5) 
+        @"ref_jefe" int ref:"rh_puesto_org" ["sys_pk"] 
+        @"ref_unidad_org" int ref:"rh_unidad_org" ["sys_pk"] 
+        @"notas" string(4096) 
+        @"escolaridad" int ref:"rh_nvl_escolaridad" ["id"] required
+        @"plazas_previstas" int 
+        @"link" string(1024) 
+        @"smbofrecidos" decimal(8,2) 
+    }
+
+     /* uod.rh_unidad_org */
+    entity "rh_unidad_org" : "TableModel"
+    {
+        @"codigo" string(32) unique required
+        @"descripcion" string(150) required
+        @"superior" int ref:"rh_unidad_org" ["sys_pk"] 
+        @"notas" string(4096) 
+        @"link" string(1024) 
+    }
+    /* uod.rh_contrato_empleado */
+    entity "rh_contrato_empleado" : "TableModel"
+    {
+        @"status" int ref:"rh_status_contrato" ["id"] required
+        @"sueldomensualbruto" decimal(12,4) required
+        @"sdi" decimal(12,6) 
+        @"fdi" decimal(12,8) 
+        @"fechabaja" datetime 
+        @"notabaja" string(4096) 
+        @"fechainicio" datetime required
+        @"tipo" int ref:"rh_tipo_contrato" ["sys_pk"] required
+        @"diasppinformativo" decimal(18,5) 
+        @"ref_empleado" int ref:"rh_empleado_org" ["sys_pk"] required
+        @"ref_puesto" int ref:"rh_puesto_org" ["sys_pk"] required
+        @"notas" string(4096) 
+        @"idarchivo" string(32) 
+        @"fechavencimiento" date 
+        @"sat_banco" string(5) 
+        @"clabe" string(50) 
+        @"referencia" string(50) required
+        @"ffirma" date 
+        @"horasvariables" bool 
+        @"activo" bool required
+        @"promediohorasdia" decimal(6,2) 
+        @"pagoxhora" bool 
+        @"sueldoxunidaddepago" decimal(18,6) 
+        @"diasxsemana" decimal(6,2) 
+        @"septimodia" bool 
+        @"sat_tipojornada" string(5) 
+        @"sat_sindicalizado" bool 
+        @"sbc" decimal(18,6) 
+        @"asimiladosal" bool 
+    }
+
+     // Información de la aplicación
+    entity "sys_app_catalog"
+    {
+        @"pack_id" string(32) required
+        @"app_id" string(32) key
+        @"app_title" string(255)
+        @"created" datetime required
+        @"app_info" mmemo
+    }
+    // Categoria de la aplicación
+    entity "sys_app_category"
+    {
+        @"id" string(32) key
+        @"title" string(255) required
+    }
+    // Recursos de la aplicación
+    entity "sys_app_shortcut" 
+    {
+        @"id" string(32) key
+        @"title" string(255) required
+        @"icon96x96" string(1024) required
+        @"src" string(1024) required
+        @"_blank" bool
+        @"appid" ref : "sys_app_catalog"
+        @"cat" ref :"sys_app_category"
+    }
+}

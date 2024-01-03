@@ -1,0 +1,23 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+   @list_query="select c.codigo codigo_concepto, c.descripcion descripcion_concepto, 
+	if(c.tipo=0,dnc.importe,0) percepcion,
+	if(c.tipo=1,dnc.importe,0) deduccion,
+	if(c.tipo=2,dnc.importe,0) obligacion,
+	if(c.tipo=3,dnc.importe,0) indicador,
+    dnc.*,IFNULL(dnc.leyenda,'')fleyenda  from rh_detalle_nomina_concepto dnc 
+    inner join rh_concepto_nomina c on dnc.ref_concepto=c.sys_pk where dnc.ref_detalle_nomina=@_entity_id;"
+
+	list::&db,&params
+	{
+		new entity
+		{
+			@"data*":dbr.rec(db,"select * from rh_detalle_nomina where sys_pk=@_entity_id",params)
+			@"conceptos*":entity.list(db,params)
+		}
+		return entity
+	}
+	// point @list to list
+}
