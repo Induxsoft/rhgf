@@ -1,0 +1,79 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @list_query="select * from rh_concepto_nomina 
+	where (codigo like concat('%',@s,'%') or descripcion like concat('%',@s,'%')) and  if (isnull(@p_tipo),true,tipo=@p_tipo) 
+    order by descripcion;"
+
+    @list_query_entity="SELECT c.*, tc.const tipoconcepto, sat.const tiposat,ifnull(c.sat_clave,'')fsat_clave
+    FROM rh_concepto_nomina c 
+    INNER JOIN rh_tipo_concepto tc ON c.tipo=tc.ID 
+    INNER JOIN rh_sat_elemento sat ON c.sat_elemento=sat.ID order by c.tipo, c.codigo;"
+
+    @table_name="rh_concepto_nomina"
+    create::&db,&params,&data
+    {
+        if parse.bool(@@(data,"gravable")){data<"gravable">:1}
+        else{data<"gravable">:0}
+
+        if parse.bool(@@(data,"especie")){data<"especie">:1}
+        else{data<"especie">:0}
+
+        ref entity= entity.create(db,params,data)
+        return entity
+        exception
+        {
+            error=last_error()
+            do PrepareView(db,params,data)
+            do rise_error(500,error)
+        }
+    }
+    update::&db,&params,&data
+    {
+        if parse.bool(@@(data,"gravable")){data<"gravable">:1}
+        else{data<"gravable">:0}
+
+        if parse.bool(@@(data,"especie")){data<"especie">:1}
+        else{data<"especie">:0}
+
+        ref entity= entity.update(db,params,data)
+        return entity
+        exception
+        {
+            error=last_error()
+            do PrepareView(db,params,data)
+            do rise_error(500,error)
+        }
+    }
+    list::&db,&params
+    {
+        if not(field.exist(params,"s")){@list_query=@list_query_entity}
+        return entity.list(db,params)
+    }
+    read::&db,&params
+    {
+        ref entity=entity.read(db,params)
+        do PrepareView(db,params,entity)
+        return entity
+    }
+    PrepareView::&db,&params,&record
+    {
+        if isnull(record){return}
+
+        record<"tipo*">:dbr.list(db,"select * from rh_tipo_concepto",params)
+        record<"tipo_element_sat*">:dbr.list(db,"select * from rh_sat_elemento where id<>0 and id<>3",params)
+    }
+    blank::&db,params
+    {
+        new entity
+        do PrepareView(db,params,entity)
+        return entity
+    }
+
+    point @create to create
+    point @update to update
+    point @list to list
+    point @read to read
+    point @blank to blank
+}

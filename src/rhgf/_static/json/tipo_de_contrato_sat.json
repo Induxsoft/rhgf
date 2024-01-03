@@ -1,0 +1,13 @@
+[
+    {"clave":"01","valor":"01 - Contrato de trabajo por tiempo indeterminado"},
+    {"clave":"02","valor":"02 - Contrato de trabajo para obra determinada"},
+    {"clave":"03","valor":"03 - Contrato de trabajo por tiempo determinado"},
+    {"clave":"04","valor":"04 - Contrato de trabajo por temporada"},
+    {"clave":"05","valor":"05 - Contrato de trabajo sujeto a prueba"},
+    {"clave":"06","valor":"06 - Contrato de trabajo con capacitación inicial"},
+    {"clave":"07","valor":"07 - Modalidad de contratación por pago de hora laborada"},
+    {"clave":"08","valor":"08 - Modalidad de trabajo por comisión laboral"},
+    {"clave":"09","valor":"09 - Modalidades de contratación donde no existe relación de trabajo"},
+    {"clave":"10","valor":"10 - Jubilación, pensión, retiro."},
+    {"clave":"99","valor":"99 - Otro contrato"}
+]

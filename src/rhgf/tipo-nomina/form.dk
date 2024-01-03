@@ -1,0 +1,127 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.dkl"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+
+    ref periodosat=if(file.exists(@CLAVE_SAT),from.json(file.rtext(@CLAVE_SAT)),list.create())
+    ref tiposat=if(file.exists(@TIPO_SAT),from.json(file.rtext(@TIPO_SAT)),list.create())
+
+    new tipo
+    {
+        @"datatable*":tiposat
+        @"id":"sat_tiponomina"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"sat_tiponomina"
+            @"required":"true"
+        }
+        @"value_field":"clave"
+        @"text_field":"valor"
+        @"selected":@('$./sat_tiponomina')
+    }
+    new periodo
+    {
+        @"datatable*":periodosat
+        @"id":"sat_periodicidad"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"sat_periodicidad"
+            @"required":"true"
+        }
+        @"value_field":"clave"
+        @"text_field":"valor"
+        @"selected":@('$./sat_periodicidad')
+    }
+    new gconceptos
+    {
+        @"datatable*":@("&./gconceptos")
+        @"id":"ref_grupo_conceptos"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"ref_grupo_conceptos"
+        }
+        @"first_text":" "
+        @"first_value":" "
+        @"value_field":"sys_pk"
+        @"text_field":"nombre"
+        @"selected":@('$./ref_grupo_conceptos')
+    }
+    
+    #$
+    div(class="container")
+    {
+        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
+        div
+        {
+            p(style="color:red"){$"#<@('$error/message')>"}
+           
+            form(action="." method="POST")
+            {
+                 div(class="bg-light my-1")
+                {
+                    div(class="btn-group" role="group")
+                    {
+                        a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm")
+                        { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                            </svg>'
+                        }
+                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="tipocontrato.Add()"){"Aceptar"}
+                    }
+                }
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Nombre:"}
+                        input(class="induxsoft-form-control" name="nombre" value="#<@('$./nombre')>" required="true")
+                    }
+                    div(class="col-md-6")
+                    {
+                        label{"Días a pagar:"}
+                        input(type="Number" class="induxsoft-form-control" name="dias" value="#<@('$./dias')>"  required="true" min="1")
+                    }
+                }
+                
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Tipo:"}
+                        #! do uie.dbSelect(tipo)
+                    }
+                    #$div(class="col-md-6")
+                    {
+                        label{"Periocidad de pagos:"}
+                        #! do uie.dbSelect(periodo)
+                    }
+                }
+                #$ hr{""}
+                h5{"Adicional"}
+
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Grupo de conceptos:"}
+                        #! do uie.dbSelect(gconceptos)
+                    }
+                    #$ div(class="col-md-6 d-flex align-items-center")
+                    {
+                        label{input(type="checkbox" name="sel_manual_empleados" "#<ifstr(@('#./sel_manual_empleados'),'checked','')>"="true") " Selección manual de empleados a incluir"}
+                    }
+                }
+                input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
+            }
+        }
+    }
+}

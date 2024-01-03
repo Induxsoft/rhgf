@@ -1,0 +1,7 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @list_query="select * from rh_tabla_calculo order by nombre;"
+    @table_name="rh_tabla_calculo"
+}

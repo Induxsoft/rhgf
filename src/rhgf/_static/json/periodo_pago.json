@@ -1,0 +1,12 @@
+[
+    {"clave":"01","valor":"Diario"},
+    {"clave":"02","valor":"Semanal"},
+    {"clave":"03","valor":"Catorcenal"},
+    {"clave":"04","valor":"Quincenal"},
+    {"clave":"05","valor":"Mensual"},
+    {"clave":"06","valor":"Bimestral"},
+    {"clave":"07","valor":"Unidad obra"},
+    {"clave":"08","valor":"Comisión"},
+    {"clave":"09","valor":"Precio alzado"},
+    {"clave":"99","valor":"Otra Periodicidad"}
+]

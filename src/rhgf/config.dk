@@ -12,9 +12,19 @@ module "config"
     @ADD_CONCEPTO_RECIBO=@NOMINA.DETALLE.RECIBO + "_new/?parent_id=@recibo"
 
     @VARIABLES="/!/rhgf/variable/"
-    @TIPO_CONTRATO="/!/rhgf/tipocontrato/"
-    @CONCEPTO_NOMINA="/!/rhgf/conceptonomina/"
+    @TIPO_CONTRATO="/!/rhgf/tipo-contrato/"
+    @CONCEPTO_NOMINA="/!/rhgf/concepto-nomina/"
+    @CONCEPTO_NOMINA_ADD=@CONCEPTO_NOMINA + "_new/"
     @TABLAS="/!/rhgf/tablas/"
-    @GRUPOS_CONCEPTOS="/!/rhgf/gruposconceptos/"
-    @TIPO_NOMINA="/!/rhgf/tiponomina/"
+    @GRUPOS_CONCEPTOS="/!/rhgf/grupos-conceptos/"
+    @TIPO_NOMINA="/!/rhgf/tipo-nomina/"
+    @TIPO_NOMINA_ADD=@TIPO_NOMINA + "_new/"
+
+    @CONTRATO_EMPLEADO="/!/rhgf/contrato-empleado/"
+
+    //configurar la ruta del archivo si es necesario
+    @TIPO_CONTRATO_SAT="./rhgf/_static/json/tipo_de_contrato_sat.json"
+    @CLAVE_SAT="./rhgf/_static/json/clave_sat.json"
+    @TIPO_SAT="./rhgf/_static/json/tipo_sat.json"
+    @PERIODO_PAGO="./rhgf/_static/json/periodo_pago.json"
 }

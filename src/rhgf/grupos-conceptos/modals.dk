@@ -1,0 +1,34 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #$
+    div(class="modal fade" id="modal_frm_gconceptos" "data-keyboard"="false" "data-backdrop"="static" tabindex="-1" role="dialog" "aria-labelledby"="modalforms" "aria-hidden"="true")
+    {
+        div(class= "modal-dialog modal-md modal-dialog-centered" role ="document")
+        {
+            div(class="modal-content")
+            {
+                div(class="modal-header")
+                {
+                    h5(class="modal-title" id="textomdl"){"Grupo de conceptos para cálculos en general"}
+                    button(type="button" class="close" "data-bs-dismiss"="modal" "aria-label"="Close" style="border: 1px solid #F0F0F0;")
+                    {
+                        span ("aria-hidden"="true") {$"&times;"}
+                    }
+                }
+                div(class="modal-body" id="bdy")
+                {
+                    label{"Nombre:"}
+                    input(class="induxsoft-form-control " id="nombre" name="nombre" required="true" maxlength="50")
+
+                }
+                div(class="modal-footer" id="ftrAddClt")
+                {
+                    button(type="button" id="btn_save_gconcepto" class="btn btn-outline-primary induxsoft-corners" onclick="gconceptos.Add(true)") { "Aceptar"}
+                    button(type="button" class="btn btn-outline-danger induxsoft-corners" "data-bs-dismiss"="modal") { "Cerrar"}
+                }
+            }
+        }		
+    }
+}

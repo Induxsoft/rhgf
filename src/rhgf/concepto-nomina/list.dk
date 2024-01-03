@@ -1,0 +1,52 @@
+#include "dkli.dkh"
+#!
+module "list.recibo"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.dkl"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+    ref data=@("&./data")
+    #$
+    div(class="container")
+    {
+        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
+        div
+        {
+            p(style="color:red"){$"#<@('$error/message')>"}
+            div(class="bg-light my-1")
+            {
+                div(class="btn-group" role="group")
+                {
+                    a(class="btn btn-sm btn-outline-success induxsoft-corners m-1" href="#<@CONCEPTO_NOMINA_ADD>"){"Agregar"}
+                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="cnomina.Editar()"){"Editar"}
+                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="cnomina.Delete()"){"Eliminar"}
+                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
+                }
+            }
+            "edit-table"(class="w-100 h-100" id="lst_conceptos_nomina" data="#<to.json(@('&.'))>" "hidde-selector"="true")
+            {
+                "edit-thead"
+                {
+                    "edit-tr"
+                    {
+                        "edit-th"(type="NoEditable" field="codigo" style="width: 40%;"){$"Código"}
+                        "edit-th"(type="NoEditable" field="descripcion"){$"Descripción"}
+                        "edit-th"(type="NoEditable" field="tipoconcepto"){$"Tipo de concepto"}
+                        "edit-th"(type="NoEditable" field="tiposat"){$"Tipo SAT"}
+                        "edit-th"(type="NoEditable" field="fsat_clave"){$"Clave SAT"}
+                    }
+                }
+            }
+        }
+       
+        script
+        {
+            $'
+            cnomina.url="#<@CONCEPTO_NOMINA>";
+            '
+        }
+    }
+}

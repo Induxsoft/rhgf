@@ -1,0 +1,32 @@
+#def table(name) "table"
+#def col(name, type, caption) "column"
+#pattern col "'$name':'$type'"
+#pattern col "'$name':'$type' ['@caption']"
+
+table("rh_tipo_contrato")
+{
+	columns
+	{
+		sys_pk : Int ["sys_pk"]
+		sys_timestamp : DateTime ["sys_timestamp"]
+		sys_guid : String ["sys_guid"]
+		sys_dtcreated : DateTime ["sys_dtcreated"]
+		sys_user : String ["sys_user"]
+		sys_lastuser : String ["sys_lastuser"]
+		sys_exported : Bool ["sys_exported"]
+		sys_dtexported : DateTime ["sys_dtexported"]
+		sys_info : String ["sys_info"]
+		sys_recver : Int ["sys_recver"]
+		sys_deleted : Bool ["sys_deleted"]
+		sys_lock : Int ["sys_lock"]
+		nombre : String ["nombre"]
+		texto : String ["texto"]
+		sat_tipocontrato : String ["sat_tipocontrato"]
+		ref_tipo_nominaordinaria : Int ["ref_tipo_nominaordinaria"]
+	}
+	rows
+	{
+		#def row(sys_pk,sys_timestamp,sys_guid,sys_dtcreated,sys_user,sys_lastuser,sys_exported,sys_dtexported,sys_info,sys_recver,sys_deleted,sys_lock,nombre,texto,sat_tipocontrato,ref_tipo_nominaordinaria) "row"
+		row("26","06/11/2018 13:55:48","71e4265b139b46398eaef65ea2afda04","05/27/2018 14:44:34","\0","\0","\0","\0","\0","50","\0","\0","Contrato de Trabajo por Tiempo Indeterminado","\0","01","22")
+	}
+}

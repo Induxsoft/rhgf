@@ -1,0 +1,38 @@
+#def table(name) "table"
+#def col(name, type, caption) "column"
+#pattern col "'$name':'$type'"
+#pattern col "'$name':'$type' ['@caption']"
+
+table("rh_tipo_nomina")
+{
+	columns
+	{
+		sys_pk : Int ["sys_pk"]
+		sys_timestamp : DateTime ["sys_timestamp"]
+		sys_guid : String ["sys_guid"]
+		sys_dtcreated : DateTime ["sys_dtcreated"]
+		sys_user : String ["sys_user"]
+		sys_lastuser : String ["sys_lastuser"]
+		sys_exported : Bool ["sys_exported"]
+		sys_dtexported : DateTime ["sys_dtexported"]
+		sys_info : String ["sys_info"]
+		sys_recver : Int ["sys_recver"]
+		sys_deleted : Bool ["sys_deleted"]
+		sys_lock : Int ["sys_lock"]
+		nombre : String ["nombre"]
+		dias : Decimal ["dias"]
+		sat_tiponomina : String ["sat_tiponomina"]
+		sat_periodicidad : String ["sat_periodicidad"]
+		ref_grupo_conceptos : Int ["ref_grupo_conceptos"]
+		sel_manual_empleados : Bool ["sel_manual_empleados"]
+		var_general : String ["var_general"]
+		var_empleado : String ["var_empleado"]
+	}
+	rows
+	{
+		#def row(sys_pk,sys_timestamp,sys_guid,sys_dtcreated,sys_user,sys_lastuser,sys_exported,sys_dtexported,sys_info,sys_recver,sys_deleted,sys_lock,nombre,dias,sat_tiponomina,sat_periodicidad,ref_grupo_conceptos,sel_manual_empleados,var_general,var_empleado) "row"
+		row("22","06/12/2018 19:28:39","85030b2c3ea3422d8e5a50266c76c57c","05/27/2018 14:43:15","\0","\0","\0","\0","\0","24","\0","\0","Nómina Ordinaria Quincenal","15.0","O","04","21","False","","DHES,HESE,HESG,DHED,HEDE,HEDG,DHET,HETE,HETG,INxEG,INxRT,INxMA,FINJ")
+		row("26","06/11/2018 13:02:17","d8576dbec2824754abaa546f138145b0","05/30/2018 13:20:28","\0","\0","\0","\0","\0","7","\0","\0","PTU","365.0","E","99","19","False","Total_Dias_trab_Todos\n,Suma_Sueldo_Todos\n,PTU_GananciasAno","")
+		row("27","06/11/2018 13:02:26","7d7692b4e9314152b54d0ec2c4da715e","05/31/2018 17:17:20","\0","\0","\0","\0","\0","5","\0","\0","Aguinaldo","365.0","E","99","20","False","","")
+	}
+}

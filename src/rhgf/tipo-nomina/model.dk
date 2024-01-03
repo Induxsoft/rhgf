@@ -1,0 +1,49 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_tipo_nomina"
+    @list_query="Select t.* from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by nombre;"
+
+    PrepareView::&db,&params,&record
+    {
+        if isnull(record){return}
+        record<"gconceptos*">:dbr.list(db,"select * from rh_grupo_conceptos",params)
+    }
+
+    read::&db,&params
+    {
+        ref entity=entity.read(db,params)
+        do PrepareView(db,params,entity)
+        return entity
+    }
+    blank::&db,&params
+    {
+        new entity
+        do PrepareView(db,params,entity)
+        return entity
+    }
+
+    save::&db,&params,&data
+    {
+        if parse.bool(@@(data,"sel_manual_empleados")){data<"sel_manual_empleados">:1}
+        else{data<"sel_manual_empleados">:0}
+
+        if trim(@@(data,"$ref_grupo_conceptos"))==""{data<"ref_grupo_conceptos*">:@null}
+
+        if @@(params,"$_entity_id")!="_new"{ref d= entity.update(db,params,data)}
+        else{ref d= entity.create(db,params,data)}
+        
+        return d
+        exception
+        {
+            error=last_error()
+            do PrepareView(db,params,data)
+            do rise_error(500,error)
+        }
+    }
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

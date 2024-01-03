@@ -1,8 +1,235 @@
 document.addEventListener("DOMContentLoaded",()=>
 {
     nomina.init();
+    variable.init();
+    tipocontrato.init();
+    cnomina.init();
+    tablas.init();
+    gconceptos.init();
+    tnomina.init();
 })
 
+var util=
+{
+    messageEvent(element,message="")
+    {
+        if(element)
+        {
+            if(message.trim()!="")
+            {			
+                element.setCustomValidity(message);	
+                // element.oninvalid =(event)=>
+                // {
+                // 	event.target.setCustomValidity(message);
+                // }
+            }
+            element.reportValidity();
+        }
+    },
+    trigger:function(element,event)
+    {
+        var e=new Event(event);
+        if(element)element.dispatchEvent(e);
+    },
+    alerText:function(idelem,text="",css="",time=4000)
+	{
+		if(idelem.trim()=="")return;
+		var elm=document.querySelector(idelem);
+		if(!elm)return;
+
+		var _before_css=elm.style.cssText;
+
+		elm.innerHTML=text;
+		if(css!="")elm.style.cssText=css;
+
+		setTimeout(function()
+		{
+			elm.innerHTML="";
+			elm.style.cssText=_before_css;
+		}, time);
+	},
+    fields:function(element,act="get",idlblart="",filter="",validatefrm=false)
+	{
+		if(filter=="")filter="input,select,textarea,input-key";
+
+		if(!element)return null;
+
+		var fields=element.querySelectorAll(filter);
+
+		var data={};
+		for (var i =0; i<fields.length; i++) 
+		{
+			var elm=fields[i];
+			if(!elm)continue;
+			var name=elm.getAttribute("name")??"";
+			var isrequerido=elm.hasAttribute("required")?(/true/).test(elm.getAttribute("required")):false;
+			var text=elm.getAttribute("text")??"";
+
+			if(name.trim()!="")data[name]=elm.value;
+
+			switch(act)
+			{
+				case "validate":
+					if(isrequerido)
+					{
+						if(elm.getAttribute("type")=="input-key")
+						{
+							if(elm.getValue()==null)
+							{
+								util.alerText(idlblart,"Aviso: "+text);
+								elm.focus();
+								return false;
+							}
+						}
+						else if(elm.value.trim()=="" && !validatefrm)
+						{
+							util.alerText(idlblart,"Aviso: "+text);
+							elm.focus();
+							return false;
+						}
+						if(elm.hasAttribute("ntype") && elm.getAttribute("ntype").toLowerCase()=="number")
+						{
+							if(Number(elm.value)<Number(elm.getAttribute("nmin")??0))
+							{
+								util.alerText(idlblart,"Aviso: "+(elm.getAttribute("tmin")??""));
+								elm.focus();
+								return false;
+							}
+							if(Number(elm.value)>(util.existencia??0) && !elm.hasAttribute("not_existencia"))
+							{
+								util.alerText(idlblart,"Aviso: La cantidad no debe ser mayor a la existencia");
+								elm.focus();
+								return false;
+							}
+						}
+						if(validatefrm && elm.value.trim()=="")
+						{
+							util.messageEvent(elm);
+							return false;
+						}
+					}
+				break;
+				case "clean":
+					elm.value="";
+					if(elm.getAttribute("type")=="input-key")
+					{
+						elm.setValue(null);
+					}
+				break;
+				case "set":
+						if(itm_add!=null)
+						{
+							if(name.trim()!="" && elm.getAttribute("type")!="input-key")elm.value=itm_add[name]??"";
+						}
+					break;
+
+			}
+		}
+
+		if(act="get")return data;
+	},
+    filterFloat:function(evt,input,dec=4)
+    {
+        // Backspace = 8, Enter = 13, ‘0′ = 48, ‘9′ = 57, ‘.’ = 46, ‘-’ = 43
+        var key = window.Event ? evt.which : evt.keyCode;    
+        var chark = String.fromCharCode(key);
+        var tempValue = input.value+chark;
+        if(key >= 48 && key <= 57){
+            if(util.filter(tempValue,dec)=== false){
+                return false;
+            }else{       
+                return true;
+            }
+        }else{
+              if(key == 8 || key == 13 || key == 0) {     
+                  return true;              
+              }else if(key == 46){
+                    if(util.filter(tempValue,dec)=== false){
+                        return false;
+                    }else{       
+                        return true;
+                    }
+              }else{
+                  return false;
+              }
+        }
+    },
+    filter:function(__val__,dec=4)
+    {
+    	
+    	var regex = "^\([0-9]+\.?[0-9]{0,"+dec+"})$"; 
+    	var preg=new RegExp(regex);
+        // var preg = /^([0-9]+\.?[0-9]{0,4})$/;  //asi estaba antes ,se corrgio por la var dec
+        if(preg.test(__val__) === true){
+            return true;
+        }else{
+           return false;
+        }
+        
+    },
+    filterInt:function(evt,input)
+    {
+        // Backspace = 8, Enter = 13, ‘0′ = 48, ‘9′ = 57, ‘.’ = 46, ‘-’ = 43
+        var key = window.Event ? evt.which : evt.keyCode;    
+        var chark = String.fromCharCode(key);
+        var tempValue = input.value+chark;
+        if(key >= 48 && key <= 57){
+            if(util.filterI(tempValue)=== false){
+                return false;
+            }else{       
+                return true;
+            }
+        }else{
+              if(key == 8 || key == 13 || key == 0) {     
+                  return true;              
+              }else if(key == 46){
+                    if(util.filterI(tempValue)=== false){
+                        return false;
+                    }else{       
+                        return true;
+                    }
+              }else{
+                  return false;
+              }
+        }
+    },
+    filterI:function(__val__)
+    {
+        var preg = /^([0-9]+?[0-9]{0,6})$/; 
+        if(preg.test(__val__) === true){
+            return true;
+        }else{
+           return false;
+        }
+        
+    },
+    format:function(number, decPlaces, decSep, thouSep)
+    {
+        decPlaces = isNaN(decPlaces = Math.abs(decPlaces)) ? 2 : decPlaces,
+      decSep = typeof decSep === "undefined" ? "." : decSep;
+      thouSep = typeof thouSep === "undefined" ? "," : thouSep;
+      var sign = number < 0 ? "-" : "";
+      var i = String(parseInt(number = Math.abs(Number(number) || 0).toFixed(decPlaces)));
+      var j = (j = i.length) > 3 ? j % 3 : 0;
+
+      return sign +
+          (j ? i.substr(0, j) + thouSep : "") +
+          i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
+          (decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+    },
+    round(num, decimales = 2) 
+    {
+	    var signo = (num >= 0 ? 1 : -1);
+	    num = num * signo;
+	    if (decimales === 0) 
+	        return signo * Math.round(num);
+	    num = num.toString().split('e');
+	    num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] + decimales) : decimales)));
+	    num = num.toString().split('e');
+	    return signo * (num[0] + 'e' + (num[1] ? (+num[1] - decimales) : -decimales));
+	}
+}
+var itm_add=null;
 var nomina=
 {
     init()
@@ -16,6 +243,13 @@ var nomina=
         nomina.leyenda=document.getElementById("leyenda");
 
         nomina.btn_save_recibo_concepto=document.getElementById("btn_save_recibo_concepto");
+        nomina.input_key_add_recibo=document.getElementById("add_recibo");
+        if(nomina.input_key_add_recibo)nomina.input_key_add_recibo.addEventListener("change",()=>
+        {
+            var data=nomina.input_key_add_recibo.getValue();
+            if(!data)return;
+            nomina.CreateRecibo();
+        });
     },
     Editar()
     {
@@ -42,6 +276,38 @@ var nomina=
         var url=nomina.url_recibo+data_seleted.sys_pk+"/";
         
         window.location.href=url;
+    },
+    AddRecibo()
+    {
+        if(!nomina.input_key_add_recibo)
+        {
+            alert("Elemento no definido");
+            return;
+        }
+        nomina.input_key_add_recibo.searchText("",false);
+    },
+    CreateRecibo()
+    {
+        var data=nomina.input_key_add_recibo.getValue();
+        if(!data)
+        {
+            alert("Debe seleccionar un elemento");
+            return;
+        }
+        var data=
+        {
+            ref_contrato:data.sys_pk
+        }
+        
+        InduxsoftCrudlModel.InvokeService(nomina.url_recibo_nomina,data,
+        function(data)
+        {
+            window.location.reload();
+        },
+        function(error)
+        {
+            alert(error.message ?? error);
+        },"POST",false);
     },
     add:false,url_recibo_concepto:"",
     Add(idrecibo=0)
@@ -133,9 +399,24 @@ var nomina=
         var data=nomina.table_nomina.DataArray[nomina.table_nomina.CurrentRowIndex()];
         nomina.DeleteEntity(data.sys_pk,nomina.url_nomina);
     },
+    DeleteRecibo()
+    {
+        if(nomina.table_recibo.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data_seleted=nomina.table_recibo.DataArray[nomina.table_recibo.CurrentRowIndex()];
+        if(Number(data_seleted?.sys_pk??0)<1)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        nomina.DeleteEntity(data_seleted.sys_pk,nomina.url_recibo);
+    },
     DeleteEntity(pk,url="./")
     {
-        var res = confirm("¿Desea eliminar el elemento indicado?");
+        var res = confirm("¿Desea eliminar el elemento seleccionado?");
 		if (!res) return;
 
 		InduxsoftCrudlModel.InvokeService(url + pk + "/", null,
@@ -170,5 +451,272 @@ var nomina=
 
         return bsModal;
     }
+    
+}
+var crud=
+{
+    services(url,data=null,method="POST")
+    {
+        InduxsoftCrudlModel.InvokeService(url,data,
+        function(data)
+        {
+            window.location.reload();
+        },
+        function(error)
+        {
+            alert(error.message ?? error);
+        },method,false);
+    }
+}
+var variable=
+{
+    init()
+    {
+        variable.modal_variables=document.getElementById("modal_frm_variables");
+        variable.table_variables=document.getElementById("lst_variables");
+        variable.btn_aceptar=document.getElementById("btn_save_variables");
+    },
+    addVariable(add=false,_entity_id="_new")
+    {
+        if(!add)
+        {
+            util.fields(variable.modal_variables,"clean");
+            nomina.openModal("modal_frm_variables");
+            if(variable.btn_aceptar)variable.btn_aceptar.setAttribute("onclick","variable.addVariable(true)");
+        }
+        else
+        {
+            if(!util.fields(variable.modal_variables,"validate","","",true))return;
+            
+            var datas=util.fields(variable.modal_variables,"get");
+            if(!datas)
+            {
+                alert("Debe rellenar los campos correspondientes");
+                return;
+            }
+            crud.services(variable.url_variables+_entity_id+"/",datas,_entity_id!="_new"?"PUT":"POST");
+        }
+    },
+    DeleteVariable()
+    {
+        if(!variable.table_variables)return;
 
+        if(variable.table_variables.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+
+        var data=variable.table_variables.DataArray[variable.table_variables.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,variable.url_variables);
+    },
+    EditarVariable()
+    {
+        itm_add=null;
+        if(!variable.table_variables)return;
+
+        if(variable.table_variables.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=variable.table_variables.DataArray[variable.table_variables.CurrentRowIndex()];
+        itm_add=data;
+        util.fields(variable.modal_variables,"set");
+        nomina.openModal("modal_frm_variables");
+        if(variable.btn_aceptar)variable.btn_aceptar.setAttribute("onclick","variable.addVariable(true,"+data.sys_pk+")");
+    }
+}
+
+var tipocontrato=
+{
+    init()
+    {
+        tipocontrato.table=document.getElementById("lst_tipocontrato");
+        tipocontrato.modal=document.getElementById("modal_frm_tipocontrato");
+        tipocontrato.btn_aceptar=document.getElementById("btn_save_tipocontrato")
+    },
+    Delete()
+    {
+        if(!tipocontrato.table)return;
+
+        if(tipocontrato.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=tipocontrato.table.DataArray[tipocontrato.table.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,tipocontrato.url);
+    },
+    Add(add=false,_entity_id="_new",method="POST")
+    {
+        if(!add)
+        {
+            util.fields(tipocontrato.modal,"clean");
+            nomina.openModal("modal_frm_tipocontrato");
+            if(tipocontrato.btn_aceptar)tipocontrato.btn_aceptar.setAttribute("onclick","tipocontrato.Add(true)");
+        }   
+        else
+        {
+            if(!util.fields(tipocontrato.modal,"validate","","",true))return;
+
+            var data=util.fields(tipocontrato.modal,"get");
+            crud.services(tipocontrato.url+_entity_id+"/",data,method);
+        }
+    },
+    Editar()
+    {
+        itm_add=null;
+        if(tipocontrato.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=tipocontrato.table.DataArray[tipocontrato.table.CurrentRowIndex()];
+        itm_add=data;
+
+        util.fields(tipocontrato.modal,"set");
+        nomina.openModal("modal_frm_tipocontrato");
+        if(tipocontrato.btn_aceptar)tipocontrato.btn_aceptar.setAttribute("onclick","tipocontrato.Add(true,"+data.sys_pk+",'PUT')");
+    }
+}
+
+var cnomina=
+{
+    init()
+    {
+        cnomina.table=document.getElementById("lst_conceptos_nomina");
+    },
+    
+    Editar()
+    {
+        if(!cnomina.table)return;
+
+        if(cnomina.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=cnomina.table.DataArray[cnomina.table.CurrentRowIndex()];
+        window.location.href=cnomina.url+ data.sys_pk+"/";
+    },
+    Delete()
+    {
+        if(!cnomina.table)return;
+
+        if(cnomina.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=cnomina.table.DataArray[cnomina.table.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,cnomina.url);
+    }
+}
+var tablas=
+{
+    init()
+    {
+        tablas.table=document.getElementById("lst_tablas");
+    },
+    Delete()
+    {
+        if(!tablas.table)return;
+
+        if(tablas.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=tablas.table.DataArray[tablas.table.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,tablas.url);
+    }
+}
+
+var gconceptos=
+{
+    init()
+    {
+        gconceptos.table=document.getElementById("lst_gconceptos");
+        gconceptos.modal=document.getElementById("modal_frm_gconceptos");
+        gconceptos.btn_save=document.getElementById("btn_save_gconcepto");
+    },
+    Add(add=false,_entity_id="_new",method="POST")
+    {
+        if(!add)
+        {
+            util.fields(gconceptos.modal,"clean");
+            nomina.openModal("modal_frm_gconceptos");
+            if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true)");
+        }
+        else
+        {
+            if(!util.fields(gconceptos.modal,"validate","","",true))return;
+
+            var data=util.fields(gconceptos.modal,"get");
+            crud.services(gconceptos.url+_entity_id+"/",data,method);
+        }
+    },
+    Editar()
+    {
+        itm_add=null;
+        if(!gconceptos.table)return;
+
+        if(gconceptos.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+
+        var data=gconceptos.table.DataArray[gconceptos.table.CurrentRowIndex()];
+        itm_add=data;
+        util.fields(gconceptos.modal,"set");
+        nomina.openModal("modal_frm_gconceptos");
+        if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true,"+data.sys_pk+",'PUT')");
+    },
+    Delete()
+    {
+        if(!gconceptos.table)return;
+
+        if(gconceptos.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=gconceptos.table.DataArray[gconceptos.table.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,gconceptos.url);
+    }
+
+}
+
+var tnomina=
+{
+    init()
+    {
+        tnomina.table=document.getElementById("lst_tnominas");
+    },
+    Editar()
+    {
+        if(!tnomina.table)return;
+
+        if(tnomina.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=tnomina.table.DataArray[tnomina.table.CurrentRowIndex()];
+        window.location.href=tnomina.url+data.sys_pk+"/";
+    },
+    Delete()
+    {
+        if(!tnomina.table)return;
+
+        if(tnomina.table.CurrentRowIndex()<0)
+        {
+            alert("Debe seleccionar un elemento de la tabla");
+            return;
+        }
+        var data=tnomina.table.DataArray[tnomina.table.CurrentRowIndex()];
+        nomina.DeleteEntity(data.sys_pk,tnomina.url);
+    }
 }

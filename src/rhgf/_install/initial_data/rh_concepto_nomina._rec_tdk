@@ -1,0 +1,86 @@
+#def table(name) "table"
+#def col(name, type, caption) "column"
+#pattern col "'$name':'$type'"
+#pattern col "'$name':'$type' ['@caption']"
+
+table("rh_concepto_nomina")
+{
+	columns
+	{
+		sys_pk : Int ["sys_pk"]
+		sys_timestamp : DateTime ["sys_timestamp"]
+		sys_guid : String ["sys_guid"]
+		sys_dtcreated : DateTime ["sys_dtcreated"]
+		sys_user : String ["sys_user"]
+		sys_lastuser : String ["sys_lastuser"]
+		sys_exported : Bool ["sys_exported"]
+		sys_dtexported : DateTime ["sys_dtexported"]
+		sys_info : String ["sys_info"]
+		sys_recver : Int ["sys_recver"]
+		sys_deleted : Bool ["sys_deleted"]
+		sys_lock : Int ["sys_lock"]
+		codigo : String ["codigo"]
+		descripcion : String ["descripcion"]
+		notas : String ["notas"]
+		formula : String ["formula"]
+		tipo : Int ["tipo"]
+		gravable : Bool ["gravable"]
+		especie : Bool ["especie"]
+		sat_elemento : Int ["sat_elemento"]
+		sat_clave : String ["sat_clave"]
+		cuenta_contable : String ["cuenta_contable"]
+		contra_cuenta : String ["contra_cuenta"]
+		tipo_asiento : Int ["tipo_asiento"]
+		ref_tiponomina : Int ["ref_tiponomina"]
+		manual : Bool ["manual"]
+		polizadetallada : Bool ["polizadetallada"]
+	}
+	rows
+	{
+		#def row(sys_pk,sys_timestamp,sys_guid,sys_dtcreated,sys_user,sys_lastuser,sys_exported,sys_dtexported,sys_info,sys_recver,sys_deleted,sys_lock,codigo,descripcion,notas,formula,tipo,gravable,especie,sat_elemento,sat_clave,cuenta_contable,contra_cuenta,tipo_asiento,ref_tiponomina,manual,polizadetallada) "row"
+		row("13","06/09/2018 11:47:07","4c6e426e0cbe4b6fa8add6e41e7c1c88","05/15/2018 10:25:44","\0","\0","\0","\0","\0","5","\0","\0","CSLD","Sueldo","\0","ROUND (Sueldo, 2)","0","True","False","0","001","\0","\0","0","\0","False","False")
+		row("14","06/12/2018 19:12:00","69f91a478e404d6fb41443f62857a277","05/15/2018 10:26:18","\0","\0","\0","\0","\0","16","\0","\0","@@FINJ","Faltas Injustificadas en el Periodo","\0","@FINJ","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("17","06/09/2018 11:46:31","aab2b58efed240e7be6ffc3e73a8e966","05/17/2018 13:04:19","\0","\0","\0","\0","\0","8","\0","\0","ISR","ISR","\0","ROUND(ISR, 2)","1","False","False","1","002","\0","\0","0","\0","False","False")
+		row("33","06/09/2018 13:26:51","f9a1400d8ce447e79bff919a3f75f303","05/22/2018 18:34:49","\0","\0","\0","\0","\0","7","\0","\0","VAP","Vivienda a Cargo del Patrón","\0","ROUND (ViviendaCargoPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("36","06/15/2018 11:14:05","3d641be6bfc847c49fa0c6611565d609","05/28/2018 17:02:34","\0","\0","\0","\0","\0","6","\0","\0","SUBPE","Subsidio para el Empleo","\0","ROUND (SubsidioEmpleo,2)","0","False","False","2","002","\0","\0","0","\0","False","False")
+		row("38","06/14/2018 15:12:01","fda0c7401ff4424682b4bc5d0a800cd4","05/30/2018 15:05:57","\0","\0","\0","\0","\0","5","\0","\0","@@SAT_HE_03_DIAS","Días de Horas Extras Simples","\0","@DHES","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("39","06/09/2018 11:52:19","c6582267b82c4fdca7b660a4a9626451","05/30/2018 15:08:13","\0","\0","\0","\0","\0","6","\0","\0","PTU","Reparto de Utilidades","\0","ROUND (Reparto_Utilidades, 2)","0","False","False","0","003","\0","\0","0","\0","False","False")
+		row("44","06/07/2018 12:15:49","993387cfff9d4c9794c494b1cb8d443f","05/30/2018 19:31:18","\0","\0","\0","\0","\0","3","\0","\0","@@SAT_HE_03_CANT","Horas Extras Simples","\0","@HESE+@HESG","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("45","06/09/2018 11:25:03","127421e00c4b4949be9c273d6fef552d","05/30/2018 19:32:50","\0","\0","\0","\0","\0","4","\0","\0","@@SAT_HE_03_IMPT","Importe Horas Extras Simples","\0","(@HESE+@HESG)*SueldoxHora","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("46","06/14/2018 15:11:04","973fc136ec8d4c91a36d20862c2930c5","05/30/2018 19:35:10","\0","\0","\0","\0","\0","4","\0","\0","@@SAT_HE_01_DIAS","Dias de Horas Extras Dobles","\0","@DHED","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("49","06/07/2018 12:12:02","6c1e063b655247c18a33d35f9a101a90","05/30/2018 19:38:06","\0","\0","\0","\0","\0","3","\0","\0","@@SAT_HE_01_CANT","Horas Extras Dobles","\0","@HEDE+@HEDG","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("50","06/13/2018 20:43:24","b9a76a854dd542fc9e8e24bed25d3528","05/30/2018 19:39:26","\0","\0","\0","\0","\0","4","\0","\0","@@SAT_HE_01_IMPT","Importe Horas Extras Dobles","\0","(@HEDE+@HEDG)*SueldoxHora*2","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("52","06/13/2018 20:43:37","cd327b0e95fc4e0b87ca202f287347a2","05/31/2018 11:04:20","\0","\0","\0","\0","\0","5","\0","\0","@@SAT_HE_02_IMPT","Importe Horas Extras Triples","\0","(@HETE+@HETG)*SueldoxHora*3","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("53","06/14/2018 15:11:20","d71604a99b7744cdaaa6d20298b51fbc","05/31/2018 11:04:52","\0","\0","\0","\0","\0","3","\0","\0","@@SAT_HE_02_DIAS","Dias de Horas Extras Triples","\0","@DHET","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("54","06/07/2018 12:14:35","f9ce98834840444aab29b98c2be34a7d","05/31/2018 11:07:06","\0","\0","\0","\0","\0","2","\0","\0","@@SAT_HE_02_CANT","Horas Extras Triples","\0","@HETE+@HETG","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("61","06/09/2018 11:47:37","c1c5ac2406fa49d4b5f5e17c0266baa7","05/31/2018 17:15:55","\0","\0","\0","\0","\0","4","\0","\0","AGE","Aguinaldo Exento","\0","ROUND (AguinaldoExento, 2)","0","False","False","0","002","\0","\0","0","\0","False","False")
+		row("62","06/09/2018 11:47:43","c9dad1df877149899a7eab749238ae6e","05/31/2018 17:16:29","\0","\0","\0","\0","\0","4","\0","\0","AGG","Aguinaldo Gravado","\0","ROUND (AguinaldoGravado, 2)","0","True","False","0","002","\0","\0","0","\0","False","False")
+		row("72","06/09/2018 13:20:04","2b3eadd447b84e929404957ab3d2d300","06/01/2018 11:19:57","\0","\0","\0","\0","\0","3","\0","\0","CVAT","Cesantía y Vejez a Cargo del Trabajador","\0","ROUND (CesantiaVejezTrabajador, 2)","1","False","False","1","003","\0","\0","0","\0","False","False")
+		row("73","06/09/2018 13:24:33","3c980c7f986b48898c387d76d7874a47","06/01/2018 11:52:10","\0","\0","\0","\0","\0","8","\0","\0","CVAP","Cesantía y Vejez a Cargo del Patrón","\0","ROUND (CesantiaVejezPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("74","06/09/2018 13:25:46","f04662fe64b84bd4a67dfac675233757","06/01/2018 11:57:30","\0","\0","\0","\0","\0","5","\0","\0","RAP","Retiro a Cargo del Patrón","\0","ROUND (RetiroCargoPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("75","06/15/2018 11:16:36","88aa6d53d8ad43abbcbd1645e8bac80b","06/01/2018 12:09:16","\0","\0","\0","\0","\0","8","\0","\0","GPAP","Guarderia y Prestaciones a Cargo del Patrón","\0","ROUND (GuardyPrestaSPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("76","06/09/2018 13:24:54","34ed4a1c07d94b0aae9e23028c876ead","06/01/2018 12:18:00","\0","\0","\0","\0","\0","6","\0","\0","IVAP","Invalidez y Vida a Cargo del Patrón","\0","ROUND (InvalyVidaPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("77","06/09/2018 13:21:14","b1aa41a879ba428984072cdac74f5ccf","06/01/2018 12:22:10","\0","\0","\0","\0","\0","5","\0","\0","IVAT","Invalidez y Vida a Cargo del Trabajador","\0","ROUND (InvalyVidaTrabajador, 2)","1","False","False","1","004","\0","\0","0","\0","False","False")
+		row("78","06/09/2018 13:26:08","fe9315898664493a9ed1f878baf756b7","06/01/2018 12:22:35","\0","\0","\0","\0","\0","5","\0","\0","RTAP","Riesgo de Trabajo a Cargo del Patrón","\0","ROUND (RiesgoTrabPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("79","06/09/2018 13:21:29","83ecb5ce4ac4498197d87f15b6714a01","06/01/2018 12:23:08","\0","\0","\0","\0","\0","4","\0","\0","PDAT","Prestaciones en Dinero a Cargo del Trabajador","\0","ROUND (PrestaDineroTrabajador, 2)","1","False","False","1","004","\0","\0","0","\0","False","False")
+		row("80","06/09/2018 13:25:09","483d8823c6464d40a324d7a390a0306c","06/01/2018 12:23:28","\0","\0","\0","\0","\0","5","\0","\0","PDAP","Prestaciones en Dinero a Cargo del Patrón","\0","ROUND (PrestaDineroPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("81","06/09/2018 13:20:59","77372cdb47f8490594459123f4eeafcd","06/01/2018 12:24:55","\0","\0","\0","\0","\0","6","\0","\0","EPAT","Especie Pensionados a Cargo del Trabajador","\0","ROUND (EspePensionTrabajador, 2)","1","False","False","1","007","\0","\0","0","\0","False","False")
+		row("82","06/15/2018 11:16:28","404d1b8b7a2b4f95a26c83ce20babe09","06/01/2018 12:25:15","\0","\0","\0","\0","\0","8","\0","\0","EPAP","Especie Pensionados a Cargo del Patrón","\0","ROUND (EspePensionPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("83","06/09/2018 13:20:35","61f4adcc87794dfa81445a3be252bcdd","06/01/2018 12:26:39","\0","\0","\0","\0","\0","6","\0","\0","CEEMAT","Cuota Excedente en Enfermedad y Maternidad a Cargo del Trabajador","\0","ROUND(CuotaExedEnfYMaterTrabajador, 2)","1","False","False","1","004","\0","\0","0","\0","False","False")
+		row("84","06/09/2018 13:25:29","6e51d06f1d0a424d81eb8cffab84c10d","06/01/2018 12:27:39","\0","\0","\0","\0","\0","6","\0","\0","CEEMAP","Cuota Excedente en Enfermedad y Maternidad a Cargo del Patrón","\0","ROUND (CuotaExedEnfYMaterPatron, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("85","06/14/2018 20:32:02","a96c189d90b54bba91243af817706a54","06/01/2018 12:28:20","\0","\0","\0","\0","\0","5","\0","\0","CFEM","Cuota Fija Enfermedad y Maternidad a Cargo del Patrón","\0","ROUND (CuotaFijaEnferYMater, 2)","2","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("90","06/15/2018 11:13:28","6e466c57a6db4d719896bf49ecd496c0","06/07/2018 12:07:21","\0","\0","\0","\0","\0","11","\0","\0","HEEX","Horas Extras Exentas","\0","ROUND (Horas_Extras_Exentas,2)","0","False","False","0","019","\0","\0","0","\0","False","False")
+		row("91","06/15/2018 11:13:45","0db145dcd11b46e4ac5bcbb4bb662430","06/07/2018 12:08:17","\0","\0","\0","\0","\0","4","\0","\0","HEGR","Horas Extras Gravadas","\0","ROUND (Horas_Extras_Gravadas,2)","0","True","False","0","019","\0","\0","0","\0","False","False")
+		row("92","06/12/2018 19:34:59","182eecb3260a46a5a8c22318fde3b753","06/12/2018 17:56:58","\0","\0","\0","\0","\0","2","\0","\0","@@INxMA","Incapacidades por Maternidad en el Periodo","\0","@INxMA","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("93","06/12/2018 19:12:44","a1d34d8a81c24568bb30e346b591cf85","06/12/2018 18:01:58","\0","\0","\0","\0","\0","4","\0","\0","@@INxEG","Incapacidades por Enfermedades en Gral en el Periodo","\0","@INxEG","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("94","06/12/2018 19:40:05","40f7d700f0ef436ea2090ef9374cd6ae","06/12/2018 18:03:23","\0","\0","\0","\0","\0","2","\0","\0","@@INxRT","Incapacidades por Riesgo de Trabajo en el Periodo","\0","@INxRT","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("95","06/15/2018 11:15:15","de56748e918e41d0a43e5e52c8636ba1","06/12/2018 18:46:36","\0","\0","\0","\0","\0","3","\0","\0","DINxMA","Incapacidad por Maternidad","\0","ROUND (Desc_IncapxMatern_Perio,2)","1","False","False","1","006","\0","\0","0","\0","False","False")
+		row("96","06/15/2018 11:15:36","9ba2325c6f2e41ae866fa9f598c62c27","06/12/2018 18:48:20","\0","\0","\0","\0","\0","4","\0","\0","DINxRT","Incapacidad por Riesgo de Trabajo","\0","ROUND (Desc_IncapxRiesgo_Trabajo_Perio,2)","1","False","False","1","006","\0","\0","0","\0","False","False")
+		row("97","06/15/2018 11:14:34","99aa2bd732574952a9c175b0a27af855","06/12/2018 18:49:37","\0","\0","\0","\0","\0","3","\0","\0","DINxEG","Incapacidad por Enfermedades en General","\0","ROUND (Desc_IncapxEnfer_Gral_Perio,2)","1","False","False","1","006","\0","\0","0","\0","False","False")
+		row("98","06/15/2018 11:15:58","1f18e66db3fe401c8d64ec36b3edb6b3","06/12/2018 18:58:48","\0","\0","\0","\0","\0","4","\0","\0","DxFINJ","Descuento por Faltas Injustificadas","\0","ROUND (DescxFaltas_Injust_Perio,2)","1","False","False","1","020","\0","\0","0","\0","False","False")
+		row("99","06/12/2018 20:03:11","25fc883eaf5148dbbe630c21bccb1a3d","06/12/2018 19:19:00","\0","\0","\0","\0","\0","1","\0","\0","@@TFxINC","Total de Faltas por Incapacidad","\0","Total_FaltasxIncap_Perio","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("100","06/15/2018 11:12:43","a7804c0b009d4933aa07f58f56214289","06/13/2018 20:32:42","\0","\0","\0","\0","\0","2","\0","\0","@@SAT_SUBSIDIO_AL_EMPLEO","Subsidio al Empleo","\0","IF(ROUND(SubsidioEmpleo-ISR,2)>0,ROUND(SubsidioEmpleo-ISR,2),0)","3","False","False","99","\0","\0","\0","0","\0","False","False")
+		row("101","06/19/2018 12:27:52","468bf269821c486fa3c10797c1ab727f","06/19/2018 12:27:08","\0","\0","\0","\0","\0","1","\0","\0","PTUEX","Reparto de Utilidades Exento","\0","ROUND (PTUExento,2)","0","False","False","0","003","\0","\0","0","\0","False","False")
+		row("102","06/19/2018 12:27:45","3091617d51b54ba9a76f8125ccd7ac29","06/19/2018 12:27:45","\0","\0","\0","\0","\0","0","\0","\0","PTUGR","Reparto de Utilidades Gravado","\0","ROUND (PTUGravado,2)","0","False","False","0","003","\0","\0","0","\0","False","False")
+	}
+}

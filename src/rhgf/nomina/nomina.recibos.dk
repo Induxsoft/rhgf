@@ -19,10 +19,15 @@ module ""
             {
                 div(class="btn-group" role="group")
                 {
-                    a(href="#<@NOMINAS>" class="btn btn-sm"){"<--"}
-                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="nomina.Add()"){"Agregar"}
+                    a(href="#<@NOMINAS>" class="btn ")
+                    {
+                       $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                        </svg>'
+                    }
+                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="nomina.AddRecibo()"){"Agregar"}
                     button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar_Recibo()"){"Editar"}
-                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1"){"Eliminar"}
+                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteRecibo()"){"Eliminar"}
                     button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
                 }
             }
@@ -50,10 +55,32 @@ module ""
                 }
             }
         }
+        #!
+        // #include "../recibo/concepto-recibo.modals.dk"
+        #$
+        $' <input-key 
+            id="add_recibo"
+            name="add_recibo"
+            data-key="sys_pk"
+            data-search="codigo_empleado"
+            data-text="referencia"
+            data-source="#<@CONTRATO_EMPLEADO>?p_activo=1&p_text=@search"
+            box-title-text="Seleccione un concepto"
+            box-placeholder-text="Buscar concepto"
+            box-nodata-text="No se encontraron datos"
+            value=""
+            search-value=""
+            text-value=""
+            disabled="false"
+            control-styles="#container{display:none !important;}"
+            columns="codigo_empleado,referencia,apellido1,apellido2,nombre_empleado,rfc,curp,nss"
+            colcaptions="Código,Contrato,Apellido paterno,Apellido materno,Nombre,RFC,CURP,NSS">
+        </input-key>'
         script
         {
             $'
             nomina.url_recibo="#<@NOMINA.RECIBOS>";
+            nomina.url_recibo_nomina="#<replace(@NOMINA_RECIBOS,"@nomina",@@(data,"#sys_pk"))>";
             '
         }
     }

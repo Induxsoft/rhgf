@@ -1,0 +1,15 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_grupo_conceptos"
+    @list_query="Select * from rh_grupo_conceptos order by nombre;"
+
+    update::&db,&params,&data
+    {
+        do dbr.update(db,@table_name,data,"sys_pk=@_entity_id",params)
+        return @null
+    }
+
+    point @update to update
+}

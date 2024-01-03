@@ -1,0 +1,31 @@
+#def table(name) "table"
+#def col(name, type, caption) "column"
+#pattern col "'$name':'$type'"
+#pattern col "'$name':'$type' ['@caption']"
+
+table("rh_grupo_conceptos")
+{
+	columns
+	{
+		sys_pk : Int ["sys_pk"]
+		sys_timestamp : DateTime ["sys_timestamp"]
+		sys_guid : String ["sys_guid"]
+		sys_dtcreated : DateTime ["sys_dtcreated"]
+		sys_user : String ["sys_user"]
+		sys_lastuser : String ["sys_lastuser"]
+		sys_exported : Bool ["sys_exported"]
+		sys_dtexported : DateTime ["sys_dtexported"]
+		sys_info : String ["sys_info"]
+		sys_recver : Int ["sys_recver"]
+		sys_deleted : Bool ["sys_deleted"]
+		sys_lock : Int ["sys_lock"]
+		nombre : String ["nombre"]
+	}
+	rows
+	{
+		#def row(sys_pk,sys_timestamp,sys_guid,sys_dtcreated,sys_user,sys_lastuser,sys_exported,sys_dtexported,sys_info,sys_recver,sys_deleted,sys_lock,nombre) "row"
+		row("19","06/11/2018 12:59:10","6f69163299474477a61ae2c957a2d86e","06/11/2018 12:58:06","\0","\0","\0","\0","\0","1","\0","\0","Nómina para Reparto de Utilidades (PTU)")
+		row("20","06/11/2018 12:59:46","06e40abb465546faba0d8c0598862d7c","06/11/2018 12:59:25","\0","\0","\0","\0","\0","1","\0","\0","Nómina para Aguinaldo")
+		row("21","06/15/2018 13:14:00","9a28d05aab9245d2865b7b19039b1dda","06/11/2018 13:31:31","\0","\0","\0","\0","\0","15","\0","\0","Nómina ordinaria quincenal")
+	}
+}

@@ -76,11 +76,11 @@ program
         if dbm.installModel(db, model_name, data_model)
         {
             path_inial_data = path.concat(path_install, "initial_data")
+            ref _db = dbr.open(qn)
 
             if dir.exists(path_inial_data)
             {
                 do print("\nINSTALANDO DATOS INICIALES")
-                ref _db = dbr.open(qn)
 
                 ref files = split(trim(init_files), ",")
                 for i=0; i<list.count(files)
@@ -92,9 +92,71 @@ program
                         do installData(_db, file)
                     }
                 }
-                
-                if dbr.is_open(_db){ do dbr.close(_db) }
             }
+            module "insertar dkt"
+            {
+                //Instalar los dkt para nomina
+                do dbr.execute(_db,"INSERT INTO `rh_sat_elemento` (`id`, `const`) VALUES (0, 'Percepciones');
+                INSERT INTO `rh_sat_elemento` (`id`, `const`) VALUES (1, 'Deducciones');
+                INSERT INTO `rh_sat_elemento` (`id`, `const`) VALUES (2, 'Otros pagos');
+                INSERT INTO `rh_sat_elemento` (`id`, `const`) VALUES (3, 'Incapacidades');
+                INSERT INTO `rh_sat_elemento` (`id`, `const`) VALUES (99, 'No fiscal');",@null)
+                exception{ if not(contains(last_error(), "Duplicate entry")){ do print(last_error()) }}
+
+                do dbr.execute(_db,"INSERT INTO `cb_tipo_asiento_contable` (`id`, `const`) VALUES (0, 'Debe');
+                INSERT INTO `cb_tipo_asiento_contable` (`id`, `const`) VALUES (1, 'Haber');",@null)
+                exception{if not(contains(last_error(), "Duplicate entry")){ do print(last_error())}}
+
+                do dbr.execute(_db,"INSERT INTO `rh_tipo_concepto` (`id`, `const`) VALUES (0, 'Percepción');
+                INSERT INTO `rh_tipo_concepto` (`id`, `const`) VALUES (1, 'Deducción');
+                INSERT INTO `rh_tipo_concepto` (`id`, `const`) VALUES (2, 'Obligación');
+                INSERT INTO `rh_tipo_concepto` (`id`, `const`) VALUES (3, 'Indicador');",@null)
+                exception{if not(contains(last_error(), "Duplicate entry")){ do print(last_error())}}
+
+                do dbr.execute(_db,"INSERT INTO `rh_tipo_vivienda` (`id`, `const`) VALUES (0, 'Desconocido');
+                INSERT INTO `rh_tipo_vivienda` (`id`, `const`) VALUES (1, 'Vivienda propia');
+                INSERT INTO `rh_tipo_vivienda` (`id`, `const`) VALUES (2, 'Vivienda rentada');
+                INSERT INTO `rh_tipo_vivienda` (`id`, `const`) VALUES (3, 'Vivienda familiar');
+                INSERT INTO `rh_tipo_vivienda` (`id`, `const`) VALUES (4, 'Vivienda prestada');",@null)
+                exception{if not(contains(last_error(), "Duplicate entry")){ do print(last_error())}}
+
+                do dbr.execute(_db,"INSERT INTO `rh_status_contrato` (`id`, `const`) VALUES (0, 'Borrador');
+                INSERT INTO `rh_status_contrato` (`id`, `const`) VALUES (1, 'Activo');
+                INSERT INTO `rh_status_contrato` (`id`, `const`) VALUES (2, 'Rescindido');
+                INSERT INTO `rh_status_contrato` (`id`, `const`) VALUES (3, 'Completado');
+                INSERT INTO `rh_status_contrato` (`id`, `const`) VALUES (4, 'Cancelado');",@null)
+                exception{if not(contains(last_error(), "Duplicate entry")){ do print(last_error())}}
+
+                do dbr.execute(_db,"INSERT INTO `rh_status_nomina` (`id`, `const`) VALUES (0, 'Borrador');
+                INSERT INTO `rh_status_nomina` (`id`, `const`) VALUES (1, 'En proceso');
+                INSERT INTO `rh_status_nomina` (`id`, `const`) VALUES (2, 'Procesada');
+                INSERT INTO `rh_status_nomina` (`id`, `const`) VALUES (3, 'Cancelada');
+                INSERT INTO `rh_status_nomina` (`id`, `const`) VALUES (99, 'Error');",@null)
+                exception{if not(contains(last_error(), "Duplicate entry")){ do print(last_error())}}
+
+                _files='rh_grupo_conceptos._rec_tdk,rh_tipo_nomina._rec_tdk,rh_concepto_nomina._rec_tdk,rh_tipo_contrato._rec_tdk,rh_variable._rec_tdk,rh_tabla_calculo._rec_tdk'
+                ref lfiles=split(_files,",")
+
+                path=path.concat(path_install, "initial_data")
+                for j = 0; j < @count(lfiles)
+                {
+                    file=path.concat(path,list.str(lfiles,j))
+                    if not(file.exists(file)){do print("No se encontró el archivo: "+file)}
+
+                    ref t=table.from(file.rtext(file))
+                    table=file.justname(file)
+                    do print("insertando en: "+table)
+                    for i=0;i<table.rows(t)
+                    {
+                        ref rw=row.get(t,i)
+                        do dbr.insert(_db,table,rw)
+                        
+                        exception{ if not(contains(last_error(), "Duplicate entry")){ do print(last_error()) } }
+                    }
+                }
+            }
+            ////////////////////Finalización de los datos iniciales////////////////////
+            if dbr.is_open(_db){ do dbr.close(_db) }
         }
         else {
             do print("No se instaló el modelo")
@@ -108,7 +170,8 @@ program
 
     exception
     {
-        if isset("db") {
+        if isset("db") 
+        {
             if dbr.is_open(db){ do dbr.close(db) }
         }
         do print(last_error())

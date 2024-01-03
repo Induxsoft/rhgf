@@ -10,6 +10,7 @@ module ""
     dnc.*,IFNULL(dnc.leyenda,'')fleyenda  from rh_detalle_nomina_concepto dnc 
     inner join rh_concepto_nomina c on dnc.ref_concepto=c.sys_pk where dnc.ref_detalle_nomina=@_entity_id;"
 
+	@table_name="rh_detalle_nomina"
 	list::&db,&params
 	{
 		new entity
@@ -19,5 +20,75 @@ module ""
 		}
 		return entity
 	}
-	// point @list to list
+	create::&db,&params,&data
+	{
+		if @@(params,"$parent_id")==""{do rise_error(500,"No se indicado datos de la nómina")}
+		data<"ref_nomina">:@@(params,"#parent_id")
+		return entity.create(db,params,data)
+	}
+	delete::&db,&params
+	{
+		ref recibo=dbr.list(db,"SELECT count(sys_pk) as countcfdi from rh_cfdi where ref_detalle_nomina=@_entity_id",params)
+		for i = 0; i < @count(recibo)
+		{
+			ref r=@item(recibo,i)
+			switch @@(r,"#countcfdi")
+			{
+				case 0
+				{
+					do dbr.execute(db,"delete from rh_detalle_nomina_concepto where ref_detalle_nomina=@_entity_id;",params)
+					do dbr.execute(db,"delete from rh_cfdi where ref_detalle_nomina=@_entity_id and cancelado=1;",params)
+
+					ref cfdi=dbr.list(db,"select count(sys_guid) as conteo from rh_cfdi where ref_detalle_nomina=@_entity_id and cancelado=1;",params)
+					for j = 0; j < @count(cfdi)
+					{
+						ref c=@item(cfdi,j)
+						params<"cfdi">:@@(c,"#conteo")
+						switch @@(c,"#conteo")
+						{
+							case 0
+							{
+								do dbr.execute(db,"delete from rh_detalle_nomina where sys_pk=@_entity_id and 0=@cfdi",params)
+								break
+							}
+						}
+					}
+					
+					break
+				}
+				default
+				{
+					ref timbrados=dbr.list(db,"SELECT count(sys_pk) as timbradotin from rh_cfdi where ref_detalle_nomina=@_entity_id and cancelado=1",params)
+					switch @@(timbrados,"#timbradotin")
+					{
+						case 0{do rise_error(500,"EL RECIBO SELECCIONADO ESTA TIMBRADO")}
+						default
+						{
+							do dbr.execute(db,"delete from rh_detalle_nomina_concepto where ref_detalle_nomina=@_entity_id;",params)
+							do dbr.execute(db,"delete from rh_cfdi where ref_detalle_nomina=@_entity_id and cancelado=1;",params)
+
+							ref cfdi=dbr.list(db,"select count(sys_guid) as conteo from rh_cfdi where ref_detalle_nomina=@_entity_id and cancelado=1;",params)
+							for a = 0; a < @count(cfdi)
+							{
+								ref c=@item(cfdi,a)
+								params<"cfdi">:@@(c,"#conteo")
+								switch @@(c,"#conteo")
+								{
+									case 0
+									{
+										do dbr.execute(db,"delete from rh_detalle_nomina where sys_pk=@_entity_id and 0=@cfdi",params)
+										break
+									}
+								}
+							}
+							break
+						}
+					}
+					break
+				}
+			}
+		}
+	}
+	point @delete to delete
+	point @create to create
 }

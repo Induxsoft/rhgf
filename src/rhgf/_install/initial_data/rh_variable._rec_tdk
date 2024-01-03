@@ -1,0 +1,88 @@
+#def table(name) "table"
+#def col(name, type, caption) "column"
+#pattern col "'$name':'$type'"
+#pattern col "'$name':'$type' ['@caption']"
+
+table("rh_variable")
+{
+	columns
+	{
+		sys_pk : Int ["sys_pk"]
+		sys_timestamp : DateTime ["sys_timestamp"]
+		sys_guid : String ["sys_guid"]
+		sys_dtcreated : DateTime ["sys_dtcreated"]
+		sys_user : String ["sys_user"]
+		sys_lastuser : String ["sys_lastuser"]
+		sys_exported : Bool ["sys_exported"]
+		sys_dtexported : DateTime ["sys_dtexported"]
+		sys_info : String ["sys_info"]
+		sys_recver : Int ["sys_recver"]
+		sys_deleted : Bool ["sys_deleted"]
+		sys_lock : Int ["sys_lock"]
+		nombre : String ["nombre"]
+		formula : String ["formula"]
+		notas : String ["notas"]
+	}
+	rows
+	{
+		#def row(sys_pk,sys_timestamp,sys_guid,sys_dtcreated,sys_user,sys_lastuser,sys_exported,sys_dtexported,sys_info,sys_recver,sys_deleted,sys_lock,nombre,formula,notas) "row"
+		row("78","06/01/2018 22:16:07","e70f2eb0c2c44ec99042cca8a505efa1","05/25/2018 17:22:27","\0","\0","\0","\0","\0","1","\0","\0","DiasAño","365","Días del Año\n")
+		row("79","05/25/2018 17:22:57","5d729fd80bc846249454c23c76da8323","05/25/2018 17:22:57","\0","\0","\0","\0","\0","0","\0","\0","MesAño","12","Meses en el año\n")
+		row("80","06/01/2018 22:16:12","a0ec4b5d15ae4670925f20823ad50247","05/25/2018 17:23:13","\0","\0","\0","\0","\0","4","\0","\0","DiasMes","30.4","Días que tiene un mes\n")
+		row("81","05/25/2018 17:23:27","41e825e750e049f181fb5da116d3add2","05/25/2018 17:23:27","\0","\0","\0","\0","\0","0","\0","\0","PorcientoPrima","0.25","Porcentaje de prima vacacional\n")
+		row("82","06/01/2018 12:42:20","2bdc011dc512435cbd79b2ba7297a45f","05/25/2018 17:23:45","\0","\0","\0","\0","\0","1","\0","\0","SalarioMin","207.44\n","Salario minimo\n")
+		row("83","06/01/2018 22:16:16","11b34b108d984fd7ab5ffc6557ee46ac","05/25/2018 17:24:02","\0","\0","\0","\0","\0","3","\0","\0","DiasVacac","BETWEEN(\"VYA\", \n\t@Antiguedad, \n\t\"Limite_Inferior_Antiguedad\", \n\t\"Limite_Superior_Antiguedad\", \n\t\"Dias_Disfrute_Vacaciones\")\n","Días de vacaciones\n")
+		row("84","06/01/2018 12:42:14","456e43b6500549c4a7f97b9f7b7f9b96","05/25/2018 17:24:25","\0","\0","\0","\0","\0","1","\0","\0","DiasPrimaVac","BETWEEN(\"VYA\",@Antiguedad,\"Limite_Inferior_Antiguedad\",\"Limite_Superior_Antiguedad\", \"Dias_Prima_Vacacional\")\n","Días de prima vacacional\n")
+		row("85","05/25/2018 17:24:44","41a518851a714824af93fe4291622913","05/25/2018 17:24:44","\0","\0","\0","\0","\0","0","\0","\0","PeriodoPago","@TipoNomina\n","Periodicidad de pago\n")
+		row("86","05/25/2018 17:25:12","f6ffa57c48664dd2aa305f90dfe3e94e","05/25/2018 17:25:12","\0","\0","\0","\0","\0","0","\0","\0","HorasxDia","8\n","Horas por dia\n")
+		row("87","05/25/2018 17:25:24","6bea4a2cf31044a49dd9bd7fcf594f26","05/25/2018 17:25:24","\0","\0","\0","\0","\0","0","\0","\0","DiasSemana","7","Día de la semana\n")
+		row("88","05/25/2018 17:26:05","515a2e21b6b64b21bcf87345b369e084","05/25/2018 17:26:05","\0","\0","\0","\0","\0","0","\0","\0","DiasXPeriodo","((@FactordIntegra*PeriodoPago/7)*@Dias1Semana\n\n","Días por periodo\n")
+		row("89","05/31/2018 17:53:41","ca3cdfcd11484c09a9cf9649e74ef9b2","05/25/2018 17:26:33","\0","\0","\0","\0","\0","3","\0","\0","DiasAguinaldo","BETWEEN(\"VYA\",@Antiguedad,\"Limite_Inferior_Antiguedad\",\"Limite_Superior_Antiguedad\", \"Dias_Aguinaldo\")\n","Días de aguinaldo\ndependiendo de la \nantigüedad\n")
+		row("90","06/13/2018 20:06:09","8880f67e966c434a90a8d5791be52d84","05/25/2018 17:26:49","\0","\0","\0","\0","\0","1","\0","\0","LimiteHorasExtras","9","Limite de horas extra semanales\n")
+		row("91","06/01/2018 10:45:42","824fab5d2b6e42d1a0bfb641ea1e8a3f","05/25/2018 17:27:10","\0","\0","\0","\0","\0","6","\0","\0","SubsidioEmpleo","BETWEEN(\"SubsEmp\", ROUND(SalarioNetoGrav, 2),\"Limite_Inferior\", \"Limite_Superior\", \"Cuota_Fija\")*@DiasPerioNomi\n","Subsidio para el empleo\n")
+		row("92","06/02/2018 12:51:30","915b595659884368a305df908c7d7210","05/25/2018 17:27:23","\0","\0","\0","\0","\0","24","\0","\0","ISR","BETWEEN(\"ISR\", ROUND(SalarioNetoGrav, 2), \"Limite_Inferior\", \"Limite_Superior\", \"Cuota_Fija\")*@DiasPerioNomi\n +( ROUND(TotalPerGrav, 2)\n-(BETWEEN(\"ISR\", ROUND(SalarioNetoGrav, 2), \"Limite_Inferior\",\"Limite_Superior\", \"Limite_Inferior\")*@DiasPerioNomi\n))*(BETWEEN (\"ISR\", ROUND(SalarioNetoGrav, 2),\"Limite_Inferior\", \"Limite_Superior\",\"Porcentaje\")/100)\n","ISR")
+		row("93","05/25/2018 17:27:41","7f88a4feca174acc94493e6f9c16b328","05/25/2018 17:27:41","\0","\0","\0","\0","\0","0","\0","\0","Tipo_Jornada","VAL(@Contrato(\"TipoJornada\"))\n","Tipo de jornada\n")
+		row("94","05/25/2018 17:27:56","ea6141fb1da1419ba817a2fe9e35c6da","05/25/2018 17:27:56","\0","\0","\0","\0","\0","0","\0","\0","Salario","SueldoxUni*DiasPerioNomi\n","Salario\n")
+		row("95","06/11/2018 14:46:07","b5d5e45492d64d52b4c57cd370058086","05/25/2018 17:28:14","\0","\0","\0","\0","\0","4","\0","\0","Aguinaldo","@SueldoxUni*DiasAguinaldo","Aguinaldo\n")
+		row("96","06/01/2018 22:14:32","fe08fdb5bd1a4dd3835f381241ddc824","05/25/2018 17:28:36","\0","\0","\0","\0","\0","5","\0","\0","AguinaldoExento","IF(Aguinaldo<=(SalarioMin*30), Aguinaldo, SalarioMin*30)\n","Aguinaldo exento\n")
+		row("97","06/01/2018 22:14:35","b8d99e9cff8d43948c38016d11d66618","05/25/2018 17:28:56","\0","\0","\0","\0","\0","4","\0","\0","AguinaldoGravado","IF((Aguinaldo-AguinaldoExento)>=0, Aguinaldo-AguinaldoExento, 0)\n","Aguinaldo gravado\n")
+		row("98","05/25/2018 17:29:10","b38f182454fe4e3f86c6d888e71244d1","05/25/2018 17:29:10","\0","\0","\0","\0","\0","0","\0","\0","PrimaVacacional","SueldoxUni*DiasPrimaVac\n","Prima vacacional\n")
+		row("110","06/14/2018 12:12:41","5d2bf441dc6041c985d2a9e777f301f2","05/25/2018 18:54:31","\0","\0","\0","\0","\0","1","\0","\0","PrimaVacGrav","IF((PrimaVacacional-PrimaVacExen)>=0,PrimaVacacional-PrimaVacExen,0)","Prima vacacional gravada")
+		row("111","05/25/2018 18:55:12","65ac0bb2e1b14fcfb0bb0b5fecfb3bd4","05/25/2018 18:55:12","\0","\0","\0","\0","\0","0","\0","\0","PrimaVacExen","IF(PrimaVacacional<=(SalarioMin*15),PrimaVacional,SalarioMin*15)","Prima vacacional exenta")
+		row("113","06/01/2018 10:59:27","262c03a7d1154f2a8fb67ec4aa0f7508","05/25/2018 18:56:17","\0","\0","\0","\0","\0","6","\0","\0","SalarioNetoGrav","TotalPerGrav/@DiasPerioNomi","Salario neto gravable")
+		row("114","06/12/2018 20:18:54","387a1fe2719c4f1a9ab3e6f9e1060045","05/25/2018 18:56:40","\0","\0","\0","\0","\0","3","\0","\0","CuotaFijaEnferYMater","SalarioMin*(@DiasPerioNomi-Total_FaltasxIncap_Perio)*0.204","Cuota Fija Enfermedad y Maternidad")
+		row("115","06/13/2018 20:09:57","0f3c5b026b9f460397558d6657625f6d","05/25/2018 18:57:05","\0","\0","\0","\0","\0","6","\0","\0","CuotaExedEnfYMaterPatron","IF( SDI>3*SalarioMin,(( SDI-3*SalarioMin)*(@DiasPerioNomi-Total_FaltasxIncap_Perio))*0.011,0)","Cuota Excedente Enfermedad y Maternidad a Cargo del Patrón")
+		row("116","06/13/2018 20:10:08","fe42a7a4283d4baaacb6044d7f800348","05/25/2018 18:57:26","\0","\0","\0","\0","\0","3","\0","\0","CuotaExedEnfYMaterTrabajador","IF( SDI>3*SalarioMin,(( SDI-3*SalarioMin)*(@DiasPerioNomi-Total_FaltasxIncap_Perio))*0.004,0)","Cuota Excedente Enfermedad y Maternidad a Cargo del Trabajador")
+		row("117","06/13/2018 20:11:30","21643a73d4ec475cb7cb543f19051f72","05/25/2018 18:58:05","\0","\0","\0","\0","\0","3","\0","\0","PrestaDineroPatron","SDI*0.007*(@DiasPerioNomi-Total_FaltasxIncap_Perio)","Prestaciones en Dinero a Cargo del Patrón")
+		row("118","06/13/2018 20:10:57","bb41b62a5b1a4498ab87edb1c9a5b1ab","05/25/2018 18:59:00","\0","\0","\0","\0","\0","5","\0","\0","PrestaDineroTrabajador","SDI*0.0025*(@DiasPerioNomi-Total_FaltasxIncap_Perio)","Prestaciones en Dinero a Cargo del Trabajador")
+		row("119","06/13/2018 20:10:32","4c8a298023d04ff78c526a0115a8f70d","05/25/2018 18:59:59","\0","\0","\0","\0","\0","3","\0","\0","EspePensionPatron","SDI*0.0105*(@DiasPerioNomi-Total_FaltasxIncap_Perio)\n","Especie Pensionados a Cargo del Patrón")
+		row("120","06/13/2018 20:10:43","854deed2118044e1a33d4270806e1ed8","05/25/2018 19:00:24","\0","\0","\0","\0","\0","3","\0","\0","EspePensionTrabajador","SDI*0.00375*(@DiasPerioNomi-Total_FaltasxIncap_Perio)\n","Especie Pensionados a Cargo del Trabajador")
+		row("121","06/13/2018 20:11:20","d42250ea78e54c9486afbd16b279437f","05/25/2018 19:00:48","\0","\0","\0","\0","\0","5","\0","\0","InvalyVidaPatron","SDI*0.0175*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)\n","Invalidez y Vida a Cargo del Patrón")
+		row("122","06/13/2018 20:09:19","5baef5049aaf4fe3982b3e7756c6dc0b","05/25/2018 19:01:14","\0","\0","\0","\0","\0","3","\0","\0","InvalyVidaTrabajador","SDI*0.00625*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)\n","Invalidez y Vida a Cargo del Trabajador")
+		row("123","06/13/2018 20:11:09","aaac764461594cadbedd5762fa005738","05/25/2018 19:01:47","\0","\0","\0","\0","\0","4","\0","\0","GuardyPrestaSPatron","SDI*0.01*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)\n","Guarderías y Prestaciones Sociales a Cargo del Patrón")
+		row("124","06/13/2018 20:11:39","2ada557cf9394273bfbb26aab3d62592","05/25/2018 19:02:17","\0","\0","\0","\0","\0","5","\0","\0","RetiroCargoPatron","SDI*0.02*(@DiasPerioNomi-@FINJ)\n","Retiro a Cargo del Patrón")
+		row("125","06/13/2018 20:09:33","a7cec0c6522149a79fbf0f7d85afb5a0","05/25/2018 19:02:42","\0","\0","\0","\0","\0","7","\0","\0","CesantiaVejezPatron","SDI*0.0315*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)\n","Cesantía y vejez a cargo del patrón")
+		row("126","06/13/2018 20:09:44","e0ef6d9afcb2467695c6eddb3bf23949","05/25/2018 19:03:07","\0","\0","\0","\0","\0","5","\0","\0","CesantiaVejezTrabajador","SDI*0.01125*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)\n","Cesantía y vejez a cargo del trabajador")
+		row("127","06/13/2018 20:12:08","b90bc82ed97140cea31489b9afa7761b","05/25/2018 19:03:32","\0","\0","\0","\0","\0","5","\0","\0","ViviendaCargoPatron","SDI*0.05*(@DiasPerioNomi-@FINJ)\n","Vivienda a Cargo del Patrón")
+		row("128","05/25/2018 19:04:05","be711022ed9d40ecb4f185adcf3c3c1f","05/25/2018 19:04:05","\0","\0","\0","\0","\0","0","\0","\0","RiesgoTrab","0.005","Porcentaje de riesgo de trabajo")
+		row("130","05/29/2018 12:31:32","6f74ef63e318426590ddfc026b590eca","05/29/2018 12:31:32","\0","\0","\0","\0","\0","0","\0","\0","TopeExtensionTiempoExtra","((SalarioMin*5)/7)*@DiasPerioNomi","Tope de Extensión por Tiempo Extra")
+		row("133","06/07/2018 12:33:59","50add111fa1943c08765531d77982ad2","05/29/2018 13:51:55","\0","\0","\0","\0","\0","2","\0","\0","SueldoxHora","IF(@Unidad==\"JORNADA\",@SueldoxUni/8,@SueldoxUni)","Contiene el cálculo del sueldo por hora cuando el tipo de Jornada es diferente de JORNADA POR HORA.")
+		row("141","06/13/2018 20:11:50","6177e91251f74b36a26a190218dc98f4","05/29/2018 16:55:47","\0","\0","\0","\0","\0","3","\0","\0","RiesgoTrabPatron","SDI*RiesgoTrab*(@DiasPerioNomi-Total_FaltasxIncap_Perio-@FINJ)","Riesgo de Trabajo a Cargo del Patrón")
+		row("152","05/31/2018 14:36:34","a5ed376c6b7844f0bc11bf2cdf26f34c","05/30/2018 15:03:10","\0","\0","\0","\0","\0","11","\0","\0","Reparto_UtilidXDias","((@PTU_GananciasAno/2)/@Total_Dias_trab_Todos)*@DiasPerioNomi","Reparto de utilidades por la suma del total de días trabajados de todos los empleados en la nómina")
+		row("153","05/31/2018 14:28:18","62f673d0be5443c6985f510563a72f2b","05/30/2018 15:04:30","\0","\0","\0","\0","\0","13","\0","\0","Reparto_UtilidXSueldo","((@PTU_GananciasAno/2)/@Suma_Sueldo_Todos)*Sueldo","Reparto de utilidades por la suma del sueldo de los empleados de la nomina")
+		row("154","05/31/2018 14:30:41","ceee11a4fcf34b3f9ab61774f57b64d3","05/30/2018 15:06:03","\0","\0","\0","\0","\0","5","\0","\0","Reparto_Utilidades","(Reparto_UtilidXSueldo) + (Reparto_UtilidXDias)\n","Reparto de utilidades")
+		row("156","05/31/2018 20:21:49","b46e8e28039d46be9852eb57251cb858","05/31/2018 14:28:06","\0","\0","\0","\0","\0","1","\0","\0","Sueldo","@cantidad*@sueldo","sueldo\n")
+		row("157","06/01/2018 11:11:02","428218f041eb45feb3c165764e4ed5a1","06/01/2018 10:34:05","\0","\0","\0","\0","\0","2","\0","\0","TotalPerGrav","@TotalPerGrav","Total Percepciones Gravadas")
+		row("160","06/12/2018 19:49:07","5706888d73454626942413690a00a6d3","06/12/2018 19:48:07","\0","\0","\0","\0","\0","2","\0","\0","DescxFaltas_Injust_Perio","@SueldoxUni*@FINJ","Descuento por Faltas Injustificadas en el Periodo")
+		row("161","06/12/2018 19:51:22","f5b671cce029454a9ccc57e6ebe2dd50","06/12/2018 19:51:22","\0","\0","\0","\0","\0","0","\0","\0","Desc_IncapxEnfer_Gral_Perio","@SueldoxUni*@INxEG","Descuento de Faltas por Incapacidad por Enfermedades en General en el Periodo")
+		row("162","06/12/2018 19:53:36","495c83edcfb547ddb0b5f20da87daa56","06/12/2018 19:53:36","\0","\0","\0","\0","\0","0","\0","\0","Desc_IncapxMatern_Perio","@SueldoxUni*@INxMA","Descuento de Faltas por Incapacidad por Maternidad en el Periodo")
+		row("163","06/12/2018 19:56:16","f8e8ecdac552437dbded54a998fb082d","06/12/2018 19:56:16","\0","\0","\0","\0","\0","0","\0","\0","Desc_IncapxRiesgo_Trabajo_Perio","@SueldoxUni*@INxRT","Descuento de Faltas por Incapacidad por Riesgo de Trabajo en el Periodo")
+		row("164","06/12/2018 20:02:41","02075b1b967f4a76acf33883e318ef77","06/12/2018 20:02:41","\0","\0","\0","\0","\0","0","\0","\0","Total_FaltasxIncap_Perio","@INxEG+@INxRT+@INxMA","Total de Faltas por Incapacidad en el periodo")
+		row("165","06/12/2018 21:14:54","a156a2304dd6433c94d3d613a9bdbc05","06/12/2018 21:08:19","\0","\0","\0","\0","\0","1","\0","\0","Horas_Extras_Exentas","(SueldoxHora*@HESE)+(SueldoxHora*(@HEDE*2))+(SueldoxHora*(@HETE*3))","Importe total de horas extras exentas")
+		row("166","06/12/2018 21:16:08","cc9b8135fa6c45fdaf74fb4402721ef3","06/12/2018 21:16:08","\0","\0","\0","\0","\0","0","\0","\0","Horas_Extras_Gravadas","(SueldoxHora*@HESG)+(SueldoxHora*(@HEDG*2))+(SueldoxHora*(@HETG*3))","Importe total de horas extras gravadas")
+		row("167","06/14/2018 12:13:22","2d92206f8b8145dbaa503ddd7a8ec113","06/13/2018 20:08:23","\0","\0","\0","\0","\0","1","\0","\0","SDI","IF(@sdi<=SalarioMin,SalarioMin,@sdi)","Salario Diario Integrado")
+		row("168","06/19/2018 12:25:49","b99170393e284c568cc57d3f87473602","06/19/2018 12:25:49","\0","\0","\0","\0","\0","0","\0","\0","PTUExento","IF(Reparto_Utilidades<=(UMA*15), Reparto_Utilidades, UMA*15)","Reparto de utilidad exento")
+		row("169","06/19/2018 12:26:17","56e2db2511a14fe791f0f191119e9bb0","06/19/2018 12:26:17","\0","\0","\0","\0","\0","0","\0","\0","PTUGravado","IF((Reparto_Utilidades-PTUExento)>=0, Reparto_Utilidades-PTUExento, 0)","Reparto de utilidad gravado")
+		row("170","06/19/2018 12:26:36","9ee6e9e580a347d6aae389a7c6df93b5","06/19/2018 12:26:36","\0","\0","\0","\0","\0","0","\0","\0","UMA","89.62","Unidad de medida y actualización")
+	}
+}

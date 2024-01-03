@@ -1,0 +1,29 @@
+#include "dkli.dkh"
+#!
+module "t-c"
+{
+    @table_name="rh_tipo_contrato"
+    @list_query="Select *,ifnull(texto,'')ftexto From rh_tipo_contrato order by nombre;"
+
+    PrepareView::&db,&params,&record
+    {
+        if isnull(record){return}
+        record<"tiponomina*">:dbr.list(db,"Select t.*,CONCAT(t.nombre, ' [',t.sat_tiponomina,', ',t.dias,' días de pago]')ftext from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by nombre; ",params)
+    }
+    list::&db,&params
+    {
+        new entity
+        {
+            @"data*":entity.list(db,params)
+        }
+        do PrepareView(db,params,entity)
+        return entity
+    }
+    update::&db,&params,&data
+    {
+        do dbr.update(db,@table_name,data,"sys_pk=@_entity_id",params)
+        return @null
+    }
+    point @update to update
+    point @list to list
+}

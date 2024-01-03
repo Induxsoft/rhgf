@@ -1,0 +1,124 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.dkl"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+    ref tes=if(file.exists(@CLAVE_SAT),from.json(file.rtext(@CLAVE_SAT)),list.create())
+    new tipo
+    {
+        @"datatable*":@("&./tipo")
+        @"id":"tipo"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"tipo"
+            @"required":"true"
+        }
+        @"value_field":"id"
+        @"text_field":"const"
+        @"selected":@('$./tipo')
+    }
+    new clavesat
+    {
+        @"datatable*":tes
+        @"id":"sat_clave"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"sat_clave"
+            @"required":"true"
+        }
+        @"value_field":"clave"
+        @"text_field":"valor"
+        @"selected":@('$./sat_clave')
+    }
+     new tipoelementsat
+    {
+        @"datatable*":@("&./tipo_element_sat")
+        @"id":"sat_elemento"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"sat_elemento"
+            @"required":"true"
+        }
+        @"value_field":"id"
+        @"text_field":"const"
+        @"selected":@('$./sat_elemento')
+    }
+    #$
+    div(class="container")
+    {
+        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
+        div
+        {
+            p(style="color:red"){$"#<@('$error/message')>"}
+           
+            form(action="." method="POST")
+            {
+                 div(class="bg-light my-1")
+                {
+                    div(class="btn-group" role="group")
+                    {
+                        a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm")
+                        { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                            </svg>'
+                        }
+                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="tipocontrato.Add()"){"Aceptar"}
+                    }
+                }
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Código:"}
+                        input(class="induxsoft-form-control" name="codigo" value="#<@('$./codigo')>")
+                    }
+                    div(class="col-md-6")
+                    {
+                        label{"Descripción:"}
+                        input(class="induxsoft-form-control" name="descripcion" value="#<@('$./descripcion')>")
+                    }
+                }
+                
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Tipo:"}
+                        #! do uie.dbSelect(tipo)
+                    }
+                    #$div(class="col-md-6 d-flex align-items-center")
+                    {
+                        label(class="m-1"){input(type="checkbox" name="gravable" "#<ifstr(@('#./gravable'),'checked','')>"="true")" Gravable"}
+                        label(class="m-1"){input(type="checkbox" name="especie" "#<ifstr(@('#./especie'),'checked','')>"="true")" En especie"}
+                    }
+                }
+
+                label{"Fórmula:"}
+                textarea(class="induxsoft-form-control" name="formula"){"#<@('$./formula')>"}
+                input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Tipo elemento SAT:"}
+                        #! do uie.dbSelect(tipoelementsat)
+                    }
+                    #$div(class="col-md-6")
+                    {
+                        label{"Clave SAT:"}
+                        #! do uie.dbSelect(clavesat)
+                    }
+                }
+                
+            }
+        }
+    }
+}

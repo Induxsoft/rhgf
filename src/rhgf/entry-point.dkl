@@ -49,10 +49,14 @@ module "Controller configs"
 	do crudl.routes.pattern("/_program/")
 	do crudl.routes.entity("/nomina/","nomina")
 	do crudl.routes.entity("/recibo/","recibo")
-	do crudl.routes.entity("/conceptonomina/","conceptonomina")
+	do crudl.routes.entity("/concepto-nomina/","concepto-nomina")
 	do crudl.routes.entity("/concepto-recibo/","concepto-recibo")
-
-	// @http_context<"session/idp/database*">:@null
+	do crudl.routes.entity("/contrato-empleado/","contrato-empleado")
+	do crudl.routes.entity("/variable/","variable")
+	do crudl.routes.entity("/tipo-contrato/","tipo-contrato")
+	do crudl.routes.entity("/tablas/","tablas")
+	do crudl.routes.entity("/grupos-conceptos/","grupos-conceptos")
+	do crudl.routes.entity("/tipo-nomina/","tipo-nomina")
 
 	@dbmvc_path="crudl/"
 	
@@ -78,7 +82,7 @@ module "Controller configs"
 
     @ws=@@(@http_context,"request/get/ws")
 
-    @crudl.qname="sipbsadev_15@induxsoft"
+    @crudl.qname=""
 
 	@crudl.access_privilege='
 	{
