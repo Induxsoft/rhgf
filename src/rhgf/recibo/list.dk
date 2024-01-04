@@ -9,26 +9,53 @@ module "list.recibo"
     do @context.begin(@crud_context)
     ref data=@("&./data")
     
+    ref conceptos=@("&./conceptos")
+    percepciones=0
+    deducciones=0
+    liquido=0
+    obligaciones=0
+    for i = 0; i < @count(conceptos)
+    {
+        ref itm=@item(conceptos,i)
+        percepciones=percepciones + @@(itm,"#percepcion")
+        deducciones=deducciones + @@(itm,"#deduccion")
+        // liquido=liquido + @@(itm,"#liquido")
+        obligaciones=obligaciones + @@(itm,"#obligacion")
+    }
+
+    empleado=@@(data,"$nombre")+ " "+@@(data,"$apellido1")+ " "+@@(data,"$apellido2")
     #$
     div(class="container")
     {
         h1(class="h4"){$"Detalle de recibo de nómina"}
+        h5{"#<empleado>"}
         div
         {
             p(style="color:red"){$"#<@('$error/message')>"}
             div(class="bg-light my-1")
             {
-                div(class="btn-group" role="group")
+                div(class="d-flex gap-2" role="group")
                 {
-                    a(href="#<@NOMINAS+@@(data,'$ref_nomina')>/" class="btn btn-sm")
-                    { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
-                        </svg>'
+                    div(class="flex-grow-1 d-flex gap-2")
+                    {
+                        a(href="#<@NOMINAS+@@(data,'$ref_nomina')>/" class="btn btn-sm")
+                        { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                            </svg>'
+                        }
+                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="nomina.Add(#<@@(data,'#sys_pk')>)"){"Agregar"}
+                        button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar_concepto()"){"Editar"}
+                        button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteReciboConcepto()"){"Eliminar"}
+                        button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
                     }
-                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="nomina.Add(#<@@(data,'#sys_pk')>)"){"Agregar"}
-                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar_concepto()"){"Editar"}
-                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteReciboConcepto()"){"Eliminar"}
-                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
+                    div(class="d-flex gap-2")
+                    {
+                        label(class="d-flex ms-1"){"Percepcion: $"h5(class="ms-1"){"#<format(percepciones,'#,#.00')>"}}
+                        label(class="d-flex ms-1"){"Deduccion: $"h5(class="ms-1"){"#<format(deducciones,'#,#.00')>"}}
+                        // label(class="d-flex ms-1"){"Liquido: $"h5(class="ms-1"){" #<liquido>"}}
+                        label(class="d-flex ms-1"){"Obligacion: $"h5(class="ms-1"){" #<format(obligaciones,'#,#.00')>"}}
+                    }
+                    
                 }
             }
             "edit-table"(class="w-100 h-100" id="lst_recibos_conceptos" data="#<to.json(@('&./conceptos'))>" "hidde-selector"="true")

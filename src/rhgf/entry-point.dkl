@@ -57,7 +57,7 @@ module "Controller configs"
 	do crudl.routes.entity("/tablas/","tablas")
 	do crudl.routes.entity("/grupos-conceptos/","grupos-conceptos")
 	do crudl.routes.entity("/tipo-nomina/","tipo-nomina")
-
+	// @http_context<"session/idp/database*">:@null
 	@dbmvc_path="crudl/"
 	
 	@auto_crud=@true
@@ -73,7 +73,7 @@ module "Controller configs"
 	@dkl_view_ext=".dk"
 	@websencia_ext=".jsnwm"
 
-    @crudl.user=""
+   @crudl.user=""
     @crudl.pwd=""
 
     @path_template_protected=@path_root+"/_protected/default.htt"
@@ -82,7 +82,7 @@ module "Controller configs"
 
     @ws=@@(@http_context,"request/get/ws")
 
-    @crudl.qname=""
+     @crudl.qname=""
 
 	@crudl.access_privilege='
 	{

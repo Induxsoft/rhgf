@@ -44,7 +44,7 @@ module ""
                     input(class="induxsoft-form-control" id="importe" type="Number")
 
                     label(class=""){"Leyenda:"}
-                    input(class="induxsoft-form-control control_hide" id="leyenda" )
+                    input(class="induxsoft-form-control" id="leyenda" )
                 }
                 div(class="modal-footer" id="ftrAddClt")
                 {

@@ -15,7 +15,9 @@ module ""
 	{
 		new entity
 		{
-			@"data*":dbr.rec(db,"select * from rh_detalle_nomina where sys_pk=@_entity_id",params)
+			@"data*":dbr.rec(db,"SELECT e.*,rhd.ref_nomina FROM rh_detalle_nomina rhd 
+			INNER JOIN rh_contrato_empleado rhc ON rhd.ref_contrato=rhc.sys_pk
+			INNER JOIN rh_empleado_org e ON rhc.ref_empleado=e.sys_pk where rhd.sys_pk=@_entity_id",params)
 			@"conceptos*":entity.list(db,params)
 		}
 		return entity
