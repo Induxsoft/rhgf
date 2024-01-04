@@ -82,7 +82,7 @@ module "Controller configs"
 
     @ws=@@(@http_context,"request/get/ws")
 
-     @crudl.qname=""
+     @crudl.qname="sipbsadev_15@induxsoft"
 
 	@crudl.access_privilege='
 	{
