@@ -3,6 +3,10 @@
 module ""
 {
     @table_name = "rh_empleado_org"
+
+    @create_exclude_fields = "shortcut"
+    @update_exclude_fields = "shortcut"
+
     @list_query = "
     SELECT
         sys_pk,
@@ -17,4 +21,168 @@ module ""
     FROM #<@table_name>
     WHERE NOT IFNULL(sys_deleted,0)
     "
+
+    @read_query = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        sys_recver,
+        codigo,
+        nombre,
+        apellido1,
+        apellido2,
+        rfc,
+        curp,
+        fnacimiento,
+        fingreso,
+        fcontratacion,
+        sat_regimenfiscal,
+        sat_cp,
+        foto,
+        factualizacionfoto,
+        nacionalidad,
+        edocivil,
+        conyuge,
+        depeconomicos,
+        hijos,
+        pension,
+        ingresonecesario,
+        tipovivienda,
+        gastofamiliarmensual,
+        aportaciongasto,
+        fechaestudiosocioe,
+        escolaridad,
+        titulos,
+        competencias,
+        estrellas,
+        cerebros,
+        focos,
+        tachas,
+        notas,
+        totalmiembrosfam,
+        obs_socio,
+        ref_categoria,
+        nss
+    FROM #<@table_name>
+    WHERE #<@keyfield> = @_entity_id AND NOT IFNULL(sys_deleted,0)
+    "
+
+    rh.prepareView::&db,&params,&data
+    {
+        switch @@(@http_context,"$request/get/_view")
+        {
+            case ""
+            {
+                sql_cat_empleado = "SELECT sys_pk, nombre AS `text` FROM rh_categoria_empleado WHERE NOT IFNULL(sys_deleted,0);"
+                sql_escolaridad = "SELECT id, const FROM rh_nvl_escolaridad;"
+                sql_estado_civil = "SELECT id, const FROM rh_edo_civil;"
+                sql_tipo_vivienda = "SELECT id, const FROM rh_tipo_vivienda;"
+
+                if @@(params,"$_entity_id") != "_new" { data<"dtempleado*"> : entity.read(db,params) }
+                data<"list_cat_empleado*"> : dbr.list(db,sql_cat_empleado,@null)
+                data<"list_escolaridad*"> : dbr.list(db,sql_escolaridad,@null)
+                data<"list_estado_civil*"> : dbr.list(db,sql_estado_civil,@null)
+                data<"list_tipo_vivienda*"> : dbr.list(db,sql_tipo_vivienda,@null)
+                break
+            }
+        }
+    }
+
+    rh.read::&db,&params
+    {
+        new data {}
+        do rh.prepareView(db,params,data)
+        return data
+    }
+
+    rh.blank::&db,&params
+    {
+        new data {}
+        do rh.prepareView(db,params,data)
+        return data
+    }
+
+    rh.create::&db,&params,&data
+    {
+        ref entity = @@(entity.create(db,params,data),"&dtempleado")
+
+        switch toupper(trim(@@(data,"$shortcut")))
+        {
+            case "F6"
+            {
+                @url_redir = @RH_EMPLEADOS + @@(entity,"$sys_pk") + "/"
+                break
+            }
+            case "F8"
+            {
+                @url_redir = @RH_EMPLEADOS
+                break
+            }
+            case "F9"
+            {
+                @url_redir = @RH_EMPLEADOS + "_new/"
+                break
+            }
+        }
+
+        exception
+        {
+            if dbr.in_transaction(db) { do dbr.rollback(db) }
+
+            ref formData = record.copy(data,"*")
+            code = last_error_code()
+            error = last_error()
+
+            do record.clear(data)
+            data<"form*"> : formData
+            
+            do rh.prepareView(db,params,data)
+            do rise_error(code,error)
+        }
+    }
+
+    rh.update::&db,&params,&data
+    {
+        ref entity = @@(entity.update(db,params,data),"&dtempleado")
+
+        switch toupper(trim(@@(data,"$shortcut")))
+        {
+            case "F6"
+            {
+                @url_redir = @RH_EMPLEADOS + @@(entity,"$sys_pk") + "/"
+                break
+            }
+            case "F8"
+            {
+                @url_redir = @RH_EMPLEADOS
+                break
+            }
+            case "F9"
+            {
+                @url_redir = @RH_EMPLEADOS + "_new/"
+                break
+            }
+        }
+
+        exception
+        {
+            if dbr.in_transaction(db) { do dbr.rollback(db) }
+
+            ref formData = record.copy(data,"*")
+            code = last_error_code()
+            error = last_error()
+
+            do record.clear(data)
+            data<"form*"> : formData
+            
+            do rh.prepareView(db,params,data)
+            do rise_error(code,error)
+        }
+    }
+
+    point @read to rh.read
+    point @blank to rh.blank
+
+    point @create to rh.create
+    point @update to rh.update
 }

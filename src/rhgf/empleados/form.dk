@@ -1,0 +1,169 @@
+#include "dkli.dkh"
+#!
+module "form.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.dkl"
+    #include "../_lib/icons.dk"
+    #include "../config.dk"
+    #include "../_lib/lib.dk"
+
+    do @context.begin(@crud_context)
+
+    ref formData = ifnull(@("&./form"),record.create())
+    ref dtempleado = ifnull(@("&./dtempleado"),record.create())
+
+    ref listCatEmpleado = ifnull(@("&./list_cat_empleado"),list.create())
+    ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
+    ref listEstadoCivil = ifnull(@("&./list_estado_civil"),list.create())
+    ref listTipoVivienda = ifnull(@("&./list_tipo_vivienda"),list.create())
+    ref listSatRegFiscal = list.create() //if(file.exists(@SAT_REGIMEN_FISCAL),from.json(file.rtext(@SAT_REGIMEN_FISCAL)),list.create())
+
+    // do rise_error(0,to.json(@("&.")))
+
+    new sel_cat_empleado
+    {
+        @"datatable*": listCatEmpleado
+        @"id": "sel_cat_empleado"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "ref_categoria"
+        }
+        @"value_field": "sys_pk"
+        @"text_field": "text"
+        @"selected": form("ref_categoria","nm",dtempleado)
+    }
+
+    new sel_reg_fiscal
+    {
+        @"datatable*": listSatRegFiscal
+        @"id": "sel_reg_fiscal"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "sat_regimenfiscal"
+        }
+        @"value_field": "clave"
+        @"text_field": "valor"
+        @"selected": form("sat_regimenfiscal","nm",dtempleado)
+    }
+
+    new sel_escolaridad
+    {
+        @"datatable*": listEscolaridad
+        @"id": "sel_escolaridad"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "escolaridad"
+            @"required": ""
+        }
+        @"value_field": "id"
+        @"text_field": "const"
+        @"selected": form("escolaridad","nm",dtempleado)
+    }
+
+    new sel_edocivil
+    {
+        @"datatable*": listEstadoCivil
+        @"id": "sel_edocivil"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "edocivil"
+            @"required": ""
+        }
+        @"value_field": "id"
+        @"text_field": "const"
+        @"selected": form("edocivil","nm",dtempleado)
+    }
+
+    new sel_tipo_vivienda
+    {
+        @"datatable*": listTipoVivienda
+        @"id": "sel_tipo_vivienda"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "tipovivienda"
+        }
+        @"value_field": "id"
+        @"text_field": "const"
+        @"selected": form("tipovivienda","nm",dtempleado)
+    }
+
+    form_title = "Nuevo empleado"
+    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar empleado" }
+    
+    #$
+    div(class="container")
+    {
+        link(href="#<@CSS_MAIN>" rel="stylesheet")
+
+        div(class="row container-section m-0 px-0 py-2 my-2 border-bottom sticky-top bg-white" id="main_action_bar")
+        {
+            div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
+            div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
+            {
+                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
+                a(href="#<@CXP_PROVS>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+            }
+        }
+
+        div
+        {
+            nav
+            {
+                div(class="nav nav-tabs mb-2" id="nav-tab" role="tablist")
+                {
+                    button(class="nav-link active" id="nav-general-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-general" type="button" role="tab" "aria-controls"="nav-general" "aria-selected"="true"){$"General"}
+                    button(class="nav-link" id="nav-administracion-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-administracion" type="button" role="tab" "aria-controls"="nav-administracion" "aria-selected"="false"){$"Información académica"}
+                    button(class="nav-link" id="nav-adicionales-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-adicionales" type="button" role="tab" "aria-controls"="nav-adicionales" "aria-selected"="false"){$"Datos socio-económicos"}
+                    button(class="nav-link" id="nav-notas-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-notas" type="button" role="tab" "aria-controls"="nav-notas" "aria-selected"="false"){$"Notas"}
+                }
+            }
+
+            form(class="" action="./" method="POST" id="form_empleado")
+            {
+                input(type="hidden" name="sys_pk" value="#<@@(dtempleado,'#sys_pk')>")
+                input(type="hidden" name="sys_recver" value="#<@@(dtempleado,'#sys_recver')>")
+                input(type="hidden" name="shortcut" value="F6")
+
+                div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
+
+                div(class="tab-content")
+                {
+                    div(class="tab-pane fade show active" id="nav-general" role="tabpanel" "aria-labelledby"="nav-general-tab")
+                    {#! #include "./includes/form.nav.general.dk" #$}
+                    div(class="tab-pane fade" id="nav-administracion" role="tabpanel" "aria-labelledby"="nav-administracion-tab")
+                    {#! #include "./includes/form.nav.inf.academica.dk" #$}
+                    div(class="tab-pane fade" id="nav-adicionales" role="tabpanel" "aria-labelledby"="nav-adicionales-tab")
+                    {#! #include "./includes/form.nav.dt.socio.economico.dk" #$}
+                    div(class="tab-pane fade" id="nav-notas" role="tabpanel" "aria-labelledby"="nav-notas-tab")
+                    {
+                        textarea(class="form-control" maxlength="32000" name="notas" id="txt_notas" rows="20"){$"#<form('notas','tx',dtempleado)>"}
+                    }
+                }
+            }
+        }
+
+        // div{ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
+
+        div
+        {
+            script(src="#<@JS_EMPLEADOS>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    empleado.path = "#<@RH_EMPLEADOS>";
+                    empleado.form._GET = #<to.json(@("&parameters"))> ?? {};
+                    empleado.form.dtempleado = #<to.json(dtempleado)> ?? {};
+                    empleado.form.init();
+                });
+            '}
+        }
+    }
+}

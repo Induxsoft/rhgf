@@ -52,7 +52,6 @@ module "list.dk"
             script(type="text/javascript")
             {$'
                 document.addEventListener("DOMContentLoaded", () => {
-                    empleado.tableId = "tbl_empleados";
                     empleado.path = "#<@RH_EMPLEADOS>";
                     empleado.list.init();
                 });

@@ -1,0 +1,73 @@
+#include "dkli.dkh"
+#$
+section(class="" id="")
+{
+    div(class="row")
+    {
+        div(class="col-lg-4 col-md-4 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_edocivil"){$"Estado civil:" sup{$"*"}}
+            ##
+            do uie.dbSelect(sel_edocivil)
+            ##
+        }
+        div(class="col-lg-4 col-md-4 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_tipo_vivienda"){$"Vivienda:"}
+            ##
+            do uie.dbSelect(sel_tipo_vivienda)
+            ##
+        }
+        div(class="col-lg-4 col-md-4 col-sm-12")
+        {
+            label(class="form-label" "for"="txt_conyuge"){$"Cónyuge, concubina(o) o pareja:"}
+            input(class="form-control form-control-sm rounded-0" type="text" name="conyuge" maxlength="150" value="#<form('conyuge','tx',dtempleado)>" id="txt_conyuge")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_depeconomicos"){$"Dependientes económicos:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="depeconomicos" min="0" value="#<form('depeconomicos','nm',dtempleado)>" id="txt_depeconomicos")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_hijos"){$"Hijos:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="hijos" min="0" value="#<form('hijos','nm',dtempleado)>" id="txt_hijos")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_miembros_familia"){$"Miembros de la familia:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="totalmiembrosfam" min="0" value="#<form('totalmiembrosfam','nm',dtempleado)>" id="txt_miembros_familia")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_gasto_familiar_mensual"){$"Gasto familiar mensual:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="gastofamiliarmensual" min="0" max="9999999999.9999" step="0.0001" value="#<form('gastofamiliarmensual','nm',dtempleado)>" id="txt_gasto_familiar_mensual")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_aportacion_gasto"){$"% aportación al gasto familiar:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="aportaciongasto" min="0" max="999999.99" step="0.01" value="#<form('aportaciongasto','nm',dtempleado)>" id="txt_aportacion_gasto")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_ingreso_minimo"){$"Ingreso minimo requerido:"}
+            input(class="form-control form-control-sm rounded-0" type="number" name="ingresonecesario" min="0" max="9999999999.9999" step="0.0001" value="#<form('ingresonecesario','nm',dtempleado)>" id="txt_ingreso_minimo")
+        }
+        div(class="col-12")
+        {
+            div(class="form-check py-1") {
+                #!
+                checked = ""
+                if @("$parameters/_entity_id") != "_new" { checked = form("pension","ch",dtempleado) }
+                #$
+                input(class="form-check-input" type="checkbox" name="pension" id="chq_pension" "#<checked>"="")
+                label(class="form-check-label" "for"="chq_pension"){$"Paga pension alimenticia"}
+            }
+        }
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="txt_observaciones"){$"Observaciones:"}
+            textarea(class="form-control rounded-0" name="obs_socio" maxlength="4096" id="txt_observaciones"){$"#<form('obs_socio','tx',dtempleado)>"}
+        }
+    }
+}

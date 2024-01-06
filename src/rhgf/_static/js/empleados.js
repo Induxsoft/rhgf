@@ -35,14 +35,42 @@ var empleado =
 
     add()
     {
+        let url_redir = (this.path) ? this.path + "_new/" : "./_new/"
+        window.location.href = url_redir;
+    },
+    edt(id)
+    {
+        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
+            console.error("Debe indicar un identificador válido");
+            return;
+        }
 
+        let url_redir = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
+        window.location.href = url_redir;
+    },
+    del(id,callback=null)
+    {
+        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
+            console.error("Debe indicar un identificador válido");
+            return;
+        }
+        if (!confirm("¿Esta seguro que desea eliminar el registro seleccionado?")) return;
+        
+        let url = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
+        InduxsoftCrudlModel.InvokeService(url,null,
+            function(data){
+                if (data.message) { alert(data.message); return; }
+                if (callback) callback(); else window.location.reload();
+            },
+            function(error){ console.error(error); },
+            "DELETE",false,false
+        );
     },
 
     list: {
         tEmpleados: null,
         tEvents: {},
         tData: {},
-        url_add: "", url_edt: "",
         txt_search_empleado: null,
         btn_search_empleado: null,
         btn_new_empleado: null,
@@ -50,11 +78,9 @@ var empleado =
         init()
         {
             this.tEmpleados = document.getElementById("tbl_empleados");
-            this.url_add = empleado.path + "_new/";
-            this.url_edt = empleado.path + "@empleado/"
-            // this.txt_search_empleado = document.getElementById("txt_search_empleado");
-            // this.btn_search_empleado = document.getElementById("btn_search_empleado");
-            // this.btn_new_empleado = document.getElementById("btn_new_empleado");
+            this.txt_search_empleado = document.getElementById("txt_search_empleado");
+            this.btn_search_empleado = document.getElementById("btn_search_empleado");
+            this.btn_new_empleado = document.getElementById("btn_new_empleado");
 
             this.tEmpleados.hiddeSelector = true;
             this.tEmpleados.AutoAddRow = false;
@@ -65,6 +91,8 @@ var empleado =
 
             /* this.tEmpleados.Events[this.tEvents.EnterCell] = (e) => {
                 let tr = e.td.offsetParent;
+                // let currRow = e.sender.CurrentRowIndex();
+                // let currCol = e.sender.CurrentColIndex();
                 tr.ondblclick = (event) => { empleado.goTo(); }
             }; */
 
@@ -74,15 +102,20 @@ var empleado =
 
         setEvents()
         {
-            document.getElementById("btn_add").addEventListener("click", (event) => {
-                window.location.href = this.url_add;
-            });
+            document.getElementById("btn_add").addEventListener("click", (event) => { empleado.add(); });
             document.getElementById("btn_edt").addEventListener("click", (event) => {
-                empleado.goTo(this.url_edt);
+                let dt = this.tData[this.tEmpleados.CurrentRowIndex()];
+                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
+                
+                empleado.edt(dt.sys_pk);
             });
             document.getElementById("btn_del").addEventListener("click", (event) => {
-                if (!confirm("¿Esta seguro que desea eliminar el registro seleccionado?")) return;
-                console.log("Registro eliminado.");
+                let dt = this.tData[this.tEmpleados.CurrentRowIndex()];
+                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
+                
+                empleado.del(dt.sys_pk,function(){
+                    alert("eliminado");
+                });
             });
 
             if (this.txt_search_empleado) {
@@ -140,24 +173,14 @@ var empleado =
 
     form: {
         _GET: {},
-        formProveedor: null,
+        dtProv: {},
+        formEmpleado: null,
         elements: null,
         btnSave: null,
-
-        dtProv: {},
-        domicilio1: {},
-        domicilio2: {},
-        domicilio3: {},
-
-        url_buscar_edoprov: "",
-        url_buscar_ciudad: "",
-        url_buscar_contacto: "",
-        CXP_PROVS: "", PDR_AGREGAR: "",
-        ipais: 0, iestado: 0, iciudad: 0,
         
         init()
         {
-            this.formProveedor = document.getElementById("form_proveedor");
+            this.formEmpleado = document.getElementById("form_empleado");
             this.btnSave = document.getElementById("btn_save");
             this.setEvents();
             this.setKeyboardShortcuts();
@@ -166,87 +189,8 @@ var empleado =
         setEvents()
         {
             if (this.btnSave) { this.btnSave.addEventListener("click", () => { this.saveForm(); }); }
-            if (this.formProveedor) {
-                this.elements = this.formProveedor.elements;
-
-                this.elements["chq_domicilio1"].addEventListener("change", (event) => {
-                    let domicilio1 = document.getElementById("cbody_domicilio1");
-                    (event.target.checked) ? domicilio1.classList.remove("disable-form") : domicilio1.classList.add("disable-form");
-                    
-                    if (this._GET["_entity_id"] == "_new" || Object.entries(this.domicilio1).length == 0) { this.elements["sel_pais"].value = this.ipais; }
-                    else { this.elements["sel_pais"].value = this.domicilio1.ipais; }
-
-                    if (this.elements["sel_estado"].options.length <= 0) this.fillEstados(this.elements["sel_pais"],this.elements["sel_estado"]);
-                });
-                this.elements["sel_pais"].addEventListener("change", () => {
-                    this.fillEstados(this.elements["sel_pais"],this.elements["sel_estado"]);
-                });
-                this.elements["sel_estado"].addEventListener("change", () => {
-                    this.fillCiudades(this.elements["sel_estado"],this.elements["sel_ciudad"]);
-                });
-                
-                this.elements["chq_domicilio2"].addEventListener("change", (event) => {
-                    let domicilio2 = document.getElementById("cbody_domicilio2");
-                    (event.target.checked) ? domicilio2.classList.remove("disable-form") : domicilio2.classList.add("disable-form");
-
-                    if (this._GET["_entity_id"] == "_new" || Object.entries(this.domicilio2).length == 0) { this.elements["sel_pais2"].value = this.ipais; }
-                    else { this.elements["sel_pais2"].value = this.domicilio2.ipais; }
-
-                    if (this.elements["sel_estado2"].options.length <= 0) this.fillEstados(this.elements["sel_pais2"],this.elements["sel_estado2"]);
-                });
-                this.elements["sel_pais2"].addEventListener("change", () => {
-                    this.fillEstados(this.elements["sel_pais2"],this.elements["sel_estado2"]);
-                });
-                this.elements["sel_estado2"].addEventListener("change", () => {
-                    this.fillCiudades(this.elements["sel_estado2"],this.elements["sel_ciudad2"]);
-                });
-
-                this.elements["chq_domicilio3"].addEventListener("change", (event) => {
-                    let domicilio3 = document.getElementById("cbody_domicilio3");
-                    (event.target.checked) ? domicilio3.classList.remove("disable-form") : domicilio3.classList.add("disable-form");
-
-                    if (this._GET["_entity_id"] == "_new" || Object.entries(this.domicilio3).length === 0) { this.elements["sel_pais3"].value = this.ipais; }
-                    else { this.elements["sel_pais3"].value = this.domicilio3.ipais; }
-
-                    if (this.elements["sel_estado3"].options.length <= 0) this.fillEstados(this.elements["sel_pais3"],this.elements["sel_estado3"]);
-                });
-                this.elements["sel_pais3"].addEventListener("change", () => {
-                    this.fillEstados(this.elements["sel_pais3"],this.elements["sel_estado3"]);
-                });
-                this.elements["sel_estado3"].addEventListener("change", () => {
-                    this.fillCiudades(this.elements["sel_estado3"],this.elements["sel_ciudad3"]);
-                });
-
-                this.elements["chq_otorgar_credito"].addEventListener("change", (event) => {
-                    let div_credito = document.getElementById("div_otorgar_credito");
-                    (event.target.checked) ? div_credito.classList.remove("disable-form") : div_credito.classList.add("disable-form");
-                });
-                this.elements["rd_credito_ilimitado"].addEventListener("change", (event) => {
-                    this.elements["limitecredito"].type = "hidden";
-                });
-                this.elements["rd_credito_limitado"].addEventListener("change", (event) => {
-                    this.elements["limitecredito"].type = "number";
-                });
-
-                if (this._GET["_entity_id"] != "new")
-                {
-                    let contacto1 = Number(this.dtProv.contacto1);
-                    let contacto2 = Number(this.dtProv.contacto2);
-                    let contacto3 = Number(this.dtProv.contacto3);
-
-                    if (contacto1 > 0) {
-                        let ikContacto1 = document.getElementById("ik_contacto1");
-                        this.setContacto(ikContacto1,contacto1);
-                    }
-                    if (contacto2 > 0) {
-                        let ikContacto2 = document.getElementById("ik_contacto2");
-                        this.setContacto(ikContacto2,contacto2);
-                    }
-                    if (contacto3 > 0) {
-                        let ikContacto3 = document.getElementById("ik_contacto3");
-                        this.setContacto(ikContacto3,contacto3);
-                    }
-                }
+            if (this.formEmpleado) {
+                this.elements = this.formEmpleado.elements;
             }
         },
 
@@ -257,12 +201,12 @@ var empleado =
                 if (e.key === "Escape") {
                     // Salir
                     e.preventDefault();
-                    window.location.href = this.CXP_PROVS;
+                    window.location.href = (empleado.path) ? empleado.path : "../";
                 }
                 if (e.key === "F2") {
                     // Agregar nuevo
                     e.preventDefault();
-                    if (this._GET["_entity_id"] != "_new") window.location.href = this.PDR_AGREGAR;
+                    if (this._GET["_entity_id"] != "_new") window.location.href = empleado.add();
                 }
                 if (e.key === "F6") {
                     // Guardar
@@ -285,84 +229,9 @@ var empleado =
             });
         },
 
-        fillEstados(ref,out){
-            let url = this.url_buscar_edoprov.replace("search","ipais");
-            url = InduxsoftCrudlModel.UrlReplace(url,{ipais:ref.value});
-            let selected = this.iestado;
-            if (this._GET["_entity_id"] != "_new")
-            {
-                if (out.id == "sel_estado" && Object.entries(this.domicilio1).length > 0) selected = this.domicilio1.iestado;
-                else if (out.id == "sel_estado2" && Object.entries(this.domicilio2).length > 0) selected = this.domicilio2.iestado;
-                else if (out.id == "sel_estado3" && Object.entries(this.domicilio3).length > 0) selected = this.domicilio3.iestado;
-            }
-
-            let onSuccess = (data) => {
-                if (data.message) {
-                    console.error(data.message);
-                    return;
-                }
-
-                out.innerHTML = "";
-                data.forEach(item => {
-                    const option = document.createElement("option");
-                    option.value = item.sys_pk;
-                    option.text = item.text;
-                    if (item.sys_pk == selected) option.selected = true;
-
-                    out.appendChild(option);
-                });
-                proveedor.trigger(out,"change");
-            }
-            let onFailure = (error) => { console.error(error) }
-            InduxsoftCrudlModel.InvokeService(url,null,onSuccess,onFailure,"GET",false,false);
-        },
-
-        fillCiudades(ref,out){
-            let url = this.url_buscar_ciudad.replace("search","iestado");
-            url = InduxsoftCrudlModel.UrlReplace(url,{iestado:ref.value});
-            let selected = this.iciudad;
-            if (this._GET["_entity_id"] != "new")
-            {
-                if (out.id == "sel_ciudad" && Object.entries(this.domicilio1).length > 0) selected = this.domicilio1.iciudad;
-                else if (out.id == "sel_ciudad2" && Object.entries(this.domicilio2).length > 0) selected = this.domicilio2.iciudad;
-                else if (out.id == "sel_ciudad3" && Object.entries(this.domicilio3).length > 0) selected = this.domicilio3.iciudad;
-            }
-
-            let onSuccess = (data) => {
-                if (data.message) {
-                    console.error(data.message);
-                    return;
-                }
-
-                out.innerHTML = "";
-                data.forEach(item => {
-                    const option = document.createElement("option");
-                    option.value = item.sys_pk;
-                    option.text = item.text;
-                    if (item.sys_pk == selected) option.selected = true;
-
-                    out.appendChild(option);
-                });
-            }
-            let onFailure = (error) => { console.error(error) }
-            InduxsoftCrudlModel.InvokeService(url,null,onSuccess,onFailure,"GET",false,false);
-        },
-
-        setContacto(ik,icontacto){
-            let url = this.url_buscar_contacto.replace("search","id");
-            url = InduxsoftCrudlModel.UrlReplace(url,{id:icontacto})
-
-            let onSuccess = (data) => {
-                if (data.message) { alert(data.message); return; }
-                ik.setValue(data);
-            }
-            let onFailure = (error) => { console.error(error) }
-            InduxsoftCrudlModel.InvokeService(url,null,onSuccess,onFailure,"GET",false,false);
-        },
-
         saveForm(){
-            if (!this.formProveedor.reportValidity()) return;
-            this.formProveedor.submit();
+            if (!this.formEmpleado.reportValidity()) return;
+            this.formEmpleado.submit();
         },
     },
 }

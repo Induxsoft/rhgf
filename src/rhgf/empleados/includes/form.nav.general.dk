@@ -1,0 +1,72 @@
+#include "dkli.dkh"
+#$
+section(class="" id="")
+{
+    div(class="row")
+    {
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_codigo"){$"Código:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="text" name="codigo" maxlength="32" value="#<form('codigo','tx',dtempleado)>" id="txt_codigo" placeholder="<A>")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_cat_empleado"){$"Categoría:"}
+            ##
+            do uie.dbSelect(sel_cat_empleado)
+            ##
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_nombre"){$"Nombre:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="text" name="nombre" maxlength="100" value="#<form('nombre','tx',dtempleado)>" id="txt_nombre" required="")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_apellido1"){$"Apellido paterno:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="text" name="apellido1" maxlength="100" value="#<form('apellido1','tx',dtempleado)>" id="txt_apellido1" required="")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_apellido2"){$"Apellido materno:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="text" name="apellido2" maxlength="100" value="#<form('apellido2','tx',dtempleado)>" id="txt_apellido2" required="")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_fnacimiento"){$"Fecha de nacimiento:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="date" name="fnacimiento" value="#<form('fnacimiento','dt',dtempleado)>" id="txt_fnacimiento" required="")
+        }
+        div(class="col-lg-8 col-md-8 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_nacionalidad"){$"Nacionalidad:"}
+            input(class="form-control form-control-sm rounded-0 text-uppercase" type="text" name="nacionalidad" maxlength="50" value="#<form('nacionalidad','tx',dtempleado)>" id="txt_nacionalidad")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_rfc"){$"RFC:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0 text-uppercase" type="text" name="rfc" minlength="12" maxlength="13" value="#<form('rfc','tx',dtempleado)>" id="txt_rfc" required="")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_curp"){$"CURP:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0 text-uppercase" type="text" name="curp" minlength="18" maxlength="18" value="#<form('curp','tx',dtempleado)>" id="txt_curp" required="")
+        }
+        div(class="col-lg-4 col-md-4 col-sm-4")
+        {
+            label(class="form-label" "for"="txt_nss"){$"NSS:"}
+            input(class="form-control form-control-sm rounded-0 text-uppercase" type="text" name="nss" maxlength="50" value="#<form('nss','tx',dtempleado)>" id="txt_nss")
+        }
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="sel_reg_fiscal"){$"Régimen fiscal:" sup{$"*"}}
+            ##
+            do uie.dbSelect(sel_reg_fiscal)
+            ##
+        }
+        div(class="col-auto")
+        {
+            label(class="form-label" "for"="txt_codpos"){$"Código postal receptor (CFDI 4.0):" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="text" name="sat_cp" maxlength="5" value="#<form('sat_cp','tx',dtempleado)>" id="txt_codpos" required="")
+        }
+    }
+}
