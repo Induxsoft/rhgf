@@ -1,0 +1,62 @@
+#include "dkli.dkh"
+#!
+module "list.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../_lib/icons.dk"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+    ref listEmpleados = ifnull(@("&."),list.create())
+
+    #$ div(class="container")
+    {
+        div(class="row container-section m-0 px-0 py-2 my-2 border-bottom sticky-top bg-white" id="main_action_bar")
+        {
+            div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"Empleados"} }
+            div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
+            {
+                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_add"){$"#<@ICON_PLUS_LG> Agregar"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_edt"){$"#<@ICON_EDIT> Editar"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_del"){$"#<@ICON_TRASH> Eliminar"}
+                a(href="/" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" target="_top" title="Salir"){$"#<@ICON_X_LG>"}
+            }
+        }
+
+        div
+        {
+            "edit-table"(class="w-100" id="tbl_empleados" data="#<to.json(listEmpleados)>")
+            {
+                "edit-thead"
+                {
+                    "edit-tr"
+                    {
+                        "edit-th"(type="NoEditable" field="codigo"){$"Código"}
+                        "edit-th"(type="NoEditable" field="apellido1"){$"Apellido paterno"}
+                        "edit-th"(type="NoEditable" field="apellido2"){$"Apellido materno"}
+                        "edit-th"(type="NoEditable" field="nombre"){$"Nombre (s)"}
+                        "edit-th"(type="NoEditable" field="rfc"){$"RFC"}
+                        "edit-th"(type="NoEditable" field="curp"){$"CURP"}
+                        "edit-th"(type="NoEditable" field="nss"){$"NSS"}
+                    }
+                }
+            }
+        }
+
+        p{$"#<@('$error/message')>"}
+        div
+        {
+            script(src="#<@JS_EMPLEADOS>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    empleado.tableId = "tbl_empleados";
+                    empleado.path = "#<@RH_EMPLEADOS>";
+                    empleado.list.init();
+                });
+            '}
+        }
+    }
+}

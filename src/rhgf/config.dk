@@ -5,6 +5,9 @@ module "config"
     @MENU="/!/rhgf/"
     @NOMINAS="/!/rhgf/nomina/"
 
+    @CSS_MAIN = "/$/rhgf/css/main.css"
+    @JS_EMPLEADOS = "/$/rhgf/js/empleados.js"
+
     @NOMINA.RECIBOS="/!/rhgf/recibo/"
     @NOMINA_RECIBOS=@NOMINA.RECIBOS + "_new/?parent_id=@nomina"
 
@@ -21,6 +24,10 @@ module "config"
     @TIPO_NOMINA_ADD=@TIPO_NOMINA + "_new/"
 
     @CONTRATO_EMPLEADO="/!/rhgf/contrato-empleado/"
+
+    //#region empleados
+    @RH_EMPLEADOS = "/!/rhgf/empleados/"
+    //#endregion
 
     //configurar la ruta del archivo si es necesario
     @TIPO_CONTRATO_SAT="./rhgf/_static/json/tipo_de_contrato_sat.json"

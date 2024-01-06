@@ -12,7 +12,7 @@ module "list.recibo"
     #$
     div(class="container")
     {
-        h1(class="h4"){$"Tablas para cálculos fiscales"}
+        h1(class="h4"){$"Grupos de conceptos"}
         div
         {
             p(style="color:red"){$"#<@('$error/message')>"}
@@ -24,6 +24,7 @@ module "list.recibo"
                     button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="gconceptos.Editar()"){"Editar"}
                     button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="gconceptos.Delete()"){"Eliminar"}
                     button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
+                    a(href="/" class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" target="_top"){"Salir"}
                 }
             }
             "edit-table"(class="w-100 h-100" id="lst_gconceptos" data="#<to.json(@('&.'))>" "hidde-selector"="true")
@@ -37,9 +38,11 @@ module "list.recibo"
                 }
             }
         }
-        #!
-        #include "modals.dk"
-        #$
+
+        // #!
+        // #include "modals.dk"
+        // #$
+        
         script
         {
             $'

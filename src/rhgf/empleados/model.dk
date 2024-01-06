@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name = "rh_empleado_org"
+    @list_query = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        codigo,
+        apellido1,
+        apellido2,
+        nombre,
+        rfc,
+        curp,
+        nss
+    FROM #<@table_name>
+    WHERE NOT IFNULL(sys_deleted,0)
+    "
+}

@@ -643,7 +643,7 @@ var gconceptos=
     },
     Add(add=false,_entity_id="_new",method="POST")
     {
-        if(!add)
+        /* if(!add)
         {
             util.fields(gconceptos.modal,"clean");
             nomina.openModal("modal_frm_gconceptos");
@@ -655,7 +655,9 @@ var gconceptos=
 
             var data=util.fields(gconceptos.modal,"get");
             crud.services(gconceptos.url+_entity_id+"/",data,method);
-        }
+        } */
+        
+        window.location.href = gconceptos.url + _entity_id;
     },
     Editar()
     {
@@ -669,10 +671,12 @@ var gconceptos=
         }
 
         var data=gconceptos.table.DataArray[gconceptos.table.CurrentRowIndex()];
-        itm_add=data;
+        /* itm_add=data;
         util.fields(gconceptos.modal,"set");
         nomina.openModal("modal_frm_gconceptos");
-        if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true,"+data.sys_pk+",'PUT')");
+        if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true,"+data.sys_pk+",'PUT')"); */
+
+        window.location.href = gconceptos.url + data.sys_pk;
     },
     Delete()
     {

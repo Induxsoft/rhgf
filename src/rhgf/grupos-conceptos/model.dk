@@ -5,11 +5,18 @@ module ""
     @table_name="rh_grupo_conceptos"
     @list_query="Select * from rh_grupo_conceptos order by nombre;"
 
+    create::&db,&params,&data
+    {
+        do entity.create(db,params,data)
+        @url_redir = @GRUPOS_CONCEPTOS
+    }
+
     update::&db,&params,&data
     {
         do dbr.update(db,@table_name,data,"sys_pk=@_entity_id",params)
-        return @null
+        @url_redir = @GRUPOS_CONCEPTOS
     }
 
+    point @create to create
     point @update to update
 }
