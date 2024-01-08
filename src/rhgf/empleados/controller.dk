@@ -1,0 +1,22 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    switch @@(@http_context,"$request/get/_view")
+    {
+        case "buscar-empleado"
+        {
+            point @list to rh.buscarEmpleado
+            break
+        }
+        case ""
+        {
+            point @read to rh.read
+            point @blank to rh.blank
+
+            point @create to rh.create
+            point @update to rh.update
+            break
+        }
+    }
+}

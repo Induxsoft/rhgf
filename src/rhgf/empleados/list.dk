@@ -27,7 +27,16 @@ module "list.dk"
 
         div
         {
-            "edit-table"(class="w-100" id="tbl_empleados" data="#<to.json(listEmpleados)>")
+            div(class="bg-light my-1")
+            {
+                div(class="input-group")
+                {
+                    input(type="text" class="form-control form-control-sm" id="txt_search_empleado" "data-url-search"="#<@URL_BUSCAR_EMPLEADO>" placeholder="Código, Nombre, Apellidos, RFC, CURP, NSS")
+                    button(class="btn btn-primary btn-sm" type="button" id="btn_search_empleado"){$"Buscar #<@ICON_SEARCH>"}
+                }
+            }
+
+            "edit-table"(class="w-100" id="tbl_empleados") //data="#<to.json(listEmpleados)>"
             {
                 "edit-thead"
                 {
@@ -43,6 +52,12 @@ module "list.dk"
                     }
                 }
             }
+
+            #!
+            spnmsg = ""
+            if list.count(listEmpleados) <= 0 { spnmsg = "Sin registros." }
+            #$
+            div(class="text-center bg-light" style="padding: 10rem 0;" id="div_spnmsg"){ h6(class="" id="spnmsg"){$"#<spnmsg>"} }
         }
 
         p{$"#<@('$error/message')>"}

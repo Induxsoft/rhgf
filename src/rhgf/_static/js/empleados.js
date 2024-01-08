@@ -59,7 +59,7 @@ var empleado =
         let url = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
         InduxsoftCrudlModel.InvokeService(url,null,
             function(data){
-                if (data.message) { alert(data.message); return; }
+                // if (data.message) { alert(data.message); return; }
                 if (callback) callback(); else window.location.reload();
             },
             function(error){ console.error(error); },
@@ -73,14 +73,12 @@ var empleado =
         tData: {},
         txt_search_empleado: null,
         btn_search_empleado: null,
-        btn_new_empleado: null,
 
         init()
         {
             this.tEmpleados = document.getElementById("tbl_empleados");
             this.txt_search_empleado = document.getElementById("txt_search_empleado");
             this.btn_search_empleado = document.getElementById("btn_search_empleado");
-            this.btn_new_empleado = document.getElementById("btn_new_empleado");
 
             this.tEmpleados.hiddeSelector = true;
             this.tEmpleados.AutoAddRow = false;
@@ -88,13 +86,6 @@ var empleado =
 
             this.tEvents = this.tEmpleados.EdiTable.Const.Events;
             this.tData = this.tEmpleados.DataArray;
-
-            /* this.tEmpleados.Events[this.tEvents.EnterCell] = (e) => {
-                let tr = e.td.offsetParent;
-                // let currRow = e.sender.CurrentRowIndex();
-                // let currCol = e.sender.CurrentColIndex();
-                tr.ondblclick = (event) => { empleado.goTo(); }
-            }; */
 
             this.setEvents();
             this.setKeyboardShortcuts();
@@ -110,11 +101,13 @@ var empleado =
                 empleado.edt(dt.sys_pk);
             });
             document.getElementById("btn_del").addEventListener("click", (event) => {
-                let dt = this.tData[this.tEmpleados.CurrentRowIndex()];
+                let currRow = this.tEmpleados.CurrentRowIndex();
+                let dt = this.tData[currRow];
                 if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
                 
-                empleado.del(dt.sys_pk,function(){
-                    alert("eliminado");
+                empleado.del(dt.sys_pk,() => {
+                    this.tEmpleados.DeleteRow(currRow);
+                    this.tEmpleados._printRows();
                 });
             });
 

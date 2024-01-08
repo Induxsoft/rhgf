@@ -33,39 +33,64 @@ module ""
         apellido2,
         rfc,
         curp,
-        fnacimiento,
-        fingreso,
-        fcontratacion,
-        sat_regimenfiscal,
-        sat_cp,
-        foto,
-        factualizacionfoto,
-        nacionalidad,
+        DATE_FORMAT(fnacimiento,'%Y-%m-%d') fnacimiento,
+        DATE_FORMAT(fingreso,'%Y-%m-%d') fingreso,
+        DATE_FORMAT(fcontratacion,'%Y-%m-%d') fcontratacion,
+        IFNULL(sat_regimenfiscal,'') sat_regimenfiscal,
+        IFNULL(sat_cp,'') sat_cp,
+        IFNULL(foto,'') foto,
+        DATE_FORMAT(factualizacionfoto,'%Y-%m-%d') factualizacionfoto,
+        IFNULL(nacionalidad,'') nacionalidad,
         edocivil,
-        conyuge,
-        depeconomicos,
-        hijos,
-        pension,
-        ingresonecesario,
+        IFNULL(conyuge,'') conyuge,
+        IFNULL(depeconomicos,0) depeconomicos,
+        IFNULL(hijos,0) hijos,
+        IFNULL(pension,0) pension,
+        IFNULL(ingresonecesario,0) ingresonecesario,
         tipovivienda,
-        gastofamiliarmensual,
-        aportaciongasto,
-        fechaestudiosocioe,
+        IFNULL(gastofamiliarmensual,0) gastofamiliarmensual,
+        IFNULL(aportaciongasto,0) aportaciongasto,
+        DATE_FORMAT(fechaestudiosocioe,'%Y-%m-%d') fechaestudiosocioe,
         escolaridad,
-        titulos,
-        competencias,
-        estrellas,
-        cerebros,
-        focos,
-        tachas,
-        notas,
-        totalmiembrosfam,
-        obs_socio,
+        IFNULL(titulos,'') titulos,
+        IFNULL(competencias,'') competencias,
+        IFNULL(estrellas,0) estrellas,
+        IFNULL(cerebros,0) cerebros,
+        IFNULL(focos,0) focos,
+        IFNULL(tachas,0) tachas,
+        IFNULL(notas,'') notas,
+        IFNULL(totalmiembrosfam,0) totalmiembrosfam,
+        IFNULL(obs_socio,'') obs_socio,
         ref_categoria,
-        nss
+        IFNULL(nss,'') nss
     FROM #<@table_name>
     WHERE #<@keyfield> = @_entity_id AND NOT IFNULL(sys_deleted,0)
     "
+
+    rh.buscarEmpleado::&db,&params
+    {
+        sql = ftext(@list_query)
+
+        if trim(@@(params,"$id")) != ""
+        {
+            sql = sql + " AND (sys_pk = @id OR sys_guid = @id)"
+            return dbr.rec(db,sql,params)
+        }
+        if trim(@@(params,"$search")) != ""
+        {
+            sql = sql + "
+            AND (codigo LIKE CONCAT('%',@search,'%') 
+                OR nombre LIKE CONCAT('%',@search,'%')
+                OR apellido1 LIKE CONCAT('%',@search,'%')
+                OR apellido2 LIKE CONCAT('%',@search,'%')
+                OR rfc LIKE CONCAT('%',@search,'%')
+                OR curp LIKE CONCAT('%',@search,'%')
+                OR nss LIKE CONCAT('%',@search,'%')
+            )"
+            return dbr.list(db,sql,params)
+        }
+        return list.create()
+    }
 
     rh.prepareView::&db,&params,&data
     {
@@ -102,8 +127,47 @@ module ""
         return data
     }
 
+    rh.validateData::&db,&params,&data
+    {
+        data<"pension"> : parse.bool(@@(data,"$pension"))
+
+        if trim(@@(data,"$codigo")) == "" { do rise_error(99,"No es posible continuar, no se ha indicado un código.") }
+        if trim(@@(data,"$nombre")) == "" { do rise_error(99,"Es necesario indicar el `Nombre`.") }
+        if trim(@@(data,"$rfc")) == "" { do rise_error(99,"Es necesario indicar el `RFC`.") }
+        if trim(@@(data,"$curp")) == "" { do rise_error(99,"Es necesario indicar la `CURP`.") }
+        if trim(@@(data,"$fnacimiento")) == "" { do rise_error(99,"Es necesario indicar la fecha de nacimiento.") }
+        if trim(@@(data,"$edocivil")) == "" { do rise_error(99,"No se ha indicado el estado civil.") }
+        if trim(@@(data,"$escolaridad")) == "" { do rise_error(99,"No se ha indicado la escolaridad.") }
+
+        new p
+        {
+            @"pCodigo": trim(@@(data,"$codigo"))
+            @"pRfc": trim(@@(data,"$rfc"))
+            @"pCurp": trim(@@(data,"$curp"))
+        }
+
+        codigo_en_uso = dbr.num(db,"SELECT COUNT(sys_pk) regs FROM rh_empleado_org WHERE codigo = @pCodigo",p)
+        rfc_en_uso = dbr.num(db,"SELECT COUNT(sys_pk) regs FROM rh_empleado_org WHERE rfc = @pRfc",p)
+        curp_en_uso = dbr.num(db,"SELECT COUNT(sys_pk) regs FROM rh_empleado_org WHERE curp = @pCurp",p)
+
+        if @@(params,"$_entity_id") == "_new"
+        {
+            if codigo_en_uso > 0 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            if rfc_en_uso > 0 { do rise_error(99,"El RFC proporcionado ya se encuentra en uso.") }
+            if curp_en_uso > 0 { do rise_error(99,"La CURP proporcionada ya se encuentra en uso.") }
+        }
+        else
+        {
+            if codigo_en_uso > 1 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            if rfc_en_uso > 1 { do rise_error(99,"El RFC proporcionado ya se encuentra en uso.") }
+            if curp_en_uso > 1 { do rise_error(99,"La CURP proporcionada ya se encuentra en uso.") }
+        }
+    }
+
     rh.create::&db,&params,&data
     {
+        do errordet(@false)
+        do rh.validateData(db,params,data)
         ref entity = @@(entity.create(db,params,data),"&dtempleado")
 
         switch toupper(trim(@@(data,"$shortcut")))
@@ -143,6 +207,8 @@ module ""
 
     rh.update::&db,&params,&data
     {
+        do errordet(@false)
+        do rh.validateData(db,params,data)
         ref entity = @@(entity.update(db,params,data),"&dtempleado")
 
         switch toupper(trim(@@(data,"$shortcut")))
@@ -179,10 +245,4 @@ module ""
             do rise_error(code,error)
         }
     }
-
-    point @read to rh.read
-    point @blank to rh.blank
-
-    point @create to rh.create
-    point @update to rh.update
 }

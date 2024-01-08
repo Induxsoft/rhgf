@@ -26,12 +26,14 @@ module "config"
 
     //#region empleados
     @JS_EMPLEADOS = "/$/rhgf/js/empleados.js"
+    @SAT_REGIMEN_FISCAL = "/$/rhgf/json/sat.c_RegimenFiscal.json"
+
+    @URL_BUSCAR_EMPLEADO = "/!/rhgf/empleados/?_view=buscar-empleado&search=@search"
     
     @RH_EMPLEADOS = "/!/rhgf/empleados/"
     //#endregion
 
     //configurar la ruta del archivo si es necesario
-    @SAT_REGIMEN_FISCAL = "./rhgf/_static/json/sat.c_RegimenFiscal.json"
     @TIPO_CONTRATO_SAT="./rhgf/_static/json/tipo_de_contrato_sat.json"
     @CLAVE_SAT="./rhgf/_static/json/clave_sat.json"
     @TIPO_SAT="./rhgf/_static/json/tipo_sat.json"

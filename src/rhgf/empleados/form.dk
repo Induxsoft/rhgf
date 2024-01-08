@@ -4,12 +4,14 @@ module "form.dk"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
+    #include "webcl.dkh"
     #include "uielements.dkl"
     #include "../_lib/icons.dk"
     #include "../config.dk"
     #include "../_lib/lib.dk"
 
     do @context.begin(@crud_context)
+    ref @http_context:@("&http")
 
     ref formData = ifnull(@("&./form"),record.create())
     ref dtempleado = ifnull(@("&./dtempleado"),record.create())
@@ -18,8 +20,19 @@ module "form.dk"
     ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
     ref listEstadoCivil = ifnull(@("&./list_estado_civil"),list.create())
     ref listTipoVivienda = ifnull(@("&./list_tipo_vivienda"),list.create())
-    ref listSatRegFiscal = list.create() //if(file.exists(@SAT_REGIMEN_FISCAL),from.json(file.rtext(@SAT_REGIMEN_FISCAL)),list.create())
+    ref listSatRegFiscal = list.create()
 
+    codeblock
+    {
+        host_name = @("$http/request/headers/HTTP_HOST")
+        url_regfis = "http://" + path.concat(host_name,@SAT_REGIMEN_FISCAL)
+        
+        new header { @"Content-Type": "application/json; charset=utf-8;" }
+        ref listSatRegFiscal = from.json(http.request(url_regfis,"GET",header,"{}"))
+
+        exception{/*ignore*/}
+    }
+    
     // do rise_error(0,to.json(@("&.")))
 
     new sel_cat_empleado
@@ -44,6 +57,7 @@ module "form.dk"
         {
             @"class": "form-select form-select-sm rounded-0"
             @"name": "sat_regimenfiscal"
+            @"required": ""
         }
         @"value_field": "clave"
         @"text_field": "valor"
@@ -109,7 +123,7 @@ module "form.dk"
             {
                 a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
-                a(href="#<@CXP_PROVS>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+                a(href="#<@RH_EMPLEADOS>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
             }
         }
 
