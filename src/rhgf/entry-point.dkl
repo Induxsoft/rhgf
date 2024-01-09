@@ -52,12 +52,13 @@ module "Controller configs"
 	do crudl.routes.entity("/concepto-nomina/","concepto-nomina")
 	do crudl.routes.entity("/concepto-recibo/","concepto-recibo")
 	do crudl.routes.entity("/contrato-empleado/","contrato-empleado")
-	do crudl.routes.entity("/empleados/","empleados")
 	do crudl.routes.entity("/variable/","variable")
 	do crudl.routes.entity("/tipo-contrato/","tipo-contrato")
 	do crudl.routes.entity("/tablas/","tablas")
 	do crudl.routes.entity("/grupos-conceptos/","grupos-conceptos")
 	do crudl.routes.entity("/tipo-nomina/","tipo-nomina")
+	do crudl.routes.entity("/empleados/","empleados")
+	do crudl.routes.entity("/organizacion/","organizacion")
 	// @http_context<"session/idp/database*">:@null
 	@dbmvc_path="crudl/"
 	

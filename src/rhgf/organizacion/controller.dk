@@ -1,0 +1,22 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    switch @@(@http_context,"$request/get/_view")
+    {
+        case "buscar-puesto"
+        {
+            point @list to org.buscarPuesto
+            break
+        }
+        case "unidad"
+        {
+            @form_view = "form.unidad.dk"
+            break
+        }
+        case ""
+        {
+            break
+        }
+    }
+}

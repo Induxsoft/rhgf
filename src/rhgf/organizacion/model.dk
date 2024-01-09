@@ -1,0 +1,48 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name = "rh_contrato_empleado"
+
+    @create_exclude_fields = "shortcut"
+    @update_exclude_fields = "shortcut"
+
+    @list_query = "
+    SELECT
+        c.sys_pk,
+        c.sys_guid,
+        e.codigo,
+        e.nombre,
+        e.apellido1,
+        e.apellido2,
+        e.rfc,
+        e.curp,
+        e.nss,
+        DATE_FORMAT(c.fechainicio,'%Y-%m-%d') fechainicio,
+        DATE_FORMAT(c.fechavencimiento,'%Y-%m-%d') fechavencimiento,
+        c.referencia,
+        p.descripcion AS puesto,
+        t.nombre AS tipo_contrato,
+        c.status
+    FROM #<@table_name> AS c
+        INNER JOIN rh_empleado_org AS e ON c.ref_empleado = e.sys_pk
+        INNER JOIN rh_puesto_org AS p ON c.ref_puesto = p.sys_pk
+        INNER JOIN rh_tipo_contrato AS t on c.tipo = t.sys_pk
+    WHERE NOT IFNULL(c.sys_deleted,0)
+    "
+
+    org.buscarPuesto::&db,&params
+    {
+        sql = "
+        SELECT
+            sys_pk,
+            sys_guid,
+            sys_recver,
+            codigo,
+            descripcion
+        FROM rh_puesto_org
+        WHERE NOT IFNULL(sys_deleted,0) AND (codigo LIKE CONCAT('%',@search,'%') OR descripcion LIKE CONCAT('%',@search,'%'))
+        "
+        return dbr.list(db,sql,params)
+    }
+}

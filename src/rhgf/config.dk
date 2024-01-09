@@ -33,6 +33,15 @@ module "config"
     @RH_EMPLEADOS = "/!/rhgf/empleados/"
     //#endregion
 
+    //#region organizacion
+    @CSS_ORGANIZACION = "/$/rhgf/css/organizacion.css"
+    @JS_ORGANIZACION = "/$/rhgf/js/organizacion.js"
+
+    @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
+
+    @RH_ORGANIZACION = "/!/rhgf/organizacion/"
+    //#endregion
+
     //configurar la ruta del archivo si es necesario
     @TIPO_CONTRATO_SAT="./rhgf/_static/json/tipo_de_contrato_sat.json"
     @CLAVE_SAT="./rhgf/_static/json/clave_sat.json"

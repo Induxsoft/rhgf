@@ -1,0 +1,125 @@
+#include "dkli.dkh"
+#!
+module "list.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.dkl"
+    #include "../_lib/icons.dk"
+    #include "../config.dk"
+    #include "../_lib/lib.dk"
+
+    do @context.begin(@crud_context)
+
+	ref unidades = ifnull(@('&./unidades'),list.create())
+
+    #$ div(class="")
+	{
+        link(rel="stylesheet" href="#<@CSS_MAIN>")
+		link(rel="stylesheet" href="#<@CSS_ORGANIZACION>")
+        style {$'body { overflow:hidden; }'}
+
+		div(id="main_container")
+		{
+			// Panel izquierdo
+			div(id="unidades_container" class="section-container bg-white")
+			{
+				div
+				{
+					// Barra de controles
+					div(class="d-flex flex-wrap justify-content-between border-bottom")
+					{
+						div(id="btn_hidde_unidad_panel")
+						{
+							button(onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow"){$"#<@ICON_LIST>"}
+						}
+						div(class="d-flex flex-wrap justify-content-end flex-grow-1" id="unidad_controls")
+						{
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Agregar" id="btn_add_unidad"){$"#<@ICON_PLUS_LG>"}
+                            button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Editar" id="btn_edt_unidad"){$"#<@ICON_EDIT>"}
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Eliminar" id="btn_del_unidad"){$"#<@ICON_TRASH>"}
+						}
+					}
+					// Lista de unidades
+					div(id="unidades_container_list")
+					{
+						div(style="max-height: 90vh;display: flex;")
+						{
+							"edit-table"(id="treeUnidades" "show-tree"="true" parentkey="superior" key="sys_pk" "hidde-selector"="true" style="width: 100%;" "control-styles"="tr td{font-size:.8rem;} th{font-size:.9rem; outline: none !important; font-weight:500 !important;} #__table_input{ font-size: unset !important; }" data='#<to.json(unidades)>')
+							{
+								"edit-thead"
+								{
+									"edit-tr"
+									{
+										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Unidades"}
+									}
+								}
+							}
+						}
+					}
+				}
+				div(id="ajust_panel_unidad" title="Redimensionar"){$""}
+			}
+
+			// Panel derecho
+			div(id="content_container" class="section-container")
+			{
+                div(class="row container-section m-0 px-0 py-2 px-2 border-bottom sticky-top bg-white" id="main_action_bar")
+                {
+                    div(class="col-4 d-flex align-items-center p-0")
+                    {
+                        button(id="tab_unidades" onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow"){$"#<@ICON_LIST>"}
+                        h1(class="h6 text-primary tex-no-break m-0"){$"Organizacón laboral"}
+                    }
+                    div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
+                    {
+                        a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_add"){$"#<@ICON_PLUS_LG> Agregar"}
+                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_edt"){$"#<@ICON_EDIT> Editar"}
+                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_del"){$"#<@ICON_TRASH> Eliminar"}
+                        a(href="/" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" target="_top" title="Salir"){$"#<@ICON_X_LG>"}
+                    }
+                }
+				
+				// Contratos
+                div
+                {
+                    "edit-table"(class="w-100" id="tbl_contratos")
+                    {
+                        "edit-thead"
+                        {
+                            "edit-tr"
+                            {
+                                "edit-th"(type="NoEditable" field="codigo"){$"Código"}
+                                "edit-th"(type="NoEditable" field="apellido1"){$"Apellido paterno"}
+                                "edit-th"(type="NoEditable" field="apellido2"){$"Apellido materno"}
+                                "edit-th"(type="NoEditable" field="nombre"){$"Nombre(s)"}
+                                "edit-th"(type="NoEditable" field="rfc"){$"RFC"}
+                                "edit-th"(type="NoEditable" field="curp"){$"CURP"}
+                                "edit-th"(type="NoEditable" field="nss"){$"NSS"}
+                                "edit-th"(type="NoEditable" field="fechainicio"){$"Inicio contrato"}
+                                "edit-th"(type="NoEditable" field="fechavencimiento"){$"Fin contrato"}
+                                "edit-th"(type="NoEditable" field="referencia"){$"Referencia"}
+                                "edit-th"(type="NoEditable" field="puesto"){$"Puesto"}
+                                "edit-th"(type="NoEditable" field="tipo_contrato"){$"Tipo de contrato"}
+                            }
+                        }
+                    }
+                }
+			}
+		}
+
+		p{$"#<@('$error/message')>"}
+        div
+        {
+            script(src="#<@JS_ORGANIZACION>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    org.path = "#<@RH_ORGANIZACIONES>";
+                    org.init();
+                });
+            '}
+        }
+	}
+}
