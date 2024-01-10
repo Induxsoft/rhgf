@@ -13,13 +13,13 @@ section(class="" id="")
         }
         div(class="col-lg-6 col-md-6 col-sm-6")
         {
-            label(class="form-label" "for"="txt_sueldo_mensual_bruto"){$"Sueldo mensual bruto:" sup{$"*"}}
-            input(class="form-control form-control-sm rounded-0" type="number" name="sueldomensualbruto" min="0" max="99999999.9999" step="0.0001" value="#<form('sueldomensualbruto','nm',dtcontrato)>" id="txt_sueldo_mensual_bruto" required="")
+            label(class="form-label" "for"="txt_sueldo_mensual"){$"Sueldo mensual bruto:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="sueldomensualbruto" min="0" max="99999999.9999" step="0.0001" value="#<form('sueldomensualbruto','nm',dtcontrato)>" id="txt_sueldo_mensual" required="")
         }
         div(class="col-lg-6 col-md-6 col-sm-6")
         {
             label(class="form-label" "for"="txt_sueldo_diario"){$"Sueldo diario:" sup{$"*"}}
-            input(class="form-control form-control-sm rounded-0" type="number" name="sueldoxunidaddepago" min="0" max="99999999.9999" step="0.0001" value="#<form('sueldoxunidaddepago','nm',dtcontrato)>" id="txt_sueldo_diario" required="")
+            input(class="form-control form-control-sm rounded-0" type="number" name="sueldoxunidaddepago" min="0" max="999999999999.999999" step="0.000001" value="#<form('sueldoxunidaddepago','nm',dtcontrato)>" id="txt_sueldo_diario" required="")
         }
         div(class="col-lg-6 col-md-6 col-sm-6")
         {

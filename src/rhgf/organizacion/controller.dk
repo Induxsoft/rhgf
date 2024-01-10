@@ -21,6 +21,18 @@ module ""
             @form_view = "form.unidad.dk"
             break
         }
+        case "puesto"
+        {
+            point @read to org.read
+            point @blank to org.blank
+
+            point @create to org.save
+            point @update to org.save
+            point @delete to org.delete
+            
+            @form_view = "form.puesto.dk"
+            break
+        }
         case ""
         {
             point @list to org.list

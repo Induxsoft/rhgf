@@ -1,3 +1,13 @@
+function round(num,dec=2) {
+    var signo = (num >= 0 ? 1 : -1);
+    num = num * signo;
+    if (dec === 0) return signo * Math.round(num);
+    num = num.toString().split('e');
+    num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] + dec) : dec)));
+    num = num.toString().split('e');
+    return signo * (num[0] + 'e' + (num[1] ? (+num[1] - dec) : -dec));
+}
+
 var org =
 {
     path: "",
@@ -5,9 +15,41 @@ var org =
     init()
     {
         this.setAjustPanelUnidadEvent();
+        this.setEvents();
 
         contrato.list.init();
         unidad.list.init();
+        puesto.list.init();
+    },
+
+    setEvents()
+    {
+        document.getElementById("chq_unidad_puesto").addEventListener("change", (event) => {
+            let label = document.getElementById("lbl_unidad_puesto")
+            let unidad_controls = document.getElementById("unidad_controls");
+            let puesto_controls = document.getElementById("puesto_controls");
+            let list_unidad = document.getElementById("div_list_unidades");
+            let list_puesto = document.getElementById("div_list_puestos");
+            
+            if (event.target.checked)
+            {
+                unidad_controls.classList.add("d-none");
+                list_unidad.classList.add("d-none");
+                puesto_controls.classList.remove("d-none");
+                list_puesto.classList.remove("d-none");
+
+                label.textContent = "Unidad";
+            }
+            else
+            {
+                unidad_controls.classList.remove("d-none");
+                list_unidad.classList.remove("d-none");
+                puesto_controls.classList.add("d-none");
+                list_puesto.classList.add("d-none");
+
+                label.textContent = "Puesto";
+            }
+        });
     },
 
     add(_view="")
@@ -162,6 +204,36 @@ var contrato =
                         gp_pagoxhora.disabled = true;
                         this.elements["txt_sueldo_diario"].disabled = false;
                     }
+                });
+
+                let dMes = 30; //Math.div(365,12);
+                this.elements["txt_sueldo_mensual"].addEventListener("input", (event) => {
+                    let sMes = Number(event.target.value);
+                    let sDia = Math.div(sMes,dMes);
+                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
+                });
+                this.elements["txt_sueldo_diario"].addEventListener("input", (event) => {
+                    let sDia = Number(event.target.value);
+                    let sMes = Math.mul(sDia,dMes);
+                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
+                });
+                this.elements["txt_sueldo_hora"].addEventListener("input", (event) => {
+                    let sHora = Number(event.target.value);
+                    let hxDia = Number(this.elements["txt_horas_promedio_dia"].value);
+                    let sDia = Math.mul(sHora,hxDia);
+                    let sMes = Math.mul(sDia,dMes);
+
+                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
+                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
+                });
+                this.elements["txt_horas_promedio_dia"].addEventListener("input", (event) => {
+                    let hxDia = Number(event.target.value);
+                    let sHora = Number(this.elements["txt_sueldo_hora"].value);
+                    let sDia = Math.mul(sHora,hxDia);
+                    let sMes = Math.mul(sDia,dMes);
+
+                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
+                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
                 });
             }
         },
@@ -378,6 +450,11 @@ var puesto =
             if (this.btnSave) { this.btnSave.addEventListener("click", () => { this.saveForm(); }); }
             if (this.formPuesto)
             {
+                this.elements["chq_subordinado"].addEventListener("change", (event) => {
+                    (event.target.checked)
+                        ? this.elements["sel_puesto"].disabled = false
+                        : this.elements["sel_puesto"].disabled = true;
+                });
             }
         },
 

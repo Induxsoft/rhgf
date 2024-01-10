@@ -1,0 +1,245 @@
+#include "dkli.dkh"
+#!
+module "form.puesto.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "webcl.dkh"
+    #include "uielements.dkl"
+    #include "../_lib/icons.dk"
+    #include "../config.dk"
+    #include "../_lib/lib.dk"
+
+    do @context.begin(@crud_context)
+    ref @http_context:@("&http")
+
+    ref dtpuesto = ifnull(@("&./dtpuesto"),record.create())
+    ref listUnidades = ifnull(@("&./list_unidades"),list.create())
+    ref listPuestos = ifnull(@("&./list_puestos"),list.create())
+    ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
+    ref listSatRiesgoPuesto = list.create()
+
+    // do rise_error(0,to.json(@http_context))
+
+    codeblock
+    {
+        protocol = @("$http/request/headers/REQUEST_SCHEME")
+        host_name = @("$http/request/headers/HTTP_HOST")
+        url_riesgopuesto = protocol + "://" + path.concat(host_name,@SAT_RIESGO_PUESTO)
+        
+        new header { @"Content-Type": "application/json; charset=utf-8;" }
+        ref listSatRiesgoPuesto = from.json(http.request(url_riesgopuesto,"GET",header,"{}"))
+
+        exception{/*ignore*/}
+    }
+    
+    // do rise_error(0,to.json(@("&.")))
+
+    new sel_unidad
+    {
+        @"datatable*": listUnidades
+        @"id": "sel_unidad"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "ref_unidad_org"
+            @"required": ""
+        }
+        @"value_field": "sys_pk"
+        @"text_field": "text"
+        @"selected": form("ref_unidad_org","nm",dtpuesto)
+    }
+
+    new sel_puesto
+    {
+        @"datatable*": listPuestos
+        @"id": "sel_puesto"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "ref_jefe"
+            @"disabled": ""
+        }
+        @"value_field": "sys_pk"
+        @"text_field": "text"
+        @"selected": form("ref_jefe","nm",dtpuesto)
+    }
+
+    new sel_riesgo
+    {
+        @"datatable*": listSatRiesgoPuesto
+        @"id": "sel_riesgo"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "sat_riesgopuesto"
+            @"required": ""
+        }
+        @"value_field": "clave"
+        @"text_field": "valor"
+        @"selected": form("sat_riesgopuesto","tx",dtpuesto)
+    }
+
+    new sel_escolaridad
+    {
+        @"datatable*": listEscolaridad
+        @"id": "sel_escolaridad"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "escolaridad"
+            @"required": ""
+        }
+        @"value_field": "id"
+        @"text_field": "const"
+        @"selected": form("escolaridad","nm",dtpuesto)
+    }
+
+    form_title = "Nuevo puesto"
+    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar puesto" }
+
+    #$ div(class="container")
+    {
+        link(href="#<@CSS_MAIN>" rel="stylesheet")
+
+        div(class="row container-section m-0 px-0 py-2 my-2 border-bottom sticky-top bg-white" id="main_action_bar")
+        {
+            div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
+            div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
+            {
+                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
+                a(href="#<@RH_ORGANIZACION>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+            }
+        }
+
+        div
+        {
+            nav
+            {
+                div(class="nav nav-tabs mb-2" id="nav-tab" role="tablist")
+                {
+                    button(class="nav-link active" id="nav-general-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-general" type="button" role="tab" "aria-controls"="nav-general" "aria-selected"="true"){$"General"}
+                    button(class="nav-link" id="nav-perfil-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-perfil" type="button" role="tab" "aria-controls"="nav-perfil" "aria-selected"="false"){$"Perfil"}
+                    button(class="nav-link" id="nav-responsabilidades-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-responsabilidades" type="button" role="tab" "aria-controls"="nav-responsabilidades" "aria-selected"="false"){$"Responsabilidades"}
+                    button(class="nav-link" id="nav-funciones-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-funciones" type="button" role="tab" "aria-controls"="nav-funciones" "aria-selected"="false"){$"Funciones"}
+                    button(class="nav-link" id="nav-beneficios-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-beneficios" type="button" role="tab" "aria-controls"="nav-beneficios" "aria-selected"="false"){$"Beneficios"}
+                    button(class="nav-link" id="nav-informacion-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-informacion" type="button" role="tab" "aria-controls"="nav-informacion" "aria-selected"="false"){$"Más información"}
+                }
+            }
+
+            form(class="" action="./" method="POST" id="form_puesto")
+            {
+                input(type="hidden" name="sys_pk" value="#<@@(dtpuesto,'#sys_pk')>")
+                input(type="hidden" name="sys_recver" value="#<@@(dtpuesto,'#sys_recver')>")
+                input(type="hidden" name="shortcut" value="F6")
+
+                div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
+
+                div(class="tab-content")
+                {
+                    div(class="tab-pane fade show active" id="nav-general" role="tabpanel" "aria-labelledby"="nav-general-tab")
+                    {
+                        div(class="row")
+                        {
+                            div(class="col-lg-4 col-md-4 col-sm-6")
+                            {
+                                label(class="form-label" "for"="txt_codigo"){$"Código del puesto:" sup{"*"}}
+                                input(class="form-control form-control-sm rounded-0" type="text" name="codigo" value="#<form('codigo','tx',dtpuesto)>" maxlength="32" id="txt_codigo" required="")
+                            }
+                            div(class="col-lg-8 col-md-8 col-sm-6")
+                            {
+                                label(class="form-label" "for"="txt_descripcion"){$"Título del puesto:" sup{"*"}}
+                                input(class="form-control form-control-sm rounded-0" type="text" name="descripcion" value="#<form('descripcion','tx',dtpuesto)>" maxlength="150" id="txt_descripcion" required="")
+                            }
+                            div(class="col-12")
+                            {
+                                label(class="form-label" "for"="sel_unidad"){$"Unidad organizacional:" sup{"*"}}
+                                ##
+                                do uie.dbSelect(sel_unidad)
+                                ##
+                            }
+                            div(class="col-12")
+                            {
+                                div(class="form-check") {
+                                    #!
+                                    checked = ""
+                                    if @("$parameters/_entity_id") != "_new" {
+                                        if @@(dtpuesto,"#ref_jefe") > 0 {
+                                            checked = "checked"
+                                            do field.remove(sel_puesto,"attributes/disabled")
+                                        }
+                                    }
+                                    #$
+                                    input(class="form-check-input" type="checkbox" name="" id="chq_subordinado" "#<checked>"="")
+                                    label(class="form-check-label" "for"="chq_subordinado"){$"Subordinado a:"}
+                                }
+                                ##
+                                do uie.dbSelect(sel_puesto)
+                                ##
+                            }
+                            div(class="col-12")
+                            {
+                                label(class="form-label" "for"="sel_riesgo"){$"Riesgo de trabajo para el puesto:" sup{"*"}}
+                                ##
+                                do uie.dbSelect(sel_riesgo)
+                                ##
+                            }
+                            div(class="col-auto")
+                            {
+                                label(class="form-label" "for"="txt_plazas"){$"Plazas previstas:" sup{"*"}}
+                                input(class="form-control form-control-sm rounded-0" type="number" name="plazas_previstas" value="#<form('plazas_previstas','nm',dtpuesto)>" min="1" step="1" id="txt_plazas" required="")
+                            }
+                        }
+                    }
+                    div(class="tab-pane fade" id="nav-perfil" role="tabpanel" "aria-labelledby"="nav-perfil-tab")
+                    {
+                        label(class="form-label" "for"="txt_perfil"){$"Descripción del perfil de selección:"}
+                        textarea(class="form-control rounded-0" name="perfil" maxlength="4096" rows="20" id="txt_perfil"){$"#<form('perfil','tx',dtpuesto)>"}
+
+                        label(class="form-label" "for"="sel_escolaridad"){$"Nivel de escolaridad"}
+                        ##
+                        do uie.dbSelect(sel_escolaridad)
+                        ##
+                    }
+                    div(class="tab-pane fade" id="nav-responsabilidades" role="tabpanel" "aria-labelledby"="nav-responsabilidades-tab")
+                    {
+                        label(class="form-label" "for"="txt_responsabilidades"){$"Descripcion de las responsabilidades del puesto:"}
+                        textarea(class="form-control rounded-0" name="responsabilidades" maxlength="4096" rows="20" id="txt_responsabilidades"){$"#<form('responsabilidades','tx',dtpuesto)>"}
+                    }
+                    div(class="tab-pane fade" id="nav-funciones" role="tabpanel" "aria-labelledby"="nav-funciones-tab")
+                    {
+                        label(class="form-label" "for"="txt_funciones"){$"Descripción de las funciones que debe realizar el puesto:"}
+                        textarea(class="form-control rounded-0" name="funciones" maxlength="4096" rows="20" id="txt_funciones"){$"#<form('funciones','tx',dtpuesto)>"}
+                    }
+                    div(class="tab-pane fade" id="nav-beneficios" role="tabpanel" "aria-labelledby"="nav-beneficios-tab")
+                    {
+                        label(class="form-label" "for"="txt_beneficios"){$"Detalles de los beneficios del puesto:"}
+                        textarea(class="form-control rounded-0" name="beneficios" maxlength="4096" rows="20" id="txt_beneficios"){$"#<form('beneficios','tx',dtpuesto)>"}
+                    }
+                    div(class="tab-pane fade" id="nav-informacion" role="tabpanel" "aria-labelledby"="nav-informacion-tab")
+                    {
+                        label(class="form-label" "for"="txt_notas"){$"Notas:"}
+                        textarea(class="form-control rounded-0" name="notas" maxlength="4096" rows="20" id="txt_notas"){$"#<form('notas','tx',dtpuesto)>"}
+
+                        label(class="form-label" "for"="txt_link"){$"Enlace (URL con documentación adicional:)"}
+                        input(class="form-control form-control-sm rounded-0" type="text" name="link" value="#<form('link','tx',dtpuesto)>" maxlength="1024" id="txt_link")
+                    }
+                }
+            }
+        }
+
+        div
+        {
+            script(src="#<@JS_ORGANIZACION>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    org.path = "#<@RH_ORGANIZACION>";
+                    puesto.form._GET = #<to.json(@("&parameters"))> ?? {};
+                    puesto.form.init();
+                });
+            '}
+        }
+    }
+}

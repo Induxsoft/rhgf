@@ -1,0 +1,38 @@
+﻿[
+  {
+    "clave": 1,
+    "valor": "Clase I",
+    "fechaini": "2017-01-01",
+    "fechafin": ""
+  },
+  {
+    "clave": 2,
+    "valor": "Clase II",
+    "fechaini": "2017-01-01",
+    "fechafin": ""
+  },
+  {
+    "clave": 3,
+    "valor": "Clase III",
+    "fechaini": "2017-01-01",
+    "fechafin": ""
+  },
+  {
+    "clave": 4,
+    "valor": "Clase IV",
+    "fechaini": "2017-01-01",
+    "fechafin": ""
+  },
+  {
+    "clave": 5,
+    "valor": "Clase V",
+    "fechaini": "2017-01-01",
+    "fechafin": ""
+  },
+  {
+    "clave": 99,
+    "valor": "No aplica",
+    "fechaini": "2017-08-13",
+    "fechafin": ""
+  }
+]

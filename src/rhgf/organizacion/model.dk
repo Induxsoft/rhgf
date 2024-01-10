@@ -51,6 +51,27 @@ module ""
     FROM rh_unidad_org
     WHERE #<@keyfield> = @_entity_id
     "
+    @sql_puesto = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        sys_recver,
+        codigo,
+        descripcion,
+        ref_unidad_org,
+        ref_jefe,
+        sat_riesgopuesto,
+        plazas_previstas,
+        IFNULL(perfil,'') perfil,
+        escolaridad,
+        IFNULL(responsabilidades,'') responsabilidades,
+        IFNULL(funciones,'') funciones,
+        IFNULL(beneficios,'') beneficios,
+        IFNULL(notas,'') notas,
+        IFNULL(link,'') link
+    FROM rh_puesto_org
+    WHERE #<@keyfield> = @_entity_id
+    "
     @list_query = "
     SELECT
         c.sys_pk,
@@ -160,9 +181,32 @@ module ""
 
                 if @@(params,"$_entity_id") != "_new" {
                     @read_query = @sql_unidad
-                    data<"dtunidad*"> : entity.read(db,params)
+                    ref dtunidad = entity.read(db,params)
+
+                    sql_unidades = sql_unidades + " AND sys_pk != " + @@(dtunidad,"$sys_pk")
+
+                    data<"dtunidad*"> : dtunidad
                 }
                 data<"list_unidades*"> : dbr.list(db,sql_unidades,@null)
+                break
+            }
+            case "puesto"
+            {
+                sql_unidades = "SELECT sys_pk, CONCAT('[',codigo,'] ',descripcion) AS `text` FROM rh_unidad_org WHERE NOT IFNULL(sys_deleted,0)"
+                sql_puestos = "SELECT sys_pk, CONCAT('[',codigo,'] ',descripcion) AS `text` FROM rh_puesto_org WHERE NOT IFNULL(sys_deleted,0)"
+                sql_escolaridad = "SELECT id, const FROM rh_nvl_escolaridad;"
+
+                if @@(params,"$_entity_id") != "_new" {
+                    @read_query = @sql_puesto
+                    ref dtpuesto = entity.read(db,params)
+
+                    sql_puestos = sql_puestos + " AND sys_pk != " + @@(dtpuesto,"$sys_pk")
+
+                    data<"dtpuesto*"> : dtpuesto
+                }
+                data<"list_unidades*"> : dbr.list(db,sql_unidades,@null)
+                data<"list_puestos*"> : dbr.list(db,sql_puestos,@null)
+                data<"list_escolaridad*"> : dbr.list(db,sql_escolaridad,@null)
                 break
             }
             case ""
@@ -235,6 +279,16 @@ module ""
         @table_name = "rh_contrato_empleado"
         @read_query = @sql_contrato
 
+        using data
+        {
+            @"sat_sindicalizado": parse.bool(@@(data,"$sat_sindicalizado"))
+            @"asimiladosal": parse.bool(@@(data,"$asimiladosal"))
+            @"septimodia": parse.bool(@@(data,"$septimodia"))
+            @"pagoxhora": parse.bool(@@(data,"$pagoxhora"))
+            @"horasvariables": parse.bool(@@(data,"$horasvariables"))
+            @"activo": (@@(data,"#status") == 1)
+        }
+
         if @@(params,"$_entity_id") == "_new" {
             ref entity = @@(entity.create(db,params,data),"&dtcontrato")
             return entity
@@ -268,6 +322,32 @@ module ""
         }
     }
 
+    org.savePuesto::&db,&params,&data
+    {
+        if trim(@@(data,"$codigo")) == "" { do rise_error(99,"Es necesario indicar el código del puesto.") }
+        if trim(@@(data,"$descripcion")) == "" { do rise_error(99,"No se ha indicado el títuo del puesto.") }
+        if @@(data,"#ref_unidad_org") <= 0 { do rise_error(99,"Es necesario indicar la unidad organizacional del puesto.") }
+        if trim(@@(data,"$sat_riesgopuesto")) == "" { do rise_error(99,"Es necesario indicar el riesgo del puesto.") }
+        if @@(data,"#plazas_previstas") <= 0 { do rise_error(99,"Las plazas previstas son requeridas.") }
+        codigo_en_uso = dbr.num(db,"SELECT COUNT(sys_pk) regs FROM rh_puesto_org WHERE codigo = @codigo",data)
+
+        @table_name = "rh_puesto_org"
+        @read_query = @sql_puesto
+
+        if @@(params,"$_entity_id") == "_new"
+        {
+            if codigo_en_uso > 0 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            ref entity = @@(entity.create(db,params,data),"&dtpuesto")
+            return entity
+        }
+        else 
+        {
+            if codigo_en_uso > 1 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            ref entity = @@(entity.update(db,params,data),"&dtpuesto")
+            return entity
+        }
+    }
+
     org.save::&db,&params,&data
     {
         do errordet(@false)
@@ -280,6 +360,11 @@ module ""
             case "unidad"
             {
                 ref entity = org.saveUnidad(db,params,data)
+                break
+            }
+            case "puesto"
+            {
+                ref entity = org.savePuesto(db,params,data)
                 break
             }
             case ""
@@ -337,6 +422,12 @@ module ""
             case "unidad"
             {
                 @table_name = "rh_unidad_org"
+                return entity.delete(db,params)
+                break
+            }
+            case "puesto"
+            {
+                @table_name = "rh_puesto_org"
                 return entity.delete(db,params)
                 break
             }

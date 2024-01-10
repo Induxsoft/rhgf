@@ -7,7 +7,7 @@ section(class="" id="")
         div(class="col-12")
         {
             label(class="form-label" "for"="ik_empleado"){$"Empleado:" sup{$"*"}}
-            "input-key"(id="ik_empleado" name="ref_empleado" "data-key"="sys_pk" "data-search"="nombre" "data-text"="apellidos"
+            "input-key"(id="ik_empleado" name="ref_empleado" "data-key"="sys_pk" "data-search"="nombre" "data-text"="apellido1"
                 "data-value"="#<to.json(empleado)>" "data-source"="#<@URL_BUSCAR_EMPLEADO>"
                 columns="codigo,nombre,apellido1,apellido2,rfc,curp,nss"
                 colcaptions="Código,Nombre,Apellido paterno,Apellido materno,RFC,CURP,NSS"
@@ -28,7 +28,7 @@ section(class="" id="")
         div(class="col-12")
         {
             label(class="form-label" "for"="ik_puesto"){$"Puesto:" sup{$"*"}}
-            "input-key"(id="ik_puesto" name="ref_puesto" "data-key"="sys_pk" "data-search"="descripcion" "data-text"="descripcion"
+            "input-key"(id="ik_puesto" name="ref_puesto" "data-key"="sys_pk" "data-search"="codigo" "data-text"="descripcion"
                 "data-value"="#<to.json(puesto)>" "data-source"="#<@URL_BUSCAR_PUESTO>"
                 columns="codigo,descripcion,unidad_org"
                 colcaptions="Código,Descripción,Unidad organizacional"

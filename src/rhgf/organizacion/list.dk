@@ -35,21 +35,29 @@ module "list.dk"
 						{
 							button(onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center no-shadow"){$"#<@ICON_LIST>"}
 						}
-						div(class="d-flex flex-wrap align-items-center justify-content-end gap-1 flex-grow-1" id="unidad_controls")
+                        
+                        input(type="checkbox" class="btn-check" id="chq_unidad_puesto" autocomplete="off")
+                        label(class="btn btn-xs btn-outline-secondary rounded-0 no-shadow" "for"="chq_unidad_puesto" id="lbl_unidad_puesto"){$"Puesto"}
+						
+                        div(class="d-flex flex-wrap align-items-center justify-content-end gap-1 flex-grow-1" id="unidad_controls")
 						{
-                            // button(type="button" class="btn btn-xs btn-main-action border-secondary rounded-0 no-shadow"){$"Unidad"}
-                            // button(type="button" class="btn btn-xs btn-main-action border-secondary rounded-0 no-shadow" id="btn_add_puesto"){$"Puesto"}
-
 							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Agregar" id="btn_add_unidad"){$"#<@ICON_PLUS_LG>"}
                             button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Editar" id="btn_edt_unidad"){$"#<@ICON_EDIT>"}
 							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Eliminar" id="btn_del_unidad"){$"#<@ICON_TRASH>"}
+						}
+
+                        div(class="d-flex flex-wrap align-items-center justify-content-end gap-1 flex-grow-1 d-none" id="puesto_controls")
+						{
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Agregar" id="btn_add_puesto"){$"#<@ICON_PLUS_LG>"}
+                            button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Editar" id="btn_edt_puesto"){$"#<@ICON_EDIT>"}
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Eliminar" id="btn_del_puesto"){$"#<@ICON_TRASH>"}
 						}
 					}
 					
 					div(id="unidades_container_list")
 					{
                         // Lista de unidades
-						div(style="max-height: 90vh;display: flex;")
+						div(class="" id="div_list_unidades" style="max-height: 90vh;display: flex;")
 						{
 							"edit-table"(class="w-100" id="tbl_unidades" data="#<to.json(unidades)>"
                                 "show-tree"="true"
@@ -72,7 +80,7 @@ module "list.dk"
 							}
 						}
                         // Lista de puestos
-                        div(style="max-height: 90vh;display: flex;")
+                        div(class="d-none" id="div_list_puestos" style="max-height: 90vh;display: flex;")
 						{
 							"edit-table"(class="w-100" id="tbl_puestos" data="#<to.json(puestos)>"
                                 "show-tree"="true"
@@ -89,7 +97,7 @@ module "list.dk"
 								{
 									"edit-tr"
 									{
-										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Puestos"}
+										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Puestos organizacionales"}
 									}
 								}
 							}
@@ -107,22 +115,46 @@ module "list.dk"
                     div(class="col-4 d-flex align-items-center p-0")
                     {
                         button(id="tab_unidades" onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow"){$"#<@ICON_LIST>"}
-                        h1(class="h6 text-primary tex-no-break m-0"){$"Organizacón laboral"}
+                        h1(class="h6 text-primary tex-no-break m-0"){$"Organización laboral"}
                     }
                     div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
                     {
-                        a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
-                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_add"){$"#<@ICON_PLUS_LG> Agregar"}
-                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_edt"){$"#<@ICON_EDIT> Editar"}
-                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_del"){$"#<@ICON_TRASH> Eliminar"}
-                        a(href="/" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" target="_top" title="Salir"){$"#<@ICON_X_LG>"}
+                        a(href="./" class="btn btn-sm border-secondary rounded-0 btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+
+                        a(href="#<@RH_EMPLEADOS>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Empleados"}
+                        a(href="#<@NOMINAS>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Nominas"}
+                        a(href="#<@TIPO_CONTRATO>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Tipos de contrato"}
+                        a(href="#<@GRUPOS_CONCEPTOS>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Grupos de concepto"}
+                        a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Conceptos de nómina"}
+                        a(href="#<@VARIABLES>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Variables y fórmulas"}
+                        a(href="#<@TABLAS>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Tablas"}
+                        a(href="#<@TIPO_NOMINA>" class="btn btn-sm border-secondary rounded-0 btn-main-action"){$"Tipos de nómina"}
+                        
+                        a(href="/" class="btn btn-sm border-secondary rounded-0 btn-main-action" target="_top" title="Salir"){$"#<@ICON_X_LG>"}
+                    }
+                }
+                div(class="row container-section m-0 px-0 py-1 px-2 border-bottom sticky-top bg-white" id="main_action_bar")
+                {
+                    div(class="col-12 d-flex justify-content-start align-items-center p-0 gap-2")
+                    {
+                        button(type="button" class="btn btn-xs border-secondary rounded-0 btn-main-action" id="btn_add"){$"#<@ICON_PLUS_LG> Agregar"}
+                        button(type="button" class="btn btn-xs border-secondary rounded-0 btn-main-action" id="btn_edt"){$"#<@ICON_EDIT> Editar"}
+                        button(type="button" class="btn btn-xs border-secondary rounded-0 btn-main-action" id="btn_del"){$"#<@ICON_TRASH> Eliminar"}
                     }
                 }
 				
 				// Contratos
                 div
                 {
-                    "edit-table"(class="w-100" id="tbl_contratos" data="#<to.json(contratos)>")
+                    "edit-table"(class="w-100" id="tbl_contratos" data="#<to.json(contratos)>"
+                        "control-styles"="
+                            tr td { font-size:.8rem; }
+                            th { font-size:.9rem; outline: none !important; }
+                            table { background-color:#FFF !important; }
+                            #__table_input { font-size: unset !important; }
+                            tbody tr:hover { background-color:#EDEDED; }
+                        "
+                    )
                     {
                         "edit-thead"
                         {

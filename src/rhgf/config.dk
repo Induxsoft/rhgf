@@ -37,6 +37,7 @@ module "config"
     @CSS_ORGANIZACION = "/$/rhgf/css/organizacion.css"
     @JS_ORGANIZACION = "/$/rhgf/js/organizacion.js"
     @SAT_TIPO_JORNADA = "/$/rhgf/json/sat.c_TipoJornada.json"
+    @SAT_RIESGO_PUESTO = "/$/rhgf/json/sat.c_RiesgoPuesto.json"
 
     @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
 
