@@ -1,0 +1,38 @@
+﻿[
+  {
+    "clave": "01",
+    "valor": "Diurna"
+  },
+  {
+    "clave": "02",
+    "valor": "Nocturna"
+  },
+  {
+    "clave": "03",
+    "valor": "Mixta"
+  },
+  {
+    "clave": "04",
+    "valor": "Por hora"
+  },
+  {
+    "clave": "05",
+    "valor": "Reducida"
+  },
+  {
+    "clave": "06",
+    "valor": "Continuada"
+  },
+  {
+    "clave": "07",
+    "valor": "Partida"
+  },
+  {
+    "clave": "08",
+    "valor": "Por turnos"
+  },
+  {
+    "clave": 99,
+    "valor": "Otra Jornada"
+  }
+]

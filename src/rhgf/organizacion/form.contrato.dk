@@ -1,0 +1,159 @@
+#include "dkli.dkh"
+#!
+module "form.contrato.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "webcl.dkh"
+    #include "uielements.dkl"
+    #include "../_lib/icons.dk"
+    #include "../config.dk"
+    #include "../_lib/lib.dk"
+
+    do @context.begin(@crud_context)
+    ref @http_context:@("&http")
+
+    ref dtcontrato = ifnull(@("&./dtcontrato"),record.create())
+    ref empleado = ifnull(@("&./empleado"),record.create())
+    ref puesto = ifnull(@("&./puesto"),record.create())
+    
+    ref listTipoContrato = ifnull(@("&./list_tipo_contrato"),list.create())
+    ref listStatus = ifnull(@("&./list_status"),list.create())
+    ref listBancos = ifnull(@("&./list_bancos"),list.create())
+    ref listTipoJornada = list.create()
+
+    // do rise_error(0,to.json(@http_context))
+
+    codeblock
+    {
+        protocol = @("$http/request/headers/REQUEST_SCHEME")
+        host_name = @("$http/request/headers/HTTP_HOST")
+        url_tipojornada = protocol + "://" + path.concat(host_name,@SAT_TIPO_JORNADA)
+        
+        new header { @"Content-Type": "application/json; charset=utf-8;" }
+        ref listTipoJornada = from.json(http.request(url_tipojornada,"GET",header,"{}"))
+
+        exception{/*ignore*/}
+    }
+    
+    // do rise_error(0,to.json(@("&.")))
+
+    new sel_tipo_contrato
+    {
+        @"datatable*": listTipoContrato
+        @"id": "sel_tipo_contrato"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "tipo"
+            @"required": ""
+        }
+        @"value_field": "sys_pk"
+        @"text_field": "nombre"
+        @"selected": form("tipo","nm",dtcontrato)
+    }
+
+    new sel_status
+    {
+        @"datatable*": listStatus
+        @"id": "sel_status"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "status"
+        }
+        @"value_field": "id"
+        @"text_field": "const"
+        @"selected": form("status","nm",dtcontrato)
+    }
+
+    new sel_banco
+    {
+        @"datatable*": listBancos
+        @"id": "sel_banco"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "sat_banco"
+        }
+        @"value_field": "uf_cve"
+        @"text_field": "text"
+        @"selected": form("sat_banco","tx",dtcontrato)
+    }
+
+    new sel_tipo_jornada
+    {
+        @"datatable*": listTipoJornada
+        @"id": "sel_tipo_jornada"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "sat_tipojornada"
+            @"required": ""
+        }
+        @"value_field": "clave"
+        @"text_field": "valor"
+        @"selected": form("sat_tipojornada","tx",dtcontrato)
+    }
+
+    form_title = "Nuevo contrato"
+    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar contrato" }
+
+    #$ div(class="container")
+    {
+        link(href="#<@CSS_MAIN>" rel="stylesheet")
+
+        div(class="row container-section m-0 px-0 py-2 my-2 border-bottom sticky-top bg-white" id="main_action_bar")
+        {
+            div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
+            div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
+            {
+                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
+                a(href="#<@RH_ORGANIZACION>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+            }
+        }
+
+        div
+        {
+            nav
+            {
+                div(class="nav nav-tabs mb-2" id="nav-tab" role="tablist")
+                {
+                    button(class="nav-link active" id="nav-general-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-general" type="button" role="tab" "aria-controls"="nav-general" "aria-selected"="true"){$"General"}
+                    button(class="nav-link" id="nav-sueldo-jornada-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-sueldo-jornada" type="button" role="tab" "aria-controls"="nav-sueldo-jornada" "aria-selected"="false"){$"Sueldo y jornada"}
+                }
+            }
+
+            form(class="" action="./" method="POST" id="form_contrato")
+            {
+                input(type="hidden" name="sys_pk" value="#<@@(dtcontrato,'#sys_pk')>")
+                input(type="hidden" name="sys_recver" value="#<@@(dtcontrato,'#sys_recver')>")
+                input(type="hidden" name="shortcut" value="F6")
+
+                div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
+
+                div(class="tab-content")
+                {
+                    div(class="tab-pane fade show active" id="nav-general" role="tabpanel" "aria-labelledby"="nav-general-tab")
+                    {#! #include "./includes/form.nav.general.dk" #$}
+                    div(class="tab-pane fade" id="nav-sueldo-jornada" role="tabpanel" "aria-labelledby"="nav-sueldo-jornada-tab")
+                    {#! #include "./includes/form.nav.sueldo.jornada.dk" #$}
+                }
+            }
+        }
+
+        div
+        {
+            script(src="#<@JS_ORGANIZACION>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    org.path = "#<@RH_ORGANIZACION>";
+                    contrato.form._GET = #<to.json(@("&parameters"))> ?? {};
+                    contrato.form.init();
+                });
+            '}
+        }
+    }
+}

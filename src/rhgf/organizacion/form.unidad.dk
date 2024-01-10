@@ -12,6 +12,21 @@ module "form.unidad.dk"
     do @context.begin(@crud_context)
 
     ref dtunidad = ifnull(@("&./dtunidad"),record.create())
+    ref listUnidades = ifnull(@("&./list_unidades"),list.create())
+
+    new sel_unidad
+    {
+        @"datatable*": listUnidades
+        @"id": "sel_unidad"
+        new member "attributes"
+        {
+            @"class": "form-select form-select-sm rounded-0"
+            @"name": "superior"
+        }
+        @"value_field": "sys_pk"
+        @"text_field": "text"
+        @"selected": form("superior","nm",dtunidad)
+    }
 
     form_title = "Nueva unidad"
     if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar unidad" }
@@ -45,14 +60,41 @@ module "form.unidad.dk"
                 {
                     div(class="col-lg-12")
                     {
-                        label(class="form-label" "for"=""){$"Código"}
-                        input(type="text" class="form-control form-control-sm rounded-0" name="codigo" maxlength="32" required="")
+                        label(class="form-label" "for"=""){$"Código:" sup{$"*"}}
+                        input(type="text" class="form-control form-control-sm rounded-0" name="codigo" value="#<form('codigo','tx',dtunidad)>" maxlength="32" required="")
 
-                        label(class="form-label" "for"=""){$"Descripción"}
-                        input(type="text" class="form-control form-control-sm rounded-0" name="descripcion" maxlength="150" required="")
+                        label(class="form-label" "for"=""){$"Descripción:" sup{$"*"}}
+                        input(type="text" class="form-control form-control-sm rounded-0" name="descripcion" value="#<form('descripcion','tx',dtunidad)>" maxlength="150" required="")
+
+                        div(class="form-check py-1") {
+                            input(class="form-check-input" type="checkbox" name="" id="chq_depende" checked="")
+                            label(class="form-check-label" "for"="chq_depende"){$"Depende de:"}
+                        }
+                        ##
+                        do uie.dbSelect(sel_unidad)
+                        ##
+
+                        label(class="form-label" "for"=""){$"Notas:"}
+                        textarea(class="form-control rounded-0" name="notas"){$"#<form('notas','tx',dtunidad)>"}
+
+                        label(class="form-label" "for"=""){$"Enlace (URL con documentación adicional:)"}
+                        input(type="text" class="form-control form-control-sm rounded-0" name="link" value="#<form('link','tx',dtunidad)>" maxlength="1024")
                     }
                 }
             }
+        }
+
+        div
+        {
+            script(src="#<@JS_ORGANIZACION>"){$""}
+            script(type="text/javascript")
+            {$'
+                document.addEventListener("DOMContentLoaded", () => {
+                    org.path = "#<@RH_ORGANIZACION>";
+                    unidad.form._GET = #<to.json(@("&parameters"))> ?? {};
+                    unidad.form.init();
+                });
+            '}
         }
     }
 }

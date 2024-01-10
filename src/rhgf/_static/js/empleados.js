@@ -199,7 +199,7 @@ var empleado =
                 if (e.key === "F2") {
                     // Agregar nuevo
                     e.preventDefault();
-                    if (this._GET["_entity_id"] != "_new") window.location.href = empleado.add();
+                    if (this._GET["_entity_id"] != "_new") empleado.add();
                 }
                 if (e.key === "F6") {
                     // Guardar

@@ -29,7 +29,7 @@ var org =
 
         window.location.href = url_redir;
     },
-    del(id,callback=null,_view="")
+    del(id,_view="",callback=null)
     {
         if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
             console.error("Debe indicar un identificador válido");
@@ -42,7 +42,6 @@ var org =
 
         InduxsoftCrudlModel.InvokeService(url,null,
             function(data){
-                // if (data.message) { alert(data.message); return; }
                 if (callback) callback(); else window.location.reload();
             },
             function(error){ console.error(error); },
@@ -128,13 +127,85 @@ var contrato =
                 let dt = this.tData[currRow];
                 if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
                 
-                empleado.del(dt.sys_pk,() => {
+                org.del(dt.sys_pk,"",() => {
                     this.tContratos.DeleteRow(currRow);
                     this.tContratos._printRows();
                 });
             });
         },
-    }
+    },
+
+    form: {
+        formContrato: null, elements: null, btnSave: null,
+
+        init()
+        {
+            this.btnSave = document.getElementById("btn_save");
+            this.formContrato = document.getElementById("form_contrato");
+            this.elements = this.formContrato.elements;
+
+            this.setEvents();
+            this.setKeyboardShortcuts();
+        },
+
+        setEvents()
+        {
+            if (this.btnSave) { this.btnSave.addEventListener("click", () => { this.saveForm(); }); }
+            if (this.formContrato)
+            {
+                this.elements["chq_pagoxhora"].addEventListener("change", (event) => {
+                    let gp_pagoxhora = document.getElementById("gp_pagoxhora");
+                    if (event.target.checked) {
+                        gp_pagoxhora.disabled = false;
+                        this.elements["txt_sueldo_diario"].disabled = true;
+                    } else {
+                        gp_pagoxhora.disabled = true;
+                        this.elements["txt_sueldo_diario"].disabled = false;
+                    }
+                });
+            }
+        },
+
+        setKeyboardShortcuts()
+        {
+            document.addEventListener("keydown", (e) => {
+                // console.log("key: "+ e.key + " | " + "code: " + e.code);
+                if (e.key === "Escape") {
+                    // Salir
+                    e.preventDefault();
+                    window.location.href = (org.path) ? org.path : "../";
+                }
+                if (e.key === "F2") {
+                    // Agregar nuevo
+                    e.preventDefault();
+                    if (this._GET["_entity_id"] != "_new") org.add();
+                }
+                if (e.key === "F6") {
+                    // Guardar
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F6";
+                    this.saveForm();
+                }
+                if (e.key === "F8") {
+                    // Guardar y salir
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F8";
+                    this.saveForm();
+                }
+                if (e.key === "F9") {
+                    // Guardar y nuevo
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F9";
+                    this.saveForm();
+                }
+            });
+        },
+
+        saveForm(){
+            if (!this.formContrato.reportValidity()) return;
+            this.formContrato.submit();
+        },
+    },
 }
 
 var unidad =
@@ -144,11 +215,12 @@ var unidad =
 
         init()
         {
-            this.tUnidades = document.getElementById("tbl_contratos");
+            this.tUnidades = document.getElementById("tbl_unidades");
 
             this.tUnidades.hiddeSelector = true;
             this.tUnidades.AutoAddRow = false;
             this.tUnidades.AutoDelRow = false;
+            this.tUnidades.ShowAsTree = true;
 
             this.tEvents = this.tUnidades.EdiTable.Const.Events;
             this.tData = this.tUnidades.DataArray;
@@ -170,11 +242,183 @@ var unidad =
                 let dt = this.tData[currRow];
                 if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
                 
-                empleado.del(dt.sys_pk,() => {
-                    this.tContratos.DeleteRow(currRow);
-                    this.tContratos._printRows();
-                }, "unidad");
+                org.del(dt.sys_pk,"unidad",() => {
+                    this.tUnidades.DeleteRow(currRow);
+                    this.tUnidades._printRows();
+                });
             });
         },
-    }
+    },
+
+    form: {
+        formUnidad: null, elements: null, btnSave: null,
+
+        init()
+        {
+            this.btnSave = document.getElementById("btn_save");
+            this.formUnidad = document.getElementById("form_unidad");
+            this.elements = this.formUnidad.elements;
+
+            this.setEvents();
+            this.setKeyboardShortcuts();
+        },
+
+        setEvents()
+        {
+            if (this.btnSave) { this.btnSave.addEventListener("click", () => { this.saveForm(); }); }
+            if (this.formUnidad)
+            {
+                this.elements["chq_depende"].addEventListener("change", (event) => {
+                    (event.target.checked)
+                        ? this.elements["sel_unidad"].disabled = false
+                        : this.elements["sel_unidad"].disabled = true;
+                });
+            }
+        },
+
+        setKeyboardShortcuts()
+        {
+            document.addEventListener("keydown", (e) => {
+                // console.log("key: "+ e.key + " | " + "code: " + e.code);
+                if (e.key === "Escape") {
+                    // Salir
+                    e.preventDefault();
+                    window.location.href = (org.path) ? org.path : "../";
+                }
+                if (e.key === "F2") {
+                    // Agregar nuevo
+                    e.preventDefault();
+                    if (this._GET["_entity_id"] != "_new") org.add("unidad");
+                }
+                if (e.key === "F6") {
+                    // Guardar
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F6";
+                    this.saveForm();
+                }
+                if (e.key === "F8") {
+                    // Guardar y salir
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F8";
+                    this.saveForm();
+                }
+                if (e.key === "F9") {
+                    // Guardar y nuevo
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F9";
+                    this.saveForm();
+                }
+            });
+        },
+
+        saveForm(){
+            if (!this.formUnidad.reportValidity()) return;
+            this.formUnidad.submit();
+        },
+    },
+}
+
+var puesto =
+{
+    list: {
+        tPuestos: null, tEvents: {}, tData: {},
+
+        init()
+        {
+            this.tPuestos = document.getElementById("tbl_puestos");
+
+            this.tPuestos.hiddeSelector = true;
+            this.tPuestos.AutoAddRow = false;
+            this.tPuestos.AutoDelRow = false;
+            this.tPuestos.ShowAsTree = true;
+
+            this.tEvents = this.tPuestos.EdiTable.Const.Events;
+            this.tData = this.tPuestos.DataArray;
+
+            this.setEvents();
+        },
+
+        setEvents()
+        {
+            document.getElementById("btn_add_puesto").addEventListener("click", (event) => { org.add("puesto"); });
+            document.getElementById("btn_edt_puesto").addEventListener("click", (event) => {
+                let dt = this.tData[this.tPuestos.CurrentRowIndex()];
+                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
+                
+                org.edt(dt.sys_pk,"puesto");
+            });
+            document.getElementById("btn_del_puesto").addEventListener("click", (event) => {
+                let currRow = this.tPuestos.CurrentRowIndex();
+                let dt = this.tData[currRow];
+                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
+                
+                org.del(dt.sys_pk,"puesto",() => {
+                    this.tPuestos.DeleteRow(currRow);
+                    this.tPuestos._printRows();
+                });
+            });
+        },
+    },
+
+    form: {
+        formPuesto: null, elements: null, btnSave: null,
+
+        init()
+        {
+            this.btnSave = document.getElementById("btn_save");
+            this.formPuesto = document.getElementById("form_puesto");
+            this.elements = this.formPuesto.elements;
+
+            this.setEvents();
+            this.setKeyboardShortcuts();
+        },
+
+        setEvents()
+        {
+            if (this.btnSave) { this.btnSave.addEventListener("click", () => { this.saveForm(); }); }
+            if (this.formPuesto)
+            {
+            }
+        },
+
+        setKeyboardShortcuts()
+        {
+            document.addEventListener("keydown", (e) => {
+                // console.log("key: "+ e.key + " | " + "code: " + e.code);
+                if (e.key === "Escape") {
+                    // Salir
+                    e.preventDefault();
+                    window.location.href = (org.path) ? org.path : "../";
+                }
+                if (e.key === "F2") {
+                    // Agregar nuevo
+                    e.preventDefault();
+                    if (this._GET["_entity_id"] != "_new") org.add("puesto");
+                }
+                if (e.key === "F6") {
+                    // Guardar
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F6";
+                    this.saveForm();
+                }
+                if (e.key === "F8") {
+                    // Guardar y salir
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F8";
+                    this.saveForm();
+                }
+                if (e.key === "F9") {
+                    // Guardar y nuevo
+                    e.preventDefault();
+                    this.elements["shortcut"].value = "F9";
+                    this.saveForm();
+                }
+            });
+        },
+
+        saveForm(){
+            if (!this.formPuesto.reportValidity()) return;
+            this.formPuesto.submit();
+        },
+    },
 }

@@ -25,6 +25,7 @@ program
     init_files = '
         rh_edo_civil.csv,
         rh_nvl_escolaridad.csv,
+        ut_sat_banco.csv,
         sys_app_catalog.csv,
         sys_app_category.csv,
         sys_app_shortcut.csv

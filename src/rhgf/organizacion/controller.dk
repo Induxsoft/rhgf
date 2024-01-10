@@ -11,11 +11,27 @@ module ""
         }
         case "unidad"
         {
+            point @read to org.read
+            point @blank to org.blank
+
+            point @create to org.save
+            point @update to org.save
+            point @delete to org.delete
+
             @form_view = "form.unidad.dk"
             break
         }
         case ""
         {
+            point @list to org.list
+            point @read to org.read
+            point @blank to org.blank
+
+            point @create to org.save
+            point @update to org.save
+            point @delete to org.delete
+
+            @form_view = "form.contrato.dk"
             break
         }
     }

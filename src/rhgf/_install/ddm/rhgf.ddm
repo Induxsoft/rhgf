@@ -183,7 +183,7 @@ model "rhgf"
     }
     /* uod.rh_nvl_escolaridad */
     entity "rh_nvl_escolaridad" : "EnumModel" {}
-     /* uod.rh_puesto_org */
+    /* uod.rh_puesto_org */
     entity "rh_puesto_org" : "TableModel"
     {
         @"codigo" string(32) unique required
@@ -203,8 +203,7 @@ model "rhgf"
         @"link" string(1024) 
         @"smbofrecidos" decimal(8,2) 
     }
-
-     /* uod.rh_unidad_org */
+    /* uod.rh_unidad_org */
     entity "rh_unidad_org" : "TableModel"
     {
         @"codigo" string(32) unique required
@@ -246,8 +245,15 @@ model "rhgf"
         @"sbc" decimal(18,6) 
         @"asimiladosal" bool 
     }
+    
+    entity "ut_sat_banco" : "TableModel"
+    {
+        @"uf_cve" string(50) 
+        @"uf_nombre" string(255) 
+        @"uf_descripcion" string(1000) 
+    }
 
-     // Información de la aplicación
+    // Información de la aplicación
     entity "sys_app_catalog"
     {
         @"pack_id" string(32) required

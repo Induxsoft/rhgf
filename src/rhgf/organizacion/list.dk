@@ -11,7 +11,9 @@ module "list.dk"
 
     do @context.begin(@crud_context)
 
+    ref contratos = ifnull(@("&./contratos"),list.create())
 	ref unidades = ifnull(@('&./unidades'),list.create())
+    ref puestos = ifnull(@('&./puestos'),list.create())
 
     #$ div(class="")
 	{
@@ -26,32 +28,68 @@ module "list.dk"
 			{
 				div
 				{
-					// Barra de controles
-					div(class="d-flex flex-wrap justify-content-between border-bottom")
+					div(class="d-flex flex-wrap justify-content-between p-1 border-bottom")
 					{
+                        // Barra de controles
 						div(id="btn_hidde_unidad_panel")
 						{
-							button(onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow"){$"#<@ICON_LIST>"}
+							button(onclick="org.toggleLeftPanel()" class="btn btn-sm d-flex align-items-center justify-content-center no-shadow"){$"#<@ICON_LIST>"}
 						}
-						div(class="d-flex flex-wrap justify-content-end flex-grow-1" id="unidad_controls")
+						div(class="d-flex flex-wrap align-items-center justify-content-end gap-1 flex-grow-1" id="unidad_controls")
 						{
-							button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Agregar" id="btn_add_unidad"){$"#<@ICON_PLUS_LG>"}
-                            button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Editar" id="btn_edt_unidad"){$"#<@ICON_EDIT>"}
-							button(class="control btn btn-sm d-flex align-items-center justify-content-center gap-2 no-shadow" title="Eliminar" id="btn_del_unidad"){$"#<@ICON_TRASH>"}
+                            // button(type="button" class="btn btn-xs btn-main-action border-secondary rounded-0 no-shadow"){$"Unidad"}
+                            // button(type="button" class="btn btn-xs btn-main-action border-secondary rounded-0 no-shadow" id="btn_add_puesto"){$"Puesto"}
+
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Agregar" id="btn_add_unidad"){$"#<@ICON_PLUS_LG>"}
+                            button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Editar" id="btn_edt_unidad"){$"#<@ICON_EDIT>"}
+							button(class="control btn btn-sm d-flex align-items-center justify-content-center no-shadow" title="Eliminar" id="btn_del_unidad"){$"#<@ICON_TRASH>"}
 						}
 					}
-					// Lista de unidades
+					
 					div(id="unidades_container_list")
 					{
+                        // Lista de unidades
 						div(style="max-height: 90vh;display: flex;")
 						{
-							"edit-table"(id="treeUnidades" "show-tree"="true" parentkey="superior" key="sys_pk" "hidde-selector"="true" style="width: 100%;" "control-styles"="tr td{font-size:.8rem;} th{font-size:.9rem; outline: none !important; font-weight:500 !important;} #__table_input{ font-size: unset !important; }" data='#<to.json(unidades)>')
+							"edit-table"(class="w-100" id="tbl_unidades" data="#<to.json(unidades)>"
+                                "show-tree"="true"
+                                parentkey="superior"
+                                key="sys_pk"
+                                "control-styles"="
+                                    tr td { font-size:.8rem; }
+                                    th { font-size:.9rem; outline: none !important; font-weight:500 !important; }
+                                    #__table_input { font-size: unset !important; }
+                                "
+                            )
 							{
 								"edit-thead"
 								{
 									"edit-tr"
 									{
-										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Unidades"}
+										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Unidades organizacionales"}
+									}
+								}
+							}
+						}
+                        // Lista de puestos
+                        div(style="max-height: 90vh;display: flex;")
+						{
+							"edit-table"(class="w-100" id="tbl_puestos" data="#<to.json(puestos)>"
+                                "show-tree"="true"
+                                parentkey="ref_jefe"
+                                key="sys_pk"
+                                "control-styles"="
+                                    tr td { font-size:.8rem; }
+                                    th { font-size:.9rem; outline: none !important; font-weight:500 !important; }
+                                    #__table_input { font-size: unset !important; }
+                                "
+                            )
+							{
+								"edit-thead"
+								{
+									"edit-tr"
+									{
+										"edit-th"(type="NoEditable" field="descripcion" style="text-align:start;"){$"Puestos"}
 									}
 								}
 							}
@@ -84,7 +122,7 @@ module "list.dk"
 				// Contratos
                 div
                 {
-                    "edit-table"(class="w-100" id="tbl_contratos")
+                    "edit-table"(class="w-100" id="tbl_contratos" data="#<to.json(contratos)>")
                     {
                         "edit-thead"
                         {

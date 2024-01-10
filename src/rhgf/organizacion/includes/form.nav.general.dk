@@ -1,0 +1,108 @@
+#include "dkli.dkh"
+#$
+section(class="" id="")
+{
+    div(class="row")
+    {
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="ik_empleado"){$"Empleado:" sup{$"*"}}
+            "input-key"(id="ik_empleado" name="ref_empleado" "data-key"="sys_pk" "data-search"="nombre" "data-text"="apellidos"
+                "data-value"="#<to.json(empleado)>" "data-source"="#<@URL_BUSCAR_EMPLEADO>"
+                columns="codigo,nombre,apellido1,apellido2,rfc,curp,nss"
+                colcaptions="Código,Nombre,Apellido paterno,Apellido materno,RFC,CURP,NSS"
+                "box-title-text"="Empleado"
+                "box-placeholder-text"="Buscar..."
+                "box-nodata-text"="No se encontraron registros para mostrar"
+                required="true"
+                "control-styles"="
+                    #input_search_container, #input_description_container,
+                    #button_search_container, #button_clear_container {
+                        height: calc(1.5em + .5rem + 2px) !important;
+                        padding: .25rem .5rem !important;
+                        font-size: .875rem !important;
+                    }
+                "
+            ){$""}
+        }
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="ik_puesto"){$"Puesto:" sup{$"*"}}
+            "input-key"(id="ik_puesto" name="ref_puesto" "data-key"="sys_pk" "data-search"="descripcion" "data-text"="descripcion"
+                "data-value"="#<to.json(puesto)>" "data-source"="#<@URL_BUSCAR_PUESTO>"
+                columns="codigo,descripcion,unidad_org"
+                colcaptions="Código,Descripción,Unidad organizacional"
+                "box-title-text"="Puesto"
+                "box-placeholder-text"="Buscar..."
+                "box-nodata-text"="No se encontraron registros para mostrar"
+                required="true"
+                "control-styles"="
+                    #input_search_container, #input_description_container,
+                    #button_search_container, #button_clear_container {
+                        height: calc(1.5em + .5rem + 2px) !important;
+                        padding: .25rem .5rem !important;
+                        font-size: .875rem !important;
+                    }
+                "
+            ){$""}
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_inicio_contrato"){$"Inicio del contrato:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="date" name="fechainicio" value="#<form('fechainicio','dt',dtcontrato)>" id="txt_inicio_contrato" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_fin_contrato"){$"Fin del contrato:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="date" name="fechavencimiento" value="#<form('fechavencimiento','dt',dtcontrato)>" id="txt_fin_contrato" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_ffirma"){$"Fecha de firma:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="date" name="ffirma" value="#<form('ffirma','dt',dtcontrato)>" id="txt_ffirma" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_referencia"){$"Folio o referencia:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0 text-uppercase" type="text" name="referencia" maxlength="50" value="#<form('referencia','tx',dtcontrato)>" id="txt_referencia" required="true")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_tipo_contrato"){$"Tipo de contrato:" sup{$"*"}}
+            ##
+            do uie.dbSelect(sel_tipo_contrato)
+            ##
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_status"){$"Estado:"}
+            ##
+            do uie.dbSelect(sel_status)
+            ##
+        }
+        div(class="col-12")
+        {
+            div(class="form-check") {
+                #!
+                checked = ""
+                if @("$parameters/_entity_id") != "_new" { checked = form("sat_sindicalizado","ch",dtcontrato) }
+                #$
+                input(class="form-check-input" type="checkbox" name="sat_sindicalizado" id="chq_sindicalizado" "#<checked>"="")
+                label(class="form-check-label" "for"="chq_sindicalizado"){$"Sindicalizado"}
+            }
+            div(class="form-check") {
+                #!
+                checked = ""
+                if @("$parameters/_entity_id") != "_new" { checked = form("asimiladosal","ch",dtcontrato) }
+                #$
+                input(class="form-check-input" type="checkbox" name="asimiladosal" id="chq_asimilado_sal" "#<checked>"="")
+                label(class="form-check-label" "for"="chq_asimilado_sal"){$"Asimilado a salario"}
+            }
+        }
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="txt_notas"){$"Notas:"}
+            textarea(class="form-control rounded-0" name="notas" maxlength="4096" id="txt_notas"){$"#<form('notas','tx',dtcontrato)>"}
+        }
+    }
+}

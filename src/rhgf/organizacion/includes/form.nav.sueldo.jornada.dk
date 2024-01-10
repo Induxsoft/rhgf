@@ -1,0 +1,95 @@
+#include "dkli.dkh"
+#$
+section(class="" id="")
+{
+    div(class="row")
+    {
+        div(class="col-12")
+        {
+            label(class="form-label" "for"="sel_tipo_jornada"){$"Tipo jornada:" sup{$"*"}}
+            ##
+            do uie.dbSelect(sel_tipo_jornada)
+            ##
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_sueldo_mensual_bruto"){$"Sueldo mensual bruto:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="sueldomensualbruto" min="0" max="99999999.9999" step="0.0001" value="#<form('sueldomensualbruto','nm',dtcontrato)>" id="txt_sueldo_mensual_bruto" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_sueldo_diario"){$"Sueldo diario:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="sueldoxunidaddepago" min="0" max="99999999.9999" step="0.0001" value="#<form('sueldoxunidaddepago','nm',dtcontrato)>" id="txt_sueldo_diario" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_factor_integracion"){$"Factor de Integración [FDI]:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="fdi" min="0" max="9999.99999999" step="0.00000001" value="#<form('fdi','nm',dtcontrato)>" id="txt_factor_integracion" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_salario_integrado"){$"Salario Diaria Integrado [SDI]:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="sdi" min="0" max="999999.999999" step="0.000001" value="#<form('sdi','nm',dtcontrato)>" id="txt_salario_integrado" required="")
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_dias_semana"){$"Dias de trabajo a la semana:" sup{$"*"}}
+            input(class="form-control form-control-sm rounded-0" type="number" name="diasxsemana" min="1" max="7" step="1" value="#<form('diasxsemana','nm',dtcontrato)>" id="txt_dias_semana" required="")
+        }
+        div(class="col-12")
+        {
+            div(class="form-check") {
+                #!
+                checked = ""
+                if @("$parameters/_entity_id") != "_new" { checked = form("septimodia","ch",dtcontrato) }
+                #$
+                input(class="form-check-input" type="checkbox" name="septimodia" id="chq_septimodia" "#<checked>"="")
+                label(class="form-check-label" "for"="chq_septimodia"){$"Pago proporcional del séptimo día"}
+            }
+            div(class="form-check") {
+                #!
+                checked = ""
+                if @("$parameters/_entity_id") != "_new" { checked = form("pagoxhora","ch",dtcontrato) }
+                #$
+                input(class="form-check-input" type="checkbox" name="pagoxhora" id="chq_pagoxhora" "#<checked>"="")
+                label(class="form-check-label" "for"="chq_pagoxhora"){$"Pago por hora"}
+            }
+        }
+        fieldset(id="gp_pagoxhora" disabled="")
+        {
+            div(class="col-lg-4 col-md-4 col-sm-4")
+            {
+                label(class="form-label" "for"="txt_sueldo_hora"){$"Sueldo por hora:"}
+                input(class="form-control form-control-sm rounded-0" type="number" name="sueldoxunidaddepago" min="0" max="999999999999.999999" step="0.000001" value="#<form('sueldoxunidaddepago','nm',dtcontrato)>" id="txt_sueldo_hora")
+            }
+            div(class="col-lg-4 col-md-4 col-sm-4")
+            {
+                label(class="form-label" "for"="txt_horas_promedio_dia"){$"Horas promedio diarias:"}
+                input(class="form-control form-control-sm rounded-0" type="number" name="promediohorasdia" min="0" max="9999.99" step="0.01" value="#<form('promediohorasdia','nm',dtcontrato)>" id="txt_horas_promedio_dia")
+            }
+            div(class="col-lg-4 col-md-4 col-sm-4")
+            {
+                div(class="form-check py-1") {
+                    #!
+                    checked = ""
+                    if @("$parameters/_entity_id") != "_new" { checked = form("horasvariables","ch",dtcontrato) }
+                    #$
+                    input(class="form-check-input" type="checkbox" name="horasvariables" id="chq_horas_variables" "#<checked>"="")
+                    label(class="form-check-label" "for"="chq_horas_variables"){$"La cantidad de hora es variable"}
+                }
+            }
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="sel_banco"){$"Banco:"}
+            ##
+            do uie.dbSelect(sel_banco)
+            ##
+        }
+        div(class="col-lg-6 col-md-6 col-sm-6")
+        {
+            label(class="form-label" "for"="txt_clabe"){$"Número de cuenta bancaria:"}
+            input(class="form-control form-control-sm rounded-0" type="text" name="clabe" maxlength="50" value="#<form('clabe','tx',dtcontrato)>" id="txt_clabe")
+        }
+    }
+}

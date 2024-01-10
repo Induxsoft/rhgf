@@ -22,10 +22,13 @@ module "form.dk"
     ref listTipoVivienda = ifnull(@("&./list_tipo_vivienda"),list.create())
     ref listSatRegFiscal = list.create()
 
+    // do rise_error(0,to.json(@http_context))
+
     codeblock
     {
+        protocol = @("$http/request/headers/REQUEST_SCHEME")
         host_name = @("$http/request/headers/HTTP_HOST")
-        url_regfis = "http://" + path.concat(host_name,@SAT_REGIMEN_FISCAL)
+        url_regfis = protocol + "://" + path.concat(host_name,@SAT_REGIMEN_FISCAL)
         
         new header { @"Content-Type": "application/json; charset=utf-8;" }
         ref listSatRegFiscal = from.json(http.request(url_regfis,"GET",header,"{}"))
@@ -61,7 +64,7 @@ module "form.dk"
         }
         @"value_field": "clave"
         @"text_field": "valor"
-        @"selected": form("sat_regimenfiscal","nm",dtempleado)
+        @"selected": form("sat_regimenfiscal","tx",dtempleado)
     }
 
     new sel_escolaridad

@@ -7,6 +7,50 @@ module ""
     @create_exclude_fields = "shortcut"
     @update_exclude_fields = "shortcut"
 
+    @sql_contrato = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        sys_recver,
+        ref_empleado,
+        ref_puesto,
+        tipo,
+        status,
+        DATE_FORMAT(fechainicio,'%Y-%m-%d') fechainicio,
+        DATE_FORMAT(fechavencimiento,'%Y-%m-%d') fechavencimiento,
+        DATE_FORMAT(ffirma,'%Y-%m-%d') ffirma,
+        referencia,
+        IFNULL(sat_sindicalizado,0) sat_sindicalizado,
+        IFNULL(asimiladosal,0) asimiladosal,
+        IFNULL(notas,'') notas,
+        IFNULL(sat_tipojornada,'') sat_tipojornada,
+        sueldomensualbruto,
+        IFNULL(fdi,0) fdi,
+        IFNULL(sdi,0) sdi,
+        IFNULL(diasxsemana,0) diasxsemana,
+        IFNULL(septimodia,0) septimodia,
+        IFNULL(pagoxhora,0) pagoxhora,
+        IFNULL(sueldoxunidaddepago,0) sueldoxunidaddepago,
+        IFNULL(promediohorasdia,0) promediohorasdia,
+        IFNULL(horasvariables,0) horasvariables,
+        IFNULL(sat_banco,'') sat_banco,
+        IFNULL(clabe,'') clabe
+    FROM rh_contrato_empleado
+    WHERE #<@keyfield> = @_entity_id
+    "
+    @sql_unidad = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        sys_recver,
+        codigo,
+        descripcion,
+        superior,
+        IFNULL(notas,'') notas,
+        IFNULL(link,'') link
+    FROM rh_unidad_org
+    WHERE #<@keyfield> = @_entity_id
+    "
     @list_query = "
     SELECT
         c.sys_pk,
@@ -24,25 +68,284 @@ module ""
         p.descripcion AS puesto,
         t.nombre AS tipo_contrato,
         c.status
-    FROM #<@table_name> AS c
+    FROM rh_contrato_empleado AS c
         INNER JOIN rh_empleado_org AS e ON c.ref_empleado = e.sys_pk
         INNER JOIN rh_puesto_org AS p ON c.ref_puesto = p.sys_pk
         INNER JOIN rh_tipo_contrato AS t on c.tipo = t.sys_pk
     WHERE NOT IFNULL(c.sys_deleted,0)
     "
 
-    org.buscarPuesto::&db,&params
+    org.buscarEmpleado::&db,&params
     {
         sql = "
         SELECT
             sys_pk,
             sys_guid,
-            sys_recver,
             codigo,
-            descripcion
-        FROM rh_puesto_org
-        WHERE NOT IFNULL(sys_deleted,0) AND (codigo LIKE CONCAT('%',@search,'%') OR descripcion LIKE CONCAT('%',@search,'%'))
+            apellido1,
+            apellido2,
+            nombre,
+            rfc,
+            curp,
+            nss
+        FROM rh_empleado_org
+        WHERE #<condition>
         "
-        return dbr.list(db,sql,params)
+        if trim(@@(params,"$id")) != ""
+        {
+            condition = "(sys_pk = @id OR sys_guid = @id)"
+            return dbr.rec(db,ftext(sql),params)
+        }
+        if trim(@@(params,"$search")) != ""
+        {
+            condition = "
+            AND (codigo LIKE CONCAT('%',@search,'%') 
+                OR nombre LIKE CONCAT('%',@search,'%')
+                OR apellido1 LIKE CONCAT('%',@search,'%')
+                OR apellido2 LIKE CONCAT('%',@search,'%')
+                OR rfc LIKE CONCAT('%',@search,'%')
+                OR curp LIKE CONCAT('%',@search,'%')
+                OR nss LIKE CONCAT('%',@search,'%')
+            )"
+            return dbr.list(db,ftext(sql),params)
+        }
+        return list.create()
+    }
+
+    org.buscarPuesto::&db,&params
+    {
+        sql = "
+        SELECT
+            p.sys_pk,
+            p.sys_guid,
+            p.codigo,
+            p.descripcion,
+            u.descripcion AS unidad_org
+        FROM rh_puesto_org AS p
+            LEFT JOIN rh_unidad_org AS u ON p.ref_unidad_org = u.sys_pk
+        WHERE #<condition>
+        "
+        if trim(@@(params,"$id")) != ""
+        {
+            condition = "(p.sys_pk = @id OR p.sys_guid = @id)"
+            return dbr.rec(db,ftext(sql),params)
+        }
+        if trim(@@(params,"$search")) != ""
+        {
+            condition = "(p.codigo LIKE CONCAT('%',@search,'%') OR p.descripcion LIKE CONCAT('%',@search,'%'))"
+            return dbr.list(db,ftext(sql),params)
+        }
+        return list.create()
+    }
+
+    org.obtenerEmpleado::&db,&id
+    {
+        new params { @"id": id }
+        return org.buscarEmpleado(db,params)
+    }
+
+    org.obtenerPuesto::&db,&id
+    {
+        new params { @"id": id }
+        return org.buscarPuesto(db,params)
+    }
+
+    org.prepareView::&db,&params,&data
+    {
+        switch @@(@http_context,"$request/get/_view")
+        {
+            case "unidad"
+            {
+                sql_unidades = "SELECT sys_pk, CONCAT('[',codigo,'] ',descripcion) AS `text` FROM rh_unidad_org WHERE NOT IFNULL(sys_deleted,0)"
+
+                if @@(params,"$_entity_id") != "_new" {
+                    @read_query = @sql_unidad
+                    data<"dtunidad*"> : entity.read(db,params)
+                }
+                data<"list_unidades*"> : dbr.list(db,sql_unidades,@null)
+                break
+            }
+            case ""
+            {
+                sql_tipo_contrato = "SELECT sys_pk, nombre FROM rh_tipo_contrato WHERE NOT IFNULL(sys_deleted,0)"
+                sql_status = "SELECT id, const FROM rh_status_contrato"
+                sql_bancos = "SELECT sys_pk, uf_cve, CONCAT(uf_cve,' - ',uf_nombre) AS `text` FROM ut_sat_banco WHERE NOT IFNULL(sys_deleted,0)"
+
+                if @@(params,"$_entity_id") != "_new" {
+                    @read_query = @sql_contrato
+                    ref dtcontrato = entity.read(db,params)
+                    ref empleado = org.obtenerEmpleado(db,@@(dtcontrato,"#ref_empleado"))
+                    ref puesto = org.obtenerPuesto(db,@@(dtcontrato,"#ref_puesto"))
+
+                    data<"dtcontrato*"> : dtcontrato
+                    data<"empleado*"> : empleado
+                    data<"puesto*"> : puesto
+                }
+                data<"list_tipo_contrato*"> : dbr.list(db,sql_tipo_contrato,@null)
+                data<"list_status*"> : dbr.list(db,sql_status,@null)
+                data<"list_bancos*"> : dbr.list(db,sql_bancos,@null)
+                break
+            }
+        }
+    }
+
+    org.list::&db,&params
+    {
+        sql_list_unidad = "SELECT sys_pk, sys_guid, codigo, descripcion, superior FROM rh_unidad_org WHERE NOT IFNULL(sys_deleted,0)"
+        sql_list_puesto = "SELECT sys_pk, sys_guid, codigo, descripcion, ref_jefe FROM rh_puesto_org WHERE NOT IFNULL(sys_deleted,0)"
+
+        ref list = record.create()
+
+        list<"contratos*"> : entity.list(db,params)
+        list<"unidades*"> : dbr.list(db,sql_list_unidad,@null)
+        list<"puestos*"> : dbr.list(db,sql_list_puesto,@null)
+
+        return list
+    }
+
+    org.read::&db,&params
+    {
+        new data {}
+        do org.prepareView(db,params,data)
+        return data
+    }
+
+    org.blank::&db,&params
+    {
+        new data {}
+        do org.prepareView(db,params,data)
+        return data
+    }
+
+    org.saveContrato::&db,&params,&data
+    {
+        if @@(data,"#ref_empleado") <= 0 { do rise_error(99,"No se ha indicado un empleado.") }
+        if @@(data,"#ref_puesto") <= 0 { do rise_error(99,"Es necesario indicar el puesto.") }
+        if @@(data,"#tipo") <= 0 { do rise_error(99,"Es necesario indicar el tipo de contrato.") }
+        if trim(@@(data,"$fechainicio")) == "" { do rise_error(99,"No se ha indicado la fecha de inicio del contrato.") }
+        if trim(@@(data,"$fechavencimiento")) == "" { do rise_error(99,"No se ha indicado la fecha de terminación del contrato.") }
+        if trim(@@(data,"$referencia")) == "" { do rise_error(99,"El folio o referencia es requerido.") }
+        if trim(@@(data,"$sat_tipojornada")) == "" { do rise_error(99,"Es necesario indicar el tipo de jornada.") }
+        if trim(@@(data,"$sueldomensualbruto")) == "" { do rise_error(99,"El sueldo mensual bruto es requerido.") }
+        if trim(@@(data,"$sueldoxunidaddepago")) == "" { do rise_error(99,"El sueldo diario o por hora es requerido.") }
+        if trim(@@(data,"$fdi")) == "" { do rise_error(99,"El factor de integración es requerido.") }
+        if trim(@@(data,"$sdi")) == "" { do rise_error(99,"El salario diario integrado es requerido.") }
+        if trim(@@(data,"$diasxsemana")) == "" { do rise_error(99,"Los dias de trabajo por semana es requerido.") }
+
+        @table_name = "rh_contrato_empleado"
+        @read_query = @sql_contrato
+
+        if @@(params,"$_entity_id") == "_new" {
+            ref entity = @@(entity.create(db,params,data),"&dtcontrato")
+            return entity
+        }
+        else {
+            ref entity = @@(entity.update(db,params,data),"&dtcontrato")
+            return entity
+        }
+    }
+
+    org.saveUnidad::&db,&params,&data
+    {
+        if trim(@@(data,"$codigo")) == "" { do rise_error(99,"Es necesario indicar el código de la unidad.") }
+        if trim(@@(data,"$descripcion")) == "" { do rise_error(99,"Es necesario indicar la descripcion de la unidad.") }
+        codigo_en_uso = dbr.num(db,"SELECT COUNT(sys_pk) regs FROM rh_unidad_org WHERE codigo = @codigo",data)
+
+        @table_name = "rh_unidad_org"
+        @read_query = @sql_unidad
+
+        if @@(params,"$_entity_id") == "_new"
+        {
+            if codigo_en_uso > 0 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            ref entity = @@(entity.create(db,params,data),"&dtunidad")
+            return entity
+        }
+        else 
+        {
+            if codigo_en_uso > 1 { do rise_error(99,"El código proporcionado ya se encuentra en uso.") }
+            ref entity = @@(entity.update(db,params,data),"&dtunidad")
+            return entity
+        }
+    }
+
+    org.save::&db,&params,&data
+    {
+        do errordet(@false)
+        _view = trim(@@(params,"$_view"))
+
+        ref entity = @null
+
+        switch _view
+        {
+            case "unidad"
+            {
+                ref entity = org.saveUnidad(db,params,data)
+                break
+            }
+            case ""
+            {
+                ref entity = org.saveContrato(db,params,data)
+                break
+            }
+        }
+
+        switch toupper(trim(@@(data,"$shortcut")))
+        {
+            case "F6"
+            {
+                if isnull(entity) { break }
+                @url_redir = @RH_ORGANIZACION + @@(entity,"$sys_pk") + "/"
+                if _view != "" { @url_redir = @url_redir + _view + "/" }
+                break
+            }
+            case "F8"
+            {
+                @url_redir = @RH_ORGANIZACION
+                break
+            }
+            case "F9"
+            {
+                @url_redir = @RH_ORGANIZACION + "_new/"
+                if _view != "" { @url_redir = @url_redir + _view + "/" }
+                break
+            }
+        }
+
+        exception
+        {
+            if dbr.in_transaction(db) { do dbr.rollback(db) }
+
+            ref formData = record.copy(data,"*")
+            code = last_error_code()
+            error = last_error()
+
+            do record.clear(data)
+            data<"form*"> : formData
+            
+            do org.prepareView(db,params,data)
+            do rise_error(code,error)
+        }
+    }
+
+    org.delete::&db,&params
+    {
+        do errordet(@false)
+        _view = trim(@@(params,"$_view"))
+
+        switch _view
+        {
+            case "unidad"
+            {
+                @table_name = "rh_unidad_org"
+                return entity.delete(db,params)
+                break
+            }
+            case ""
+            {
+                @table_name = "rh_contrato_empleado"
+                return entity.delete(db,params)
+                break
+            }
+        }
     }
 }
