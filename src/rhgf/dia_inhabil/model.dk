@@ -1,0 +1,40 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_dia_inhabil"
+    like=" and if(ifnull(@s,0)=0,true,d.ano=@s or ifnull(d.ano,0)=0) "
+    @list_query="select d.*,LPAD(ifnull(d.dia,0),2,0)fdia,ifnull(d.ano,'Todos')fano,if(ifnull(d.pago_extra,0),'Sí','No')extra,c.descripcion calendario 
+    from #<@table_name> d inner join rh_calendario c on d.ref_rh_calendario=c.sys_pk
+    where ifnull(d.sys_deleted,0)=0 and if(ifnull(@rh_cal,0)=0,true,d.ref_rh_calendario=@rh_cal) "+ like+ " order by d.sys_pk desc"
+
+    save::&db,&params,&data
+    {
+        if @@(data,"$ano")==""{data<"ano*">:@null}
+
+        if parse.bool(@@(data,"pago_extra")){data<"pago_extra">:1}
+        else{data<"pago_extra">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+
+        @url_redir=@RH_CTR_ASIST_DIA_INHABIL + "?rh_cal="+@@(data,"$ref_rh_calendario")
+        return entity
+    }
+    list::&db,&params
+    {
+        new entity
+        {
+            @"dias_inhabilies*":entity.list(db,params)
+            @"calendario*":dbr.rec(db,"select * from rh_calendario where sys_pk=@rh_cal",params)
+            @"anos*":dbr.list(db,"SELECT distinct ifnull(d.ano,'Todos')ano FROM rh_dia_inhabil d where ref_rh_calendario=@rh_cal",params)
+        }
+        return entity
+    }
+    
+    point @list to list
+    point @create to save
+    point @update to save
+}

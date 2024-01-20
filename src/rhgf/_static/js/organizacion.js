@@ -7,19 +7,52 @@ function round(num,dec=2) {
     num = num.toString().split('e');
     return signo * (num[0] + 'e' + (num[1] ? (+num[1] - dec) : -dec));
 }
-
+document.addEventListener("DOMContentLoaded",
+()=>
+{
+    org.inicialize();
+});
 var org =
 {
     path: "",
-
+    inicialize()
+    {
+        org.ref_turno=document.getElementById("ref_turno");
+        org.ik_puesto=document.getElementById("ik_puesto");
+        if(org.ik_puesto)org.ik_puesto.addEventListener("change",
+        ()=>
+        {
+            var data=org.ik_puesto.getValue();
+            if(org.ref_turno)
+            {
+                var uri=org.url_turno_search;
+                
+                if(!data)
+                {
+                    org.ref_turno.setAttribute("disabled","true");
+                    org.ref_turno.setAttribute("data-source","");
+                }
+                else
+                {
+                    uri=uri.replace("@unidad",(data.pkunidad??""));
+                    org.ref_turno.removeAttribute("disabled");
+                    org.ref_turno.setAttribute("data-source",uri);
+                }
+            }
+           
+        });
+    },
     init()
     {
+        
+
         this.setAjustPanelUnidadEvent();
         this.setEvents();
 
         contrato.list.init();
         unidad.list.init();
         puesto.list.init();
+        
     },
 
     setEvents()
@@ -50,6 +83,7 @@ var org =
                 label.textContent = "Puesto";
             }
         });
+        
     },
 
     add(_view="")

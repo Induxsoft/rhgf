@@ -14,6 +14,7 @@ module ""
         sys_recver,
         ref_empleado,
         ref_puesto,
+        ref_turno,
         tipo,
         status,
         DATE_FORMAT(fechainicio,'%Y-%m-%d') fechainicio,
@@ -141,7 +142,8 @@ module ""
             p.sys_guid,
             p.codigo,
             p.descripcion,
-            u.descripcion AS unidad_org
+            u.descripcion AS unidad_org,
+            u.sys_pk pkunidad
         FROM rh_puesto_org AS p
             LEFT JOIN rh_unidad_org AS u ON p.ref_unidad_org = u.sys_pk
         WHERE #<condition>
@@ -224,6 +226,12 @@ module ""
                     data<"dtcontrato*"> : dtcontrato
                     data<"empleado*"> : empleado
                     data<"puesto*"> : puesto
+
+                    params<"turno">:@@(dtcontrato,"#ref_turno")
+                    data<"turno*">:dbr.rec(db,"select t.*,c.descripcion calendario,u.descripcion unidad,u.sys_pk pkunidad from rh_turno t 
+                    inner join rh_calendario c on t.ref_calendario=c.sys_pk
+                    inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
+                    where t.sys_pk=@turno",params)
                 }
                 data<"list_tipo_contrato*"> : dbr.list(db,sql_tipo_contrato,@null)
                 data<"list_status*"> : dbr.list(db,sql_status,@null)
@@ -288,7 +296,8 @@ module ""
             @"horasvariables": parse.bool(@@(data,"$horasvariables"))
             @"activo": (@@(data,"#status") == 1)
         }
-
+        if field.exist(data,"ref_turno") && @@(data,"$ref_turno")==""{data<"ref_turno*">:@null}
+        
         if @@(params,"$_entity_id") == "_new" {
             ref entity = @@(entity.create(db,params,data),"&dtcontrato")
             return entity

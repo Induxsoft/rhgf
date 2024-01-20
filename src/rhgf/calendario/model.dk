@@ -1,0 +1,24 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_calendario"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',codigo,descripcion,notas,activo,if(ifnull(activo,0),'Sí','No')) like concat('%',@s,'%')  )"
+    @list_query="select *,if(ifnull(activo,0),'Sí','No')factivo from #<@table_name> where ifnull(sys_deleted,0)=0 "+ like
+
+    save::&db,&params,&data
+    {
+        if parse.bool(@@(data,"activo")){data<"activo">:1}
+        else{data<"activo">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+    }
+    
+    point @create to save
+    point @update to save
+}

@@ -1,0 +1,43 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_descanso"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',min_horas,text) like concat('%',@s,'%')  )"
+    @list_query="select d.*,t.descripcion turno from #<@table_name> d inner join rh_turno t on d.ref_turno=t.sys_pk
+    where ifnull(d.sys_deleted,0)=0 "+ like
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+        rec<"turno*">:dbr.rec(db,"select * from rh_turno where sys_pk=@rh_tur",params)
+    }
+    save::&db,&params,&data
+    {
+        if @@(data,"$min_horas")==""{data<"min_horas">:0}
+        if @@(data,"$max_minutos")==""{data<"max_minutos">:0}
+        if @@(data,"$max_veces")==""{data<"max_veces">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+
+        @url_redir=@RH_CTR_ASIST_DESCANSO+"?rh_tur="+@@(data,"$ref_turno")
+
+        return entity
+    }
+    list::&db,&params
+    {
+        new entity
+        {
+            @"descansos*":entity.list(db,params)
+        }
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @list to list
+    point @create to save
+    point @update to save
+}

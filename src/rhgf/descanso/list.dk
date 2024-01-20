@@ -1,0 +1,106 @@
+#include "dkli.dkh"
+#!
+module "list"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+
+    ref data = @("&./descansos")
+    ref turno=@("&./turno")
+    rh_tur=@("$parameters/rh_tur")
+    url_exit=ifstr(rh_tur!="",replace(@RH_CTR_ASIST__ADD_EDIT_DIA_TURNO,'@id',rh_tur),@RH_CTR_ASIST_DIA_TURNO)
+    #$
+    div(class="container p-0")
+    {
+        div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
+        {
+            div(class="col-4 d-flex align-items-center p-0")
+            {
+                h5(class="tex-no-break m-0"){$"Descansos"}
+            }
+            div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
+            {
+                a(href="./?rh_tur=#<rh_tur>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
+                a(href="#<replace(@RH_CTR_ASIST__ADD_EDIT_DESCANSO, '@id', '_new')+'?rh_tur='+rh_tur>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
+                button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Imprimir" onclick="window.print()"){$"#<@@(@icons,'PRINTER')>"}
+                a(href="#<url_exit>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Salir"){$"#<@@(@icons,'X')>"}
+            }
+        }
+        div(id="work_area" class="container-section pt-2")
+        {
+            h5{"#<@@(turno,'$codigo')+' '+@@(turno,'$descripcion')>"}
+            // form(action="./?rh_tur=#<rh_tur>" method="GET" id="form_search" class="d-flex mb-2 no-print")
+            // {
+            //     input(class="induxsoft-form-control flex-grow-1" type="search" name="s" placeholder="Buscar" id="input_search" value='#<@@(@crud_context,"$parameters/s")>')
+            //     button(class="btn btn-sm btn-primary induxsoft-corners d-flex gap-2 align-items-center") {
+            //         $"Buscar"
+            //         $"#<@@(@icons,'SEARCH')>"
+            //     }
+            // }
+            div
+            {
+                #! lenght = list.count(data)
+                if lenght <= 0
+                {
+                    message = ""
+                    if @@(@crud_context,"$parameters/s") == "" { message = "Sin registros." }
+                    else  { message = "Sin resultados." }
+
+                    #$ div(class="text-center")
+                    {
+                        h6(style="background-color: #F5F5F5; padding: 10rem 0;"){"#<message>"}
+                    }
+                }
+                #! else 
+                {
+                    #$ div(style="overflow-y:auto;max-height: 75vh;" class="mb-2" id="list_table_container")
+                    {
+                        table(class="table")
+                        {
+                            thead
+                            {
+                                tr
+                                {
+                                    th(class="h6"){"Turno"}
+                                    th(class="h6"){$"Hora mínima"}
+                                    th(class="h6"){$"Minutos máximos"}
+                                    th(class="h6"){$"Máximo de veces"}
+                                    th(class="h6"){$"Nota"}
+                                    th(class="h6"){$""}
+                                }
+                            }
+                            tbody
+                            {
+                                $""
+                                #! for i = 0; i < list.count(data)
+                                {
+                                    ref dt = list.obj(data, i)
+
+                                    #$ tr
+                                    {
+                                        td{"#<@@(dt,'$turno')>"}
+                                        td{$"#<@@(dt,'$min_horas')>"}
+                                        td{$"#<@@(dt,'$max_minutos')>"}
+                                        td{$"#<@@(dt,'$max_veces')>"}
+                                        td{$"#<@@(dt,'$text')>"}
+                                        td(class="no-print")
+                                        {
+                                            div(class="d-flex gap-2 justify-content-center")
+                                            {
+                                                a(href="#<replace(@RH_CTR_ASIST__ADD_EDIT_DESCANSO, '@id', @@(dt,'sys_pk'))+'?rh_tur='+rh_tur>" class="btn btn-sm btn-light"){$"Editar"}
+                                                button(class="btn btn-sm btn-light" onclick="InduxsoftCrudlModel.Delete(#<@@(dt,'sys_pk')>)"){$"Eliminar"}
+                                            }
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

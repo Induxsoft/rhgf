@@ -1,0 +1,164 @@
+#include "dkli.dkh"
+#!
+module "form.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+
+    ref data = @("&./")
+    entity_id = @("$parameters/_entity_id")
+    error = @("$error/message")
+    isNew = (entity_id == "_new")
+    action = replace(@RH_CTR_ASIST__ADD_EDIT_DIA_TURNO, "@id", entity_id)
+
+    #$
+    div(class="container")
+    {   
+        form(method="POST" action="#<action>" id="form")
+        {
+            div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
+            {
+                div(class="col-4 d-flex align-items-center p-0")
+                {
+                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Turno"}
+                }
+                div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
+                {
+                    a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
+                    button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
+                        $'#<@@(@icons,"save2")>'
+                    }
+                    a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@RH_CTR_ASIST_DIA_TURNO>") {
+                        svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16") {
+                            path(d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z")
+                        }
+                    }
+                }
+            }
+            div(id="work_area" class="container-section")
+            {
+                div(class="#<ifstr(@('error/message')!='','alert alert-danger','')>"){$"#<@('error/message')>"}
+
+                input(type="hidden" name="sys_pk" value="#<@@(data, '#sys_pk')>")
+                input(type="hidden" name="sys_recver" value="#<@@(data, '#sys_recver')>")
+                
+                
+                div(class="row mb-2 mt-4")
+                {
+                    div(class="col-sm-2")
+                    {
+                        small(class="fw-bold"){$"Código:"}
+                        input(type="text" class="induxsoft-form-control mb-2" name="codigo" value="#<@@(data, '$codigo')>" required="true" maxlength="15")
+                    }
+                    div(class="col-sm-4")
+                    {
+                        small(class="fw-bold"){$"Descripción:"}
+                        input(type="text" class="induxsoft-form-control mb-2" name="descripcion" value="#<@@(data, '$descripcion')>" required="true" maxlength="1024")
+                    }
+                    
+                    div(class="col-sm-4")
+                    {
+                        label{"Calendario:"}
+                        select(class="induxsoft-form-select " name="ref_calendario" required="true")
+                        {$""
+                            #!
+                            for i = 0; i < @count(@("&./calendarios"))
+                            {
+                                ref calendario=@item(@("&./calendarios"),i)
+                                #$ option(value="#<@@(calendario,'sys_pk')>"){"#<@@(calendario,'$codigo')+' '+@@(calendario,'$descripcion')>"}
+                            }
+                            #$
+                        }
+                    }
+                    div(class="col-sm-2")
+                    {
+                        small(class=""){$"Zona horaria:"}
+                        select(class="induxsoft-form-select" name="zona_h")
+                        {$""
+                            #!
+                            ref lzona=list.create_from_fields(@zone_h)
+                            for i = 0; i < @count(lzona)
+                            {
+                                key=list.str(lzona,i)
+                                #$ option(value="#<key>" "#<ifstr(@@(data, '$zona_h')==key,'selected','')>"="true"){"#<getZona_h(key)>"}
+                            }
+                            #$
+                        }
+                       
+                        // input(type="Number" class="induxsoft-form-control mb-2" name="zona_h" value="#<ifstr(@@(data, '$zona_h')!='',@@(data, '$zona_h'),@zona_horaria)>")
+                    }
+                }
+                #!
+                hora_current=date_str(now(),"HH:mm:ss")
+                hora_entrada=ifstr(@("$./entrada")!="",@("$./entrada"),hora_current)
+                hora_salida=ifstr(@("$./salida")!="",@("$./salida"),hora_current)
+                #$
+                div(class="row")
+                {
+                    div(class="col-md-3")
+                    {
+                        small(class="fw-bold"){"Hora de entrada:"}
+                        input(type="time" class="induxsoft-form-control" name="entrada" required="true" value="#<hora_entrada>")
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Minutos de tolerancia:"}
+                        input(type="Number" class="induxsoft-form-control" name="tol_entrada" value="#<@('$./tol_entrada')>")
+                    }
+                    div(class="col-md-3")
+                    {
+                        small(class="fw-bold"){"Hora de salida:"}
+                        input(type="time" class="induxsoft-form-control" name="salida" required="true" value="#<hora_salida>")
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Minutos de tolerancia salida:"}
+                        input(type="Number" class="induxsoft-form-control" name="tol_salida" value="#<@('$./tol_salida')>")
+                    }
+                }
+                small(class="fw-bold"){"Unidad organizacional:"}
+                select(class="induxsoft-form-select " name="ref_unidad_org" required="true")
+                {$""
+                    #!
+                    for i = 0; i < @count(@("&./unidades_org"))
+                    {
+                        ref unidad=@item(@("&./unidades_org"),i)
+                        #$ option(value="#<@@(unidad,'sys_pk')>" "#<ifstr(@('$./ref_unidad_org')==@@(unidad,'$sys_pk'),'selected','')>"="true"){"#<@@(unidad,'$text')>"}
+                    }
+                    #$
+                }
+                hr(style=""){""}
+                h5{"Días de trabajo"}
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="lunes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Lunes"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="martes" "#<ifstr(@('#./martes'),'checked','')>"="true")" Martes"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="miercoles" "#<ifstr(@('#./miercoles'),'checked','')>"="true")" Miercoles"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="jueves" "#<ifstr(@('#./jueves'),'checked','')>"="true")" Jueves"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="viernes" "#<ifstr(@('#./viernes'),'checked','')>"="true")" Viernes"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="sabado" "#<ifstr(@('#./sabado'),'checked','')>"="true")" Sabado"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="domingo" "#<ifstr(@('#./domingo'),'checked','')>"="true")" Domingo"}}
+                    }
+                    div(class="col-md-6")
+                    {$""
+                        #!
+                        if @@(data, '#sys_pk')>0
+                        {
+                            #$ div(class="d-flex")
+                            {
+                                span(class="flex-grow-1"){""}
+                                a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@RH_CTR_ASIST_DESCANSO+'?rh_tur='+@('$./sys_pk')>"){"Descansos"}
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+    }
+}

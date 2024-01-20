@@ -1,0 +1,38 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_acceso_evento"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',t.codigo,t.descripcion,if(ifnull(t.salida,0),'Sí','No')) like concat('%',@s,'%')  )"
+    @list_query="select t.*,if(ifnull(t.salida,0),'Sí','No')fsalida from #<@table_name> t
+    where ifnull(t.sys_deleted,0)=0 "+ like +" ORDER BY t.sys_pk desc"
+
+    save::&db,&params,&data
+    {
+        if parse.bool(@@(data,"salida")){data<"salida">:1}
+        else{data<"salida">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

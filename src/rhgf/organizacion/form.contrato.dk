@@ -150,6 +150,7 @@ module "form.contrato.dk"
             {$'
                 document.addEventListener("DOMContentLoaded", () => {
                     org.path = "#<@RH_ORGANIZACION>";
+                    org.url_turno_search="#<@RH_CTR_ASIST_DIA_TURNO_SEARCH>";
                     contrato.form._GET = #<to.json(@("&parameters"))> ?? {};
                     contrato.form.init();
                 });

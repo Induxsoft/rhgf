@@ -1,0 +1,92 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_acceso_empleado"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',t.dia,t.hora) like concat('%',@s,'%')  )"
+    @list_query="select t.*,date_format(t.dia,'%Y-%m-%d')fdia,DATE_FORMAT(t.hora,'%h:%i:%s')fhora,concat(e.apellido1,' ',e.apellido2,' ',e.nombre)fempleado,v.descripcion fevento,rt.descripcion turno 
+    from #<@table_name> t
+    inner join rh_empleado_org e on t.empleado=e.sys_pk
+    inner join rh_acceso_evento v on t.evento=v.sys_pk
+    inner join rh_turno rt on t.ref_turno=rt.sys_pk
+    where ifnull(t.sys_deleted,0)=0 "+ like +" ORDER BY t.sys_pk desc"
+
+    @read_query="select t.*,date_format(t.dia,'%Y-%m-%d')fdia,DATE_FORMAT(t.hora,'%h:%i:%s')fhora,concat(e.apellido1,' ',e.apellido2,' ',e.nombre)fempleado,v.descripcion fevento,rt.descripcion turno 
+    from #<@table_name> t
+    inner join rh_empleado_org e on t.empleado=e.sys_pk
+    inner join rh_acceso_evento v on t.evento=v.sys_pk
+    inner join rh_turno rt on t.ref_turno=rt.sys_pk
+    where ifnull(t.sys_deleted,0)=0 and t.#<@keyfield>=@_entity_id limit 1"
+
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+        params<"empleado">:@@(rec,"$empleado")
+        params<"evento">:@@(rec,"$evento")
+        params<"turno">:@@(rec,"$ref_turno")
+        rec<"empleado*">:dbr.rec(db,"select * from rh_empleado_org where sys_pk=@empleado",params)
+        rec<"evento*">:dbr.rec(db,"select * from rh_acceso_evento where sys_pk=@evento",params)
+        rec<"turno*">:dbr.rec(db,"select t.*,c.descripcion calendario,u.descripcion unidad from rh_turno t 
+            inner join rh_calendario c on t.ref_calendario=c.sys_pk
+            inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
+            where t.sys_pk=@turno",params)
+    }
+    save::&db,&params,&data
+    {
+        params<"empleado">:@@(data,"#empleado")
+        params<"fecha*">:str2dt(@@(data,"$dia")+" "+@@(data,"$hora"))
+        params<"zh">:@@(data,"#zona_h")
+
+        ref validate=dbr.rec(db,"select dia,hora, v.salida from rh_acceso_empleado e 
+        inner join rh_acceso_evento v on e.evento=v.sys_pk 
+        where empleado=@empleado and e.sys_pk<>@_entity_id 
+        and date_add(addtime(e.dia,e.hora), INTERVAL e.zona_h HOUR)<date_add(@fecha,INTERVAL @zh HOUR) order by dia desc, hora desc limit 1;",params)
+
+        if not(isnull(validate))
+        {
+            params<"evento">:@@(data,"$evento")
+            ref evento=dbr.rec(db,"select * from rh_acceso_evento where sys_pk=@evento",params)
+           
+            if @@(validate,"#salida")
+            {
+                if @@(evento,"#salida"){do rise_error(500,"Solo se permiten realizar eventos de entradas")}
+            }
+            else
+            {
+               if not(@@(evento,"#salida")){do rise_error(500,"Solo se permiten realizar eventos de salidas")} 
+            }
+        }
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

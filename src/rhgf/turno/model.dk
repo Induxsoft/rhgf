@@ -1,0 +1,70 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_turno"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',c.codigo,c.descripcion,t.codigo,t.descripcion,t.entrada,t.salida,t.tol_entrada,t.tol_salida,t.zona_h) like concat('%',@s,'%')  )"
+    @list_query="select t.*,c.descripcion calendario,u.descripcion unidad from #<@table_name> t 
+    inner join rh_calendario c on t.ref_calendario=c.sys_pk
+    inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
+    where ifnull(t.sys_deleted,0)=0 and if(ifnull(@unidad,0)=0,true,u.sys_pk=@unidad or if(ifnull(u.superior,0)=0,true,u.sys_pk=u.superior) ) "+ like
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+        rec<"calendarios*">:dbr.list(db,"select * from rh_calendario",@null)
+        sql_unidades = "SELECT sys_pk, CONCAT('[',codigo,'] ',descripcion) AS `text` FROM rh_unidad_org WHERE NOT IFNULL(sys_deleted,0)"
+        rec<"unidades_org*">:dbr.list(db,sql_unidades,@null)
+    }
+    save::&db,&params,&data
+    {
+        if trim(@@(data,"$tol_entrada"))==""{data<"tol_entrada">:0}
+        if trim(@@(data,"$tol_salida"))==""{data<"tol_salida">:0}
+
+        if parse.bool(@@(data,"lunes")){data<"lunes">:1}
+        else{data<"lunes">:0}
+         if parse.bool(@@(data,"martes")){data<"martes">:1}
+        else{data<"martes">:0}
+         if parse.bool(@@(data,"miercoles")){data<"miercoles">:1}
+        else{data<"miercoles">:0}
+         if parse.bool(@@(data,"jueves")){data<"jueves">:1}
+        else{data<"jueves">:0}
+         if parse.bool(@@(data,"viernes")){data<"viernes">:1}
+        else{data<"viernes">:0}
+         if parse.bool(@@(data,"sabado")){data<"sabado">:1}
+        else{data<"sabado">:0}
+        if parse.bool(@@(data,"domingo")){data<"domingo">:1}
+        else{data<"domingo">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

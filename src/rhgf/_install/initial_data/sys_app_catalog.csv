@@ -8,3 +8,8 @@
 "rhgf.tnomina","tnomina","Tipos de nóminas",2024-01-02T11:40:59,"Tipos de nóminas"
 "rhgf","rhgf.empleados","Empleados","2024-01-06T23:59:59","Catálogo de empleados"
 "rhgf","rhgf.organizacion","Organización","2024-01-08T23:59:59","Organización laboral"
+"rh_calendario","calendario","Calendarios laborables",2024-01-18T02:10:59,"Calendarios laborables"
+"rh_turno","turno","Turnos",2024-01-18T02:10:59,"Turnos"
+"cat_empleado","cat_empleado","Categorías de empleados",2024-01-18T12:10:59,"Categorías de empleados"
+"acceso_empleado","acceso_empleado","Accesos de empleados",2024-01-19T12:10:59,"Accesos de empleados"
+"acceso_evento","acceso_evento","Accesos de eventos",2024-01-19T12:10:59,"Accesos de eventos"

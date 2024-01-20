@@ -59,6 +59,14 @@ module "Controller configs"
 	do crudl.routes.entity("/tipo-nomina/","tipo-nomina")
 	do crudl.routes.entity("/empleados/","empleados")
 	do crudl.routes.entity("/organizacion/","organizacion")
+
+	do crudl.routes.entity("/calendario/","calendario")
+	do crudl.routes.entity("/dia_inhabil/","dia_inhabil")
+	do crudl.routes.entity("/turno/","turno")
+	do crudl.routes.entity("/descanso/","descanso")
+	do crudl.routes.entity("/categoria-empleado/","categoria-empleado")
+	do crudl.routes.entity("/acceso-evento/","acceso-evento")
+	do crudl.routes.entity("/acceso-empleado/","acceso-empleado")
 	// @http_context<"session/idp/database*">:@null
 	@dbmvc_path="crudl/"
 	

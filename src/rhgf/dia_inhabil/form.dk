@@ -1,0 +1,83 @@
+#include "dkli.dkh"
+#!
+module "form.dk"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+
+    ref data = @("&./")
+    entity_id = @("$parameters/_entity_id")
+    error = @("$error/message")
+    isNew = (entity_id == "_new")
+    rh_cal=@("$parameters/rh_cal")
+    action = replace(@RH_CTR_ASIST__ADD_EDIT_DIA_INHABIL, "@id", entity_id)+"?rh_cal="+rh_cal
+
+    ano=ifstr(@("#./sys_pk")>0,@@(data, '$ano'),date_str(now(),"yyyy"))
+    #$
+    div(class="container")
+    {   
+        form(method="POST" action="#<action>" id="form")
+        {
+            div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
+            {
+                div(class="col-4 d-flex align-items-center p-0")
+                {
+                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Día inhábil"}
+                }
+                div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
+                {
+                    a(href="./?rh_cal=#<rh_cal>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
+                    button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
+                        $'#<@@(@icons,"save2")>'
+                    }
+                    a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@RH_CTR_ASIST_DIA_INHABIL+'?rh_cal='+rh_cal>") {
+                        svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16") {
+                            path(d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z")
+                        }
+                    }
+                }
+            }
+            div(id="work_area" class="container-section")
+            {
+                div(class="#<ifstr(@('error/message')!='','alert alert-danger','')>"){$"#<@('error/message')>"}
+
+                input(type="hidden" name="sys_pk" value="#<@@(data, '#sys_pk')>")
+                input(type="hidden" name="sys_recver" value="#<@@(data, '#sys_recver')>")
+                input(type="hidden" name="ref_rh_calendario" value="#<rh_cal>")
+                div(class="row mb-2 mt-4")
+                {
+                    div(class="col-sm-4")
+                    {
+                        small{$"Año:"}
+                        input(type="Number" class="induxsoft-form-control mb-2" name="ano" value="#<ano>" maxlength="10")
+                    }
+                    div(class="col-sm-4")
+                    {
+                        small(class="fw-bold"){$"Mes:"}
+                        select(class="induxsoft-form-select" name="mes" required="true")
+                        {
+                            #!
+                            ref lmes=list.create_from_fields(@meses)
+                            for i = 0; i < @count(lmes)
+                            {
+                                key=list.str(lmes,i)
+                                #$ option(value="#<key>" "#<ifstr(key==@('$./mes'),'selected','')>"="true"){"#<getMes(key)>"}
+                            }
+                            #$
+                        }
+                    }
+                    div(class="col-sm-4")
+                    {
+                        small(class="fw-bold"){$"Día:"}
+                        input(type="Number" class="induxsoft-form-control mb-2" min="1" max="31" name="dia" value="#<@@(data, '$dia')>" required="true" maxlength="10")
+                    }
+                }
+                
+                label{input(type="checkbox" name="pago_extra" "#<ifstr(@('#./pago_extra'),'checked','')>"="true")" Pago extra"}
+            }
+        }
+    }
+}

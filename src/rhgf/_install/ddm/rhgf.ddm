@@ -244,6 +244,7 @@ model "rhgf"
         @"sat_sindicalizado" bool 
         @"sbc" decimal(18,6) 
         @"asimiladosal" bool 
+        @"ref_turno" ref:"rh_turno" 
     }
     
     entity "ut_sat_banco" : "TableModel"
@@ -252,7 +253,102 @@ model "rhgf"
         @"uf_nombre" string(255) 
         @"uf_descripcion" string(1000) 
     }
+    entity "rh_calendario" : "TableModel"
+    {
+        @"codigo" string(15) unique
+        @"descripcion" string(1024)
+        @"notas" memo
+        @"activo" bool
+    }
 
+    entity "rh_dia_inhabil" : "TableModel"
+    {
+        @"ref_rh_calendario" ref:"rh_calendario" required
+        @"mes" int required
+        @"ano" int
+        @"dia" int required
+        @"pago_extra" bool
+
+        index "rh_dia_inhabil_idx1" unique
+        {
+            field "ref_rh_calendario"
+            field "mes"
+            field "ano"
+            field "dia"
+        }
+    }
+
+    entity "rh_acceso_evento":"TableModel"
+    {
+        @"codigo" string(15) unique required
+        @"descripcion" string(50)
+        @"salida" bool
+    }
+        /*  
+        EN-Entrada, SN-Salida, SD-Salida descanso, RD-Regreso descanso, SP-Salida permiso,
+        SE-Salida emergencia, SC-Salida por comisión, RC-Regreso de comisión, SS-Salida no reportada
+        */
+
+    
+        /*
+        Si el úúltimo evento es una salida, solo permitir entradas, si el ultimo evento es una entrada, solo permitir salidas
+        Si no hay eventos del empleado, cualquier tipo de evento se puede agregar (entrada o salida)
+        select dia,hora, v.salida from rh_acceso_empleado e inner join rh_acceso_evento v on e.evento=v.sys_pk where empleado=@empleado order by dia desc, hora desc limit 1;
+        */
+    entity "rh_acceso_empleado" :"TableModel"
+    {
+        @"empleado" ref:"rh_empleado_org" required
+        @"dia" date
+        @"hora" time
+        @"zona_h" int
+        @"evento" ref:"rh_acceso_evento" required
+        @"ref_turno" ref:"rh_turno" required
+
+        index "rh_acceso_empleado_idx1" unique
+        {
+            field "empleado"
+            field "dia"
+            field "hora"
+            field "zona_h"
+            field "evento"
+            field "ref_turno"
+        }
+    }
+
+    entity "rh_turno":"TableModel"
+    {
+        @"ref_calendario" ref:"rh_calendario" required
+        @"ref_unidad_org" ref:"rh_unidad_org" required
+        @"codigo" string(15) unique
+        @"descripcion" string(50)
+        @"zona_h" int
+        @"entrada" time required
+        @"tol_entrada" int // Minutos
+        @"salida" time required
+        @"tol_salida" int // Minutos
+        @"lunes" bool
+        @"martes" bool
+        @"miercoles" bool
+        @"jueves" bool
+        @"viernes" bool
+        @"sabado" bool
+        @"domingo" bool
+    }
+
+    entity "rh_descanso":"TableModel"
+    {
+        @"ref_turno" ref:"rh_turno" required
+        @"min_horas" int
+        @"max_minutos" int
+        @"max_veces" int
+        @"text"  string(32)
+
+        index "rh_descanso_idx1" unique
+        {
+            field "ref_turno"
+            field "min_horas"
+        }
+    }
     // Información de la aplicación
     entity "sys_app_catalog"
     {
