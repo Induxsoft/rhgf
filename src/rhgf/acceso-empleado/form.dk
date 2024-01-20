@@ -95,7 +95,7 @@ module "form.dk"
                                 name="ref_turno"
                                 "data-key"="sys_pk"
                                 "data-search"="codigo"
-                                "data-text"="Descripción"
+                                "data-text"="descripcion"
                                 "data-value"='#<to.json(@("&./turno"))>'
                                 "data-source"="#<@RH_CTR_ASIST_DIA_TURNO>?s=@search"
                                 "box-title-text"="Seleccione un turno"

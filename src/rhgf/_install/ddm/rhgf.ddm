@@ -25,18 +25,7 @@ model "rhgf"
         @"datos" memo 
     }
 
-    /* uod.rh_tipo_nomina */
-    entity "rh_tipo_nomina" : "TableModel"
-    {
-        @"nombre" string(50) unique required
-        @"dias" decimal(5,1) required
-        @"sat_tiponomina" string(5) 
-        @"sat_periodicidad" string(5) 
-        @"ref_grupo_conceptos" int ref:"rh_grupo_conceptos" ["sys_pk"] 
-        @"sel_manual_empleados" bool 
-        @"var_general" memo 
-        @"var_empleado" memo 
-    }
+   
     /* uod.rh_tipo_contrato */
     entity "rh_tipo_contrato" : "TableModel"
     {
@@ -349,6 +338,78 @@ model "rhgf"
             field "min_horas"
         }
     }
+
+
+    /* Frecuencia del periodo de asistencia
+     -1 - Ninguna
+     0 - Diario
+     1 - Semanal
+     2 - Decenal
+     3 - Catorcenal
+     4 - Quincenal
+     5 - Mensual
+     6 - Bimestral
+     7 - Unidad obra
+     8 - Comisión
+     9 - Precio alzado
+     99 - Otra periocidad
+    */
+
+    entity "rh_frec_periodo" : "EnumModel" 
+    { 
+        @"codigo_sat" string(5) unique
+        @"prefijo" string(3) // S-Semanal, Q-Quincenal, por ejemplo
+        @"dias" int // 0 - No hay periodo, 7-Semanal, 10-decenal, 14-catorcenal, 15-quincenal, 30-mensual y 60 bimestral
+    }
+     /* uod.rh_tipo_nomina */
+    entity "rh_tipo_nomina" : "TableModel"
+    {
+        @"nombre" string(50) unique required
+        @"dias" decimal(5,1) required
+        @"sat_tiponomina" string(5) 
+        @"sat_periodicidad" string(5) 
+        @"ref_grupo_conceptos" int ref:"rh_grupo_conceptos" ["sys_pk"] 
+        @"sel_manual_empleados" bool 
+        @"var_general" memo 
+        @"var_empleado" memo 
+
+        @"ref_rh_frec_periodo" ref:"rh_frec_periodo"
+        @"inicio" date //Fecha de la cual se empieza a contar los periodos
+        @"dias_cierre" int //Cantidad de día previos a la fecha final del periodo que se consideran para el computo de asistencia
+        /*
+        dia exacto  del mes en que terminan los periodos, cuando la frecuencia es decenal, quincenal, mensual y bimestral
+        si la frecuencia es decenal se puede indicar el dia exacto del mes de los 3 periodos
+        si es quincenal solo indficar 2 periodos(final1, final2) 
+        si la frecuencia mensual o bimestral 1 periodo(final1)
+        si la frecuencia es semanal final1 representa el dia de la semana (D-L = 1-7), ejemplo: día de fin de periodo final1=4 (miercoles=4)
+        En el ultimo de los finales (cuando sea distinto de semanal, el valor 0 representa el ultimo dia del mes)
+        */
+        @"final1" int  // "Fin del primer periodo del mes" o "finaliza el dia" o bien "dia del mes"
+        @"final2" int 
+        @"final3" int 
+    }
+
+    entity "rh_turno_extra":"TableModel"
+    {
+        @"ref_contrato" ref:"rh_contrato_empleado" required
+        @"ref_turno" ref:"rh_turno" required
+        @"inicio" date
+        @"fin" date
+        @"cancelado" bool
+        @"notas" memo
+    }
+
+    entity "rh_periodo_asistencia":"TableModel"
+    {
+        @"ref_rh_tipo_nomina" ref:"rh_tipo_nomina" required
+        @"pista" string(15) // Ejemplo: S-2024-01, donde S es el prefijo de rh_frec_periodo, 2024 es el año de la fecha de inicio y 01 un consecutivo del año
+        @"apertura" date //es el dia es el cual se empiezan a contar la asistencia
+        @"cierre" date //es el ultimo dia hasta que se cortan las asistencias
+        @"inicio" date// inicio del periodo de pago 
+        @"fin" date // es la finalizacion del periodo de pago
+    }
+
+    
     // Información de la aplicación
     entity "sys_app_catalog"
     {

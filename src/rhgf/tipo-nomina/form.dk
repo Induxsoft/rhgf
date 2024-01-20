@@ -55,7 +55,19 @@ module ""
         @"text_field":"nombre"
         @"selected":@('$./ref_grupo_conceptos')
     }
-    
+    ref lperiodo_final=list.create_from_fields(@periodo_final)
+    #!
+    createOptionPeriodoFinal::&lperiodo_final
+    {
+        #!
+        for i = 0; i < @count(lperiodo_final)
+        {
+            key=list.str(lperiodo_final,i)
+            #$ 
+            option(value="#<key>"){"#<getPeriodoFinal(key)>"}
+            #!
+        }
+    }
     #$
     div(class="container")
     {
@@ -103,6 +115,68 @@ module ""
                     {
                         label{"Periocidad de pagos:"}
                         #! do uie.dbSelect(periodo)
+                    }
+                }
+                #$ hr{""}
+                h5{"Frecuecia de período"}
+                div(class="row")
+                {
+                    div(class="col-md-6")
+                    {
+                        label{"Frecuencia período:"}
+                        select(class="induxsoft-form-select" )//name="ref_rh_frec_periodo"
+                        {$"" 
+                            #!
+                            for i = 0; i < @count(@("&./frec_periodo"))
+                            {
+                                ref fperiodo=@item(@("&./frec_periodo"),i)
+                                #$ option(value="#<@@(fperiodo,'$id')>"){"#<@@(fperiodo,'$const')>"}
+                            }
+                            #$
+                        }
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Inicio:"}
+                        input(type="date" class="induxsoft-form-control")//name="inicio" 
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Días cierre:"}
+                        input(type="Number"  class="induxsoft-form-control")//name="dias_cierre"
+                    }
+                }
+                div(class="row")
+                {
+                    div(class="col-md-3")
+                    {
+                        label{"Fin del primer periodo del mes:"}
+                        select(class="induxsoft-form-select" )//name="final1"
+                        {$""
+                            #!
+                            do createOptionPeriodoFinal(lperiodo_final)
+                            #$
+                        }
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Fin del segundo periodo del mes:"}
+                        select(class="induxsoft-form-select" )//name="final2"
+                        {$""
+                            #!
+                            do createOptionPeriodoFinal(lperiodo_final)
+                            #$
+                        }
+                    }
+                    div(class="col-md-3")
+                    {
+                        label{"Fin del tercer periodo del mes:"}
+                        select(class="induxsoft-form-select" )//name="final3"
+                        {$""
+                            #!
+                            do createOptionPeriodoFinal(lperiodo_final)
+                            #$
+                        }
                     }
                 }
                 #$ hr{""}

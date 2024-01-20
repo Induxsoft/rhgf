@@ -1,0 +1,62 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_periodo_asistencia"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',pista) like concat('%',@s,'%')  )"
+    @list_query="SELECT pa.*,DATE_FORMAT(pa.apertura,'%Y-%m-%d')fapertura,DATE_FORMAT(pa.cierre,'%Y-%m-%d')fcierre,DATE_FORMAT(pa.inicio,'%Y-%m-%d')finicio,
+    DATE_FORMAT(pa.fin,'%Y-%m-%d')ffin,tn.nombre,tn.dias
+    FROM rh_periodo_asistencia pa
+    INNER JOIN rh_tipo_nomina tn ON pa.ref_rh_tipo_nomina=tn.sys_pk 
+    where ifnull(pa.sys_deleted,0)=0 "+ like + " order by pa.sys_pk desc"
+
+    @read_query="SELECT pa.*,DATE_FORMAT(pa.apertura,'%Y-%m-%d')fapertura,DATE_FORMAT(pa.cierre,'%Y-%m-%d')fcierre,DATE_FORMAT(pa.inicio,'%Y-%m-%d')finicio,
+    DATE_FORMAT(pa.fin,'%Y-%m-%d')ffin,tn.nombre,tn.dias
+    FROM rh_periodo_asistencia pa
+    INNER JOIN rh_tipo_nomina tn ON pa.ref_rh_tipo_nomina=tn.sys_pk where pa.#<@keyfield>=@_entity_id limit 1"
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+        params<"tiponomina">:@@(rec,"#ref_rh_tipo_nomina")
+        rec<"tiponomina*">:dbr.rec(db,"Select t.* from rh_tipo_nomina t where sys_pk=@tiponomina",params)
+    }
+    save::&db,&params,&data
+    {
+        if @@(data,"$pista")==""{data<"pista">:""}
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    update::&db,&params,&data
+    {
+        do rise_error(500,"No se permite la edición de este emento")
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to update
+}

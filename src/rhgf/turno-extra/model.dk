@@ -1,0 +1,72 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_turno_extra"
+    like=" having if(ifnull(@s,'')='',true,concat_ws('',contrato,empleado,turno,inicio,fin,notas) like concat('%',@s,'%')  )"
+    @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,rt.descripcion turno,
+    date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin
+    FROM #<@table_name> t 
+    INNER JOIN rh_contrato_empleado c ON t.ref_contrato=c.sys_pk
+    INNER JOIN rh_empleado_org e ON c.ref_empleado=e.sys_pk
+    INNER JOIN rh_turno rt ON t.ref_turno=rt.sys_pk
+    where ifnull(t.sys_deleted,0)=0 "+ like +" ORDER BY t.sys_pk desc "
+
+    @read_query="select *,date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin from #<@table_name> t where #<@keyfield>=@_entity_id limit 1"
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+        params<"contrato">:@@(rec,"#ref_contrato")
+        params<"turno">:@@(rec,"#ref_turno")
+
+        rec<"contrato*">:dbr.rec(db,"select e.codigo codigo_empleado, t.nombre nom_tipocontrato, p.descripcion desc_puesto, e.apellido1, e.apellido2, e.nombre nombre_empleado, e.curp, e.rfc, e.nss, c.* 
+        from rh_contrato_empleado c 
+        inner join rh_puesto_org p on c.ref_puesto=p.sys_pk 
+        inner join rh_empleado_org e on c.ref_empleado=e.sys_pk 
+        inner join rh_tipo_contrato t on c.tipo=t.sys_pk 
+        inner join rh_unidad_org u on p.ref_unidad_org=u.sys_pk where c.sys_pk=@contrato",params)
+
+        rec<"turno*">:dbr.rec(db,"select t.*,c.descripcion calendario,u.descripcion unidad from rh_turno t 
+            inner join rh_calendario c on t.ref_calendario=c.sys_pk
+            inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
+            where t.sys_pk=@turno",params)
+    }
+    save::&db,&params,&data
+    {
+
+        if parse.bool(@@(data,"cancelado")){data<"cancelado">:1}
+        else{data<"cancelado">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

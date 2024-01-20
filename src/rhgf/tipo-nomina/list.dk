@@ -40,7 +40,7 @@ module "list.recibo"
             }
         }
         #!
-        #include "modals.dk"
+        // #include "modals.dk"
         #$
         script
         {

@@ -17,12 +17,12 @@ module "list"
         {
             div(class="col-4 d-flex align-items-center p-0")
             {
-                h5(class="tex-no-break m-0"){$"Categorías de empleados"}
+                h5(class="tex-no-break m-0"){$"Turnos extras"}
             }
             div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
             {
                 a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
-                a(href="#<replace(@CATEGORIA_EMPLEADO_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
+                a(href="#<replace(@TURNO_EXTRA_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
                 button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Imprimir" onclick="window.print()"){$"#<@@(@icons,'PRINTER')>"}
                 a(href="/" target="_top" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Salir"){$"#<@@(@icons,'X')>"}
             }
@@ -61,8 +61,12 @@ module "list"
                             {
                                 tr
                                 {
-                                    th(class="h6"){"Nombre"}
-                                    th(class="h6"){$"Notas"}
+                                    th(class="h6"){"Contrato"}
+                                    th(class="h6"){"Empleado"}
+                                    th(class="h6"){"Turno"}
+                                    th(class="h6"){$"Inicio"}
+                                    th(class="h6"){$"Fin"}
+                                    th(class="h6"){$"Nota"}
                                     th(class="h6"){$""}
                                 }
                             }
@@ -75,13 +79,17 @@ module "list"
 
                                     #$ tr
                                     {
-                                        td{"#<@@(dt,'$nombre')>"}
-                                        td{"#<@@(dt,'$notas')>"}
+                                        td{"#<@@(dt,'$contrato')>"}
+                                        td{"#<@@(dt,'$empleado')>"}
+                                        td{"#<@@(dt,'$turno')>"}
+                                        td{$"#<@@(dt,'$finicio')>"}
+                                        td{$"#<@@(dt,'$ffin')>"}
+                                        td{$"#<@@(dt,'$notas')>"}
                                         td(class="no-print")
                                         {
                                             div(class="d-flex gap-2 justify-content-center")
                                             {
-                                                a(href="#<replace(@CATEGORIA_EMPLEADO_ADD_EDIT, '@id', @@(dt,'sys_pk'))>" class="btn btn-sm btn-light"){$"Editar"}
+                                                a(href="#<replace(@TURNO_EXTRA_ADD_EDIT, '@id', @@(dt,'sys_pk'))>" class="btn btn-sm btn-light"){$"Editar"}
                                                 button(class="btn btn-sm btn-light" onclick="InduxsoftCrudlModel.Delete(#<@@(dt,'sys_pk')>)"){$"Eliminar"}
                                             }
                                         }

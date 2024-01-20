@@ -23,6 +23,7 @@ program
 
     // Archivos de datos iniciales (Orden de instalación)
     init_files = '
+        rh_frec_periodo.csv,
         rh_edo_civil.csv,
         rh_nvl_escolaridad.csv,
         ut_sat_banco.csv,
