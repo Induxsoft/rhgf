@@ -1,0 +1,58 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_tipo_permiso"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',t.codigo,t.descripcion) like concat('%',@s,'%')  )"
+    @list_query="select t.*,if(ifnull(t.ent_tarde,0),'Sí','No')fent_tarde,if(ifnull(t.sal_temp,0),'Sí','No')fsal_temp,if(ifnull(t.todo_dia,0),'Sí','No')ftodo_dia,
+    if(ifnull(t.pagado,0),'Sí','No')fpagado
+     from #<@table_name> t 
+    where ifnull(t.sys_deleted,0)=0  "+ like
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+    }
+    save::&db,&params,&data
+    {
+        if parse.bool(@@(data,"ent_tarde")){data<"ent_tarde">:1}
+        else{data<"ent_tarde">:0}
+         if parse.bool(@@(data,"sal_temp")){data<"sal_temp">:1}
+        else{data<"sal_temp">:0}
+         if parse.bool(@@(data,"todo_dia")){data<"todo_dia">:1}
+        else{data<"todo_dia">:0}
+         if parse.bool(@@(data,"pagado")){data<"pagado">:1}
+        else{data<"pagado">:0}
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}

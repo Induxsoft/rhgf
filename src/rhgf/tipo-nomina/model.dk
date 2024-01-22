@@ -3,12 +3,13 @@
 module ""
 {
     @table_name="rh_tipo_nomina"
-    @list_query="Select t.* from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by nombre;"
-
+    @list_query="Select t.*,date_format(t.inicio,'%Y-%m-%d')finicio  from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by nombre;"
+    @read_query="Select t.*,date_format(t.inicio,'%Y-%m-%d')finicio from rh_tipo_nomina t where t.#<@keyfield>=@_entity_id"
     PrepareView::&db,&params,&record
     {
         if isnull(record){return}
         record<"gconceptos*">:dbr.list(db,"select * from rh_grupo_conceptos",params)
+        record<"frec_periodo*">:dbr.list(db,"select * from rh_frec_periodo",params)
     }
 
     read::&db,&params
@@ -26,6 +27,7 @@ module ""
 
     save::&db,&params,&data
     {
+        data<"dias_cierre">:@@(data,"#dias_cierre")
         if parse.bool(@@(data,"sel_manual_empleados")){data<"sel_manual_empleados">:1}
         else{data<"sel_manual_empleados">:0}
 

@@ -14,9 +14,11 @@ module "form.dk"
     isNew = (entity_id == "_new")
     action = replace(@PERIODO_ASISTENCIA_ADD_EDIT, "@id", entity_id)
 
+    disabled=ifstr(isNew,"","disabled")
     #$
     div(class="container")
     {   
+        script(src="#<@JS_PERIODO_ASISTENCIA>"){""}
         form(method="POST" action="#<action>" id="form")
         {
             div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
@@ -28,9 +30,14 @@ module "form.dk"
                 div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
                 {
                     a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
-                    button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
-                        $'#<@@(@icons,"save2")>'
-                    }
+                   #!
+                   if isNew
+                   {
+                        #$ button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
+                            $'#<@@(@icons,"save2")>'
+                        }
+                   }
+                    
                     a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@PERIODO_ASISTENCIA>") {
                         svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16") {
                             path(d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z")
@@ -61,7 +68,7 @@ module "form.dk"
                                 "box-title-text"="Seleccione un turno"
                                 "box-placeholder-text"="Buscar turnos"
                                 "box-nodata-text"="No se encontraron datos"
-                                disabled=""
+                                "#<disabled>"="true"
                                 columns="nombre,dias"
                                 colcaptions="Nombre,Días" required="true"){""}
                     }
@@ -77,25 +84,32 @@ module "form.dk"
                 {
                     div(class="col-md-3")
                     {
-                        small(class="fw-bold"){"Apertura:"}
-                        input(type="date" class="induxsoft-form-control" name="apertura" required="true" value="#<apertura>")
+                        small(class="fw-bold"){"Apertura del conteo de asistencias:"}
+                        input(type="date" class="induxsoft-form-control" name="apertura" id="apertura" required="true" value="#<apertura>" "#<disabled>"="true")
                     }
                     div(class="col-md-3")
                     {
-                        small(class="fw-bold"){"Cierre:"}
-                        input(type="date" class="induxsoft-form-control" name="cierre" required="true" value="#<cierre>")
+                        label{"Inicio del periodo de pago:"}
+                        input(type="date" class="induxsoft-form-control" name="inicio" id="inicio" value="#<inicio>" "#<disabled>"="true")
                     }
                     div(class="col-md-3")
                     {
-                        label{"Inicio:"}
-                        input(type="date" class="induxsoft-form-control" name="inicio" value="#<inicio>")
+                        small(class="fw-bold"){"Cierre del periodo de asistencias:"}
+                        input(type="date" class="induxsoft-form-control" name="cierre" id="cierre" required="true" value="#<cierre>" "#<disabled>"="true")
                     }
+                    
                     div(class="col-md-3")
                     {
-                        label{"Fin:"}
-                        input(type="date" class="induxsoft-form-control" name="fin" value="#<fin>")
+                        label{"Fin del periodo de pago:"}
+                        input(type="date" class="induxsoft-form-control" name="fin" id="fin" value="#<fin>" "#<disabled>"="true")
                     }
                 }
+                #!
+                if not(isNew)
+                {
+                    #$ a(class="btn btn-sm btn-outline-primary mt-4 induxsoft-corners" href="#<replace(@ASISTENCIAS,'@id',@('$./sys_pk'))>"){"Asistencias"}
+                }
+                #$
             }
         }
     }

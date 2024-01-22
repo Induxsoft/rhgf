@@ -17,12 +17,12 @@ module "list"
         {
             div(class="col-4 d-flex align-items-center p-0")
             {
-                h5(class="tex-no-break m-0"){$"Períodos de asistencias"}
+                h5(class="tex-no-break m-0"){$"Tipos de permisos"}
             }
             div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
             {
                 a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
-                a(href="#<replace(@PERIODO_ASISTENCIA_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
+                a(href="#<replace(@TIPO_PERMISO_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
                 button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Imprimir" onclick="window.print()"){$"#<@@(@icons,'PRINTER')>"}
                 a(href="/" target="_top" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Salir"){$"#<@@(@icons,'X')>"}
             }
@@ -61,13 +61,12 @@ module "list"
                             {
                                 tr
                                 {
-                                    th(class="h6"){$"Pista"}
-                                    th(class="h6"){"Tipo nómina"}
-                                    th(class="h6"){"Días"}
-                                    th(class="h6"){"Apertura"}
-                                    th(class="h6"){$"Cierre"}
-                                    th(class="h6"){$"Inicio"}
-                                    th(class="h6"){$"Fin"}
+                                    th(class="h6"){"Código"}
+                                    th(class="h6"){$"Descripción"}
+                                    th(class="h6"){$"Entrada tarde"}
+                                    th(class="h6"){$"Salida temprano"}
+                                    th(class="h6"){$"Todo el dia"}
+                                    th(class="h6"){$"Pagado"}
                                     th(class="h6"){$""}
                                 }
                             }
@@ -80,18 +79,17 @@ module "list"
 
                                     #$ tr
                                     {
-                                        td{"#<@@(dt,'$pista')>"}
-                                        td{"#<@@(dt,'$nombre')>"}
-                                        td{"#<@@(dt,'$dias')>"}
-                                        td{$"#<@@(dt,'$fapertura')>"}
-                                        td{$"#<@@(dt,'$fcierre')>"}
-                                        td{$"#<@@(dt,'$finicio')>"}
-                                        td{$"#<@@(dt,'$ffin')>"}
+                                        td{"#<@@(dt,'$codigo')>"}
+                                        td{$"#<@@(dt,'$descripcion')>"}
+                                        td{$"#<@@(dt,'$fent_tarde')>"}
+                                        td{$"#<@@(dt,'$fsal_temp')>"}
+                                        td{$"#<@@(dt,'$ftodo_dia')>"}
+                                        td{$"#<@@(dt,'$fpagado')>"}
                                         td(class="no-print")
                                         {
                                             div(class="d-flex gap-2 justify-content-center")
                                             {
-                                                a(href="#<replace(@ASISTENCIAS,'@id',@@(dt,'sys_pk'))>" class="btn btn-sm btn-light"){$"Ver"}
+                                                a(href="#<replace(@TIPO_PERMISO_ADD_EDIT, '@id', @@(dt,'sys_pk'))>" class="btn btn-sm btn-light"){$"Editar"}
                                                 button(class="btn btn-sm btn-light" onclick="InduxsoftCrudlModel.Delete(#<@@(dt,'sys_pk')>)"){$"Eliminar"}
                                             }
                                         }

@@ -57,26 +57,39 @@ module ""
     }
     ref lperiodo_final=list.create_from_fields(@periodo_final)
     #!
-    createOptionPeriodoFinal::&lperiodo_final
+    createOptionPeriodoFinal::&lperiodo_final,selected
     {
         #!
         for i = 0; i < @count(lperiodo_final)
         {
             key=list.str(lperiodo_final,i)
             #$ 
-            option(value="#<key>"){"#<getPeriodoFinal(key)>"}
+            option(value="#<key>" "#<ifstr(key==selected,'selected','')>"="true"){"#<getPeriodoFinal(key)>"}
             #!
         }
+    }
+    optionDias::selected
+    {
+        ref ldias=list.create_from_fields(@dias)
+        options=""
+        for i = 0; i < @count(ldias)
+        {
+            key=list.str(ldias,i)
+            select=ifstr(key==selected,"selected='true'","")
+            options=options + "<option value='"+key+"' "+select+">"+@@(@dias,key)+"</option>"
+        }
+        return options
     }
     #$
     div(class="container")
     {
-        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
+        script(src="#<@JS_TIPO_DE_NOMINA>"){""}
+        h1(class="h4"){$"Tipo de nómina"}
         div
         {
             p(style="color:red"){$"#<@('$error/message')>"}
            
-            form(action="." method="POST")
+            form(action="." method="POST" onsubmit="return tn.validate()")
             {
                  div(class="bg-light my-1")
                 {
@@ -87,7 +100,7 @@ module ""
                             <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
                             </svg>'
                         }
-                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="tipocontrato.Add()"){"Aceptar"}
+                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick=""){"Aceptar"}//tipocontrato.Add()
                     }
                 }
                 div(class="row")
@@ -124,57 +137,68 @@ module ""
                     div(class="col-md-6")
                     {
                         label{"Frecuencia período:"}
-                        select(class="induxsoft-form-select" )//name="ref_rh_frec_periodo"
+                        select(class="induxsoft-form-select" name="ref_rh_frec_periodo" id="ref_rh_frec_periodo")
                         {$"" 
                             #!
                             for i = 0; i < @count(@("&./frec_periodo"))
                             {
                                 ref fperiodo=@item(@("&./frec_periodo"),i)
-                                #$ option(value="#<@@(fperiodo,'$id')>"){"#<@@(fperiodo,'$const')>"}
+                                #$ option(value="#<@@(fperiodo,'$id')>" "#<ifstr(@('#./ref_rh_frec_periodo')==@@(fperiodo,'#id'),'selected','')>"="true" data="#<to.json(fperiodo)>"){"#<@@(fperiodo,'$codigo_sat') + ' ' +@@(fperiodo,'$const')>"}
                             }
                             #$
                         }
                     }
                     div(class="col-md-3")
                     {
-                        label{"Inicio:"}
-                        input(type="date" class="induxsoft-form-control")//name="inicio" 
+                        #!
+                        inicio=ifstr(@("$./finicio")!="",@("$./finicio"),date_str(now(),"yyyy-MM-dd"))
+                        #$
+                        div(id="div_inicio")
+                        {
+                            label{"Inicio:"}
+                            input(type="date" class="induxsoft-form-control" name="inicio" id="inicio" value="#<inicio>")
+                        }
+                        
                     }
                     div(class="col-md-3")
                     {
-                        label{"Días cierre:"}
-                        input(type="Number"  class="induxsoft-form-control")//name="dias_cierre"
+                        div(id="div_dias_cierre")
+                        {
+                            label{"Días cierre:"}
+                            input(type="Number"  class="induxsoft-form-control" name="dias_cierre" id="dias_cierre" value="#<@('#./dias_cierre')>")
+                        }
+                        
                     }
                 }
                 div(class="row")
                 {
-                    div(class="col-md-3")
+                    div(class="col-md-3" id="div_1")
                     {
-                        label{"Fin del primer periodo del mes:"}
-                        select(class="induxsoft-form-select" )//name="final1"
+                        label(id="lbl_final1"){"Fin del primer periodo del mes:"}
+                        select(class="induxsoft-form-select" name="final1" id="final1" )
                         {$""
                             #!
-                            do createOptionPeriodoFinal(lperiodo_final)
+                            do createOptionPeriodoFinal(lperiodo_final,@("$./final1"))
                             #$
                         }
                     }
-                    div(class="col-md-3")
+                    div(class="col-md-3" id="div_2")
                     {
-                        label{"Fin del segundo periodo del mes:"}
-                        select(class="induxsoft-form-select" )//name="final2"
+                        label(id="lbl_final2"){"Fin del segundo periodo del mes:"}
+                        select(class="induxsoft-form-select" name="final2" id="final2" )
                         {$""
                             #!
-                            do createOptionPeriodoFinal(lperiodo_final)
+                            do createOptionPeriodoFinal(lperiodo_final,@("$./final2"))
                             #$
                         }
                     }
-                    div(class="col-md-3")
+                    div(class="col-md-3" id="div_3")
                     {
-                        label{"Fin del tercer periodo del mes:"}
-                        select(class="induxsoft-form-select" )//name="final3"
+                        label(id="lbl_final3"){"Fin del tercer periodo del mes:"}
+                        select(class="induxsoft-form-select" name="final3" id="final3")
                         {$""
                             #!
-                            do createOptionPeriodoFinal(lperiodo_final)
+                            do createOptionPeriodoFinal(lperiodo_final,@("$./final3"))
                             #$
                         }
                     }
@@ -195,6 +219,12 @@ module ""
                     }
                 }
                 input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
+            }
+            script
+            {
+                $'
+                tn.semanas="#<optionDias(@("$./final1"))>";
+                '
             }
         }
     }

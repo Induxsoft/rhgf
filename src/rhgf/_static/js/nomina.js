@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded",()=>
     tablas.init();
     gconceptos.init();
     tnomina.init();
+    tipopermiso.init();
 })
 
 var util=
@@ -466,6 +467,11 @@ var crud=
         {
             alert(error.message ?? error);
         },method,false);
+    },
+    trigger(element,event)
+    {
+        var e=new Event(event);
+       if(element)element.dispatchEvent(e);
     }
 }
 var variable=
@@ -722,5 +728,45 @@ var tnomina=
         }
         var data=tnomina.table.DataArray[tnomina.table.CurrentRowIndex()];
         nomina.DeleteEntity(data.sys_pk,tnomina.url);
+    }
+}
+
+var tipopermiso=
+{
+    init()
+    {
+        tipopermiso.ent_tarde=document.getElementById("ent_tarde");
+        tipopermiso.sal_temp=document.getElementById("sal_temp");
+        tipopermiso.todo_dia=document.getElementById("todo_dia");
+
+        if(tipopermiso.todo_dia)tipopermiso.todo_dia.addEventListener("change",()=>
+        {
+            if(tipopermiso.ent_tarde)tipopermiso.ent_tarde.removeAttribute("disabled");
+            if(tipopermiso.sal_temp)tipopermiso.sal_temp.removeAttribute("disabled");
+
+            if(tipopermiso.todo_dia.checked)
+            {
+                if(tipopermiso.ent_tarde)
+                {
+                    tipopermiso.ent_tarde.checked=false;
+                    tipopermiso.ent_tarde.setAttribute("disabled","true");
+                }
+                if(tipopermiso.sal_temp)
+                {
+                    tipopermiso.sal_temp.checked=false;
+                    tipopermiso.sal_temp.setAttribute("disabled","true");
+                }
+            }
+        });
+        crud.trigger(tipopermiso.todo_dia,"change");
+    },
+    validate()
+    {
+        if(!tipopermiso.ent_tarde.checked && !tipopermiso.sal_temp.checked && !tipopermiso.todo_dia.checked)
+        {
+            alert("Debe seleccionar alguna de las opciones");
+            return false;
+        }
+        return true;
     }
 }

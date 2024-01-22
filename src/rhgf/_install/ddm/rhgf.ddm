@@ -304,25 +304,7 @@ model "rhgf"
         }
     }
 
-    entity "rh_turno":"TableModel"
-    {
-        @"ref_calendario" ref:"rh_calendario" required
-        @"ref_unidad_org" ref:"rh_unidad_org" required
-        @"codigo" string(15) unique
-        @"descripcion" string(50)
-        @"zona_h" int
-        @"entrada" time required
-        @"tol_entrada" int // Minutos
-        @"salida" time required
-        @"tol_salida" int // Minutos
-        @"lunes" bool
-        @"martes" bool
-        @"miercoles" bool
-        @"jueves" bool
-        @"viernes" bool
-        @"sabado" bool
-        @"domingo" bool
-    }
+    
 
     entity "rh_descanso":"TableModel"
     {
@@ -399,7 +381,7 @@ model "rhgf"
         @"notas" memo
     }
 
-    entity "rh_periodo_asistencia":"TableModel"
+    entity "rh_periodo_asistencia":"TableModel" //button
     {
         @"ref_rh_tipo_nomina" ref:"rh_tipo_nomina" required
         @"pista" string(15) // Ejemplo: S-2024-01, donde S es el prefijo de rh_frec_periodo, 2024 es el año de la fecha de inicio y 01 un consecutivo del año
@@ -409,7 +391,56 @@ model "rhgf"
         @"fin" date // es la finalizacion del periodo de pago
     }
 
-    
+    entity "rh_tipo_permiso":"TableModel"
+    {
+        @"codigo" string(15)
+        @"descripcion" string(50)
+        @"ent_tarde" bool
+        @"sal_temp" bool
+        @"todo_dia" bool
+        @"pagado" bool
+    }
+    entity "rh_permiso" : "TableModel"
+    {
+        @"ref_contrato" ref:"rh_contrato_empleado" required
+        @"inicio" date
+        @"fin" date
+        @"cancelado" bool
+        @"notas" memo
+    }
+    entity "rh_turno":"TableModel"
+    {
+        @"ref_calendario" ref:"rh_calendario" required
+        @"ref_unidad_org" ref:"rh_unidad_org" required
+        @"codigo" string(15) unique
+        @"descripcion" string(50)
+        @"zona_h" int
+        @"entrada" time required
+        @"tol_entrada" int // Minutos
+        @"salida" time required
+        @"tol_salida" int // Minutos
+        @"lunes" bool
+        @"martes" bool
+        @"miercoles" bool
+        @"jueves" bool
+        @"viernes" bool
+        @"sabado" bool
+        @"domingo" bool
+        @"dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+        @"c_h_extra" bool //Si es true, se cuentan las horas completas despuéés de la tolerancia de la salida
+    }
+    entity "rh_asistencia":"TableModel"
+    {
+        @"ref_rh_periodo_asistencia" ref:"rh_periodo_asistencia" required
+        @"ref_turno" ref:"rh_turno" required
+        @"ref_contrato" ref:"rh_contrato_empleado" required
+        @"entrada" datetime
+        @"salida" datetime
+        @"inasistencia" bool
+        @"temprano_receso" bool
+        @"tarde_receso" bool
+        @"permiso" ref: "rh_permiso"
+    }
     // Información de la aplicación
     entity "sys_app_catalog"
     {

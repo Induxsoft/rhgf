@@ -71,6 +71,9 @@ module "config"
     @PERIODO_ASISTENCIA_ADD_EDIT="/!/rhgf/periodo-asistencia/@id/"
 
     //calendario laborales
+    //js tipo de nómina
+    @JS_TIPO_DE_NOMINA="/$/rhgf/js/tiponomina.js"
+    @JS_PERIODO_ASISTENCIA="/$/rhgf/js/periodo-asistencia.js"
     // _PACKAGE
     @RH_CTR_ASIST_CALENDARIO = "/!/rhgf/calendario/"
     @RH_CTR_ASIST_DIA_INHABIL = "/!/rhgf/dia_inhabil/"
@@ -82,6 +85,17 @@ module "config"
     @RH_CTR_ASIST__ADD_EDIT_DIA_INHABIL="/!/rhgf/dia_inhabil/@id/"
     @RH_CTR_ASIST__ADD_EDIT_DIA_TURNO="/!/rhgf/turno/@id/"
     @RH_CTR_ASIST__ADD_EDIT_DESCANSO="/!/rhgf/descanso/@id/"
+
+    //tipo de permiso
+    @TIPO_PERMISO="/!/rhgf/tipo-permiso/"
+    @TIPO_PERMISO_ADD_EDIT="/!/rhgf/tipo-permiso/@id/"
+    //Permisos
+    @PERMISOS="/!/rhgf/permiso/"
+    @PERMISOS_ADD_EDIT="/!/rhgf/permiso/@id/"
+
+    //asistencias
+    @ASISTENCIAS="/!/rhgf/asistencia/?per_as=@id"
+    @ASISTENCIAS_ADD_EDIT="/!/rhgf/asistencia/@id/"
 
     @zona_h_default=-6
 
@@ -98,7 +112,7 @@ module "config"
         @"SEARCH": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>'
     }
 
-     new @meses
+    new @meses
     {
         @"1":"Enero"
         @"2":"Febrero"
@@ -142,7 +156,16 @@ module "config"
         @"-11":"UTC -11"
         @"-12":"UTC -12"
     }
-
+    new @dias
+    {
+        @"1":"Domingo"
+        @"2":"Lunes"
+        @"3":"Martes"
+        @"4":"Miercoles"
+        @"5":"Jueves"
+        @"6":"Viernes"
+        @"7":"Sabado"
+    }
     new @periodo_final
     {
         @"1":"Día 1"
@@ -175,7 +198,7 @@ module "config"
         @"28":"Día 28"
         @"29":"Día 29"
         @"30":"Día 30"
-        @"-1":"Último dia del mes"
+        @"-1":"Último día del mes"
     }
     getPeriodoFinal::numperiodo
     {
