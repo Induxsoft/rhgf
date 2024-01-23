@@ -15,5 +15,5 @@
 "acceso_evento.list","Tipos de eventos de acceso de empleados","/$/rhgf/img/icons/acceso_eventos-96x96.png","/!/rhgf/acceso-evento/","0","acceso_evento","0090"
 "turno_extra.list","Turnos extraordinarios","/$/rhgf/img/icons/turno_extra-96x96.png","/!/rhgf/turno-extra/","0","turno_extra","0025"
 "periodo_asistencia.list","Períodos de asistencias","/$/rhgf/img/icons/periodo_asistencia-96x96.png","/!/rhgf/periodo-asistencia/","0","periodo_asistencia","0025"
-"tipo_permiso.list","Tipos de permisos","/$/rhgf/img/icons/tipo_permiso-96x96.png","/!/rhgf/tipo-permiso/","0","tipo_permiso","0090"
-"permiso.list","Permisos de inasistencias","/$/rhgf/img/icons/permiso-96x96.png","/!/rhgf/permiso/","0","permisos","0025"
+"tipo_permiso.list","Tipos de Justificación","/$/rhgf/img/icons/tipo_permiso-96x96.png","/!/rhgf/tipo-permiso/","0","tipo_permiso","0090"
+"permiso.list","Justificación de inasistencias","/$/rhgf/img/icons/permiso-96x96.png","/!/rhgf/permiso/","0","permisos","0025"

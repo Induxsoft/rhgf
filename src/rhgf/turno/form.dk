@@ -92,7 +92,7 @@ module "form.dk"
                     }
                 }
                 #!
-                hora_current=date_str(now(),"HH:mm:ss")
+                hora_current=date_str(now(),"HH:mm")
                 hora_entrada=ifstr(@("$./entrada")!="",@("$./entrada"),hora_current)
                 hora_salida=ifstr(@("$./salida")!="",@("$./salida"),hora_current)
                 #$
@@ -101,7 +101,7 @@ module "form.dk"
                     div(class="col-md-3")
                     {
                         small(class="fw-bold"){"Hora de entrada:"}
-                        input(type="time" class="induxsoft-form-control" name="entrada" required="true" value="#<hora_entrada>")
+                        input(type="time" class="induxsoft-form-control" name="entrada" min="" max="" required="true" value="#<hora_entrada>")
                     }
                     div(class="col-md-3")
                     {
@@ -119,17 +119,33 @@ module "form.dk"
                         input(type="Number" class="induxsoft-form-control" name="tol_salida" value="#<@('$./tol_salida')>")
                     }
                 }
-                small(class="fw-bold"){"Unidad organizacional:"}
-                select(class="induxsoft-form-select " name="ref_unidad_org" required="true")
-                {$""
-                    #!
-                    for i = 0; i < @count(@("&./unidades_org"))
+                div(class="row")
+                {
+                    div(class="col-md-6")
                     {
-                        ref unidad=@item(@("&./unidades_org"),i)
-                        #$ option(value="#<@@(unidad,'sys_pk')>" "#<ifstr(@('$./ref_unidad_org')==@@(unidad,'$sys_pk'),'selected','')>"="true"){"#<@@(unidad,'$text')>"}
+                        small(class="fw-bold"){"Unidad organizacional:"}
+                        select(class="induxsoft-form-select " name="ref_unidad_org" required="true")
+                        {$""
+                            #!
+                            for i = 0; i < @count(@("&./unidades_org"))
+                            {
+                                ref unidad=@item(@("&./unidades_org"),i)
+                                #$ option(value="#<@@(unidad,'sys_pk')>" "#<ifstr(@('$./ref_unidad_org')==@@(unidad,'$sys_pk'),'selected','')>"="true"){"#<@@(unidad,'$text')>"}
+                            }
+                            #$
+                        }
                     }
-                    #$
+                    div(class="col-md-2 d-flex align-items-center")
+                    {$""
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="dia_siguiente" "#<ifstr(@('#./dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                        
+                    }
+                    div(class="col-md-3 d-flex align-items-center")
+                    {
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="c_h_extra" "#<ifstr(@('#./c_h_extra'),'checked','')>"="true")" Contar horas completas"}}
+                    }
                 }
+                
                 hr(style=""){""}
                 h5{"Días de trabajo"}
                 div(class="row")

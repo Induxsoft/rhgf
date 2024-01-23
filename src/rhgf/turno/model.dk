@@ -7,7 +7,7 @@ module ""
     @list_query="select t.*,c.descripcion calendario,u.descripcion unidad from #<@table_name> t 
     inner join rh_calendario c on t.ref_calendario=c.sys_pk
     inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
-    where ifnull(t.sys_deleted,0)=0 and if(ifnull(@unidad,0)=0,true,u.sys_pk=@unidad or if(ifnull(u.superior,0)=0,true,u.sys_pk=u.superior) ) "+ like
+    where ifnull(t.sys_deleted,0)=0 and if(ifnull(@unidad,0)=0,true,u.sys_pk=@unidad or if(ifnull(u.superior,0)=0,true,u.sys_pk=u.superior) ) "+ like+" order by t.sys_pk desc"
 
     prepareView::&db,&params,&rec
     {
@@ -35,6 +35,13 @@ module ""
         else{data<"sabado">:0}
         if parse.bool(@@(data,"domingo")){data<"domingo">:1}
         else{data<"domingo">:0}
+
+        if parse.bool(@@(data,"dia_siguiente")){data<"dia_siguiente">:1}
+        else{data<"dia_siguiente">:0}
+
+        if parse.bool(@@(data,"c_h_extra")){data<"c_h_extra">:1}
+        else{data<"c_h_extra">:0}
+
 
         ref entity=@null
     

@@ -2,7 +2,7 @@
 #!
 module ""
 {
-    @table_name="rh_tipo_permiso"
+    @table_name="rh_tipo_justificacion"
     like=" and if(ifnull(@s,'')='',true,concat_ws('',t.codigo,t.descripcion) like concat('%',@s,'%')  )"
     @list_query="select t.*,if(ifnull(t.ent_tarde,0),'Sí','No')fent_tarde,if(ifnull(t.sal_temp,0),'Sí','No')fsal_temp,if(ifnull(t.todo_dia,0),'Sí','No')ftodo_dia,
     if(ifnull(t.pagado,0),'Sí','No')fpagado
@@ -12,6 +12,7 @@ module ""
     prepareView::&db,&params,&rec
     {
         if isnull(rec){return}
+        rec<"motivos*">:dbr.list(db,"select * from rh_tipo_justificacion_motivo",@null)
     }
     save::&db,&params,&data
     {

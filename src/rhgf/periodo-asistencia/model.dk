@@ -28,8 +28,8 @@ module ""
         c=parse.num(replace(@@(data,"$cierre"),"-",""))
         d=parse.num(replace(@@(data,"$fin"),"-",""))
 
-        if a>b{do rise_error(500,"Apertura debe ser menor-igual a la fecha de inicio")}
-        if c>d{do rise_error(500,"El cierre de ser menor-igual a la fecha del fin del período")}
+        if a>b{do rise_error(500,"Apertura debe ser menor o igual a la fecha de inicio")}
+        if c>d{do rise_error(500,"El cierre de ser menor o igual a la fecha del fin del período")}
         if a>c{do rise_error(500,"Apertura de ser menor a cierre")}
         if b>d{do rise_error(500,"Inicio debe ser menor a la fecha de fin")}
 
@@ -61,7 +61,7 @@ module ""
         ref tn=dbr.rec(db,"SELECT t.*,fp.id,fp.const,fp.codigo_sat,fp.prefijo,fp.dias fpdias from rh_tipo_nomina t 
         INNER JOIN rh_frec_periodo fp ON t.ref_rh_frec_periodo=fp.id
         where sys_pk=@tipo",p)
-        if isnull(tn){do rise_error(500,"No se encontró datos del tipo de nómina en relacón con frecuancia período")}
+        if isnull(tn){do rise_error(500,"No se encontró datos del tipo de nómina en relacón con frecuencia período")}
 
         ref upa=dbr.rec(db,"select *,year(inicio)ano  from rh_periodo_asistencia where ref_rh_tipo_nomina=@tipo and year(inicio)=year(@inicio) order BY sys_pk desc  LIMIT 1",p)
         if isnull(upa)

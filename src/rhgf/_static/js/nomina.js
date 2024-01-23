@@ -738,6 +738,27 @@ var tipopermiso=
         tipopermiso.ent_tarde=document.getElementById("ent_tarde");
         tipopermiso.sal_temp=document.getElementById("sal_temp");
         tipopermiso.todo_dia=document.getElementById("todo_dia");
+        tipopermiso.ref_motivo=document.getElementById("ref_motivo");
+        if(tipopermiso.ref_motivo)tipopermiso.ref_motivo.addEventListener("change",()=>
+        {
+            var m=Number(tipopermiso.ref_motivo.value);
+            if(m==0 || m==1)
+            {
+                if(tipopermiso.todo_dia)
+                {
+                    tipopermiso.todo_dia.checked=true;
+                    crud.trigger(tipopermiso.todo_dia,"change");
+                }
+            }
+            else
+            {
+                if(tipopermiso.todo_dia)
+                {
+                    tipopermiso.todo_dia.checked=false;
+                    crud.trigger(tipopermiso.todo_dia,"change");
+                }
+            }
+        });
 
         if(tipopermiso.todo_dia)tipopermiso.todo_dia.addEventListener("change",()=>
         {
@@ -757,8 +778,12 @@ var tipopermiso=
                     tipopermiso.sal_temp.setAttribute("disabled","true");
                 }
             }
+            else
+            {
+                if(tipopermiso.ref_motivo)tipopermiso.ref_motivo.value=2;
+            }
         });
-        crud.trigger(tipopermiso.todo_dia,"change");
+        crud.trigger(tipopermiso.ref_motivo,"change");
     },
     validate()
     {

@@ -23,7 +23,7 @@ module "form.dk"
             {
                 div(class="col-4 d-flex align-items-center p-0")
                 {
-                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Tipo de permiso"}
+                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Tipo de justificación"}
                 }
                 div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
                 {
@@ -53,19 +53,32 @@ module "form.dk"
                         small(class="fw-bold"){$"Código:"}
                         input(type="text" class="induxsoft-form-control mb-2" name="codigo" value="#<@@(data, '$codigo')>" required="true" maxlength="15")
                     }
-                    div(class="col-sm-8")
+                    div(class="col-sm-4")
                     {
                         small(class="fw-bold"){$"Descripción:"}
                         input(type="text" class="induxsoft-form-control mb-2" name="descripcion" value="#<@@(data, '$descripcion')>" required="true" maxlength="50")
                     }
-                    div(class="col-sm-2 d-flex align-items-center")
+                    div(class="col-sm-4")
                     {
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="pagado" id="pagado" "#<ifstr(@('#./pagado'),'checked','')>"="true")" Pagado"}}
+                        label{"Motivo:"}
+                        select(class="induxsoft-form-select" name="ref_motivo" id="ref_motivo")
+                        {$""
+                            #!
+                            for i = 0; i < @count(@("&./motivos"))
+                            {
+                                ref m=@item(@("&./motivos"),i)
+                                #$ option(value="#<@@(m,'id')>" "#<ifstr(@('#./ref_motivo')==@@(m,'#id'),'selected','')>"="true"){"#<@@(m,'const')>"}
+                            }
+                            #$
+                        }
                     }
                 }
-                
+                div(class="col-sm-2 d-flex align-items-center")
+                {
+                    div(class="w-100"){label(class=""){input(type="checkbox" name="pagado" id="pagado" "#<ifstr(@('#./pagado'),'checked','')>"="true")" Pagado"}}
+                }
                 hr(style=""){""}
-                h5{"Opción del permiso"}
+                h5{"Opción de la justificación"}
                 div(class="row")
                 {
                     div(class="col-md-6")

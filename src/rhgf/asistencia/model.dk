@@ -6,7 +6,12 @@ module ""
     like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d %H:%i:%s')fentrada,date_format(t.salida,'%Y-%m-%d %H:%i:%s')fsalida,if(ifnull(t.inasistencia,0),'Sí','No')finasistencia,
-    rt.descripcion turno
+    rt.descripcion turno,
+     if(TIME(t.entrada)<time(rt.entrada),'Sí','No')et,
+	 if(time(t.entrada)>TIME(date_add(rt.entrada,INTERVAL rt.tol_entrada minute)),'Sí','No')r,
+	 if(TIME(t.salida)<time(rt.salida),'Sí','No')sa,
+	 if(IFNULL(t.inasistencia,0),'Sí','No')f,
+	 if((hour(t.salida)- hour(rt.salida))>0,(hour(t.salida)- hour(rt.salida)),0) he
     FROM #<@table_name> t 
     inner join rh_periodo_asistencia pa on t.ref_rh_periodo_asistencia=pa.sys_pk
     INNER JOIN rh_contrato_empleado c ON t.ref_contrato=c.sys_pk
@@ -40,7 +45,28 @@ module ""
             inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk
             where t.sys_pk=@turno",params)
 
-        rec<"permisos*">:dbr.list(db,"select * from rh_permiso p",params)
+        if @@(params,"$periodo")==""{return}
+
+        ref turno=dbr.rec(db,"select * from rh_turno where sys_pk=@pkturno",params)
+        if not(isnull(turno))
+        {
+            params<"tentrada">:@@(turno,"$entrada")
+            params<"tsalida">:@@(turno,"$salida")
+        }
+        ref periodo=dbr.rec(db,"select p.*,date_format(p.inicio,'%Y-%m-%d')finicio,date_format(p.fin,'%Y-%m-%d')ffin,t.inicio tinicio from  rh_periodo_asistencia p 
+                inner join rh_tipo_nomina t on p.ref_rh_tipo_nomina=t.sys_pk
+                where p.sys_pk=@periodo",params)
+
+        params<"pinicio">:@@(periodo,"$finicio")
+        params<"pfin">:@@(periodo,"$ffin")
+        
+        rec<"justificaciones*">:dbr.list(db,"SELECT j.sys_pk,t.descripcion,t.codigo,date_format(j.inicio,'%Y-%m-%d')finicio,date_format(j.fin,'%Y-%m-%d')ffin FROM rh_justificacion j
+        INNER JOIN rh_contrato_empleado c ON j.ref_contrato=c.sys_pk
+        INNER JOIN rh_tipo_justificacion t ON j.ref_rh_tipo_justificacion=t.sys_pk
+        WHERE IFNULL(j.sys_deleted,0)=0 and if(ifnull(@pkcontrato,0)=0,true,c.sys_pk=@pkcontrato)
+        and date(j.inicio)>=date(@pinicio) and date(j.fin)<=date(@pfin)
+        and if(ifnull(@entrada,0)=0,true,date(@entrada) BETWEEN date(j.inicio) and date(j.fin) )",params)
+        //and if(ifnull(@tentrada,0)=0,true,time(j.inicio)>= time(@tentrada) and time(j.fin)<=time(@tsalida) )
     }
     save::&db,&params,&data
     {
@@ -52,6 +78,7 @@ module ""
         if parse.bool(@@(data,"tarde_receso")){data<"tarde_receso">:1}
         else{data<"tarde_receso">:0}
 
+        if trim(@@(data,"$justificacion")){data<"justificacion*">:@null}
         ref entity=@null
     
         if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 

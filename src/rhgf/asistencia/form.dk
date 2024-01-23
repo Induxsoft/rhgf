@@ -18,6 +18,7 @@ module "form.dk"
     #$
     div(class="container")
     {   
+        script(src="#<@JS_ASISTENCIA>"){""}
         form(method="POST" action="#<action>" id="form")
         {
             div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
@@ -45,7 +46,7 @@ module "form.dk"
 
                 input(type="hidden" name="sys_pk" value="#<@@(data, '#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(data, '#sys_recver')>")
-                input(type="hidden" name="ref_rh_periodo_asistencia" value="#<per_as>")
+                input(type="hidden" name="ref_rh_periodo_asistencia" id="ref_rh_periodo_asistencia" value="#<per_as>")
                 
                 
                 div(class="row mb-2 mt-4")
@@ -94,7 +95,7 @@ module "form.dk"
                         entrada=ifstr(@("$./fentrada")!="",@("$./fentrada"),date_str(now(),"yyyy-MM-dd HH:mm:ss"))
                         #$
                         label{"Entrada:"}
-                        input(type="datetime-local" name="entrada" class="induxsoft-form-control" value="#<entrada>")
+                        input(type="datetime-local" name="entrada" id="entrada" class="induxsoft-form-control" value="#<entrada>")
                     }
                     div(class="col-sm-3")
                     {
@@ -110,25 +111,28 @@ module "form.dk"
                     }
                     div(class="col-sm-4")
                     {$""
-                        label{"Permiso:"}
-                        select(class="induxsoft-form-select" name="permiso")
-                        {
-                            option(value=""){"Ninguno"}
-                            #!
-                            for i = 0; i < @count(@("&./permisos"))
-                            {
-                                ref permiso=@item(@("&./permisos"),i)
-                                #$ option(value="#<@@(permiso,'sys_pk')>"){"#<@@(permiso,'$inicio')+' - '+@@(permiso,'$fin')>"}
-                            }
-                            #$
+                        label{"Justificación:"}
+                        select( class="induxsoft-form-select" name="justificacion" id="justificacion" disabled="true")
+                        {$""
                         }
                     }
                 }
 
-                div(class="")
+                div(class="mt-4")
                 {
-                    label{input(type="checkbox" name="temprano_receso" "#<ifstr(@('#./temprano_receso'),'checked','')>"="true")" Temprano receso"}
-                    label{input(type="checkbox" name="tarde_receso" "#<ifstr(@('#./tarde_receso'),'checked','')>"="true")" Tarde receso"}
+                    div(style="width: max-content;")
+                    {
+                        label(class="d-flex"){input(type="checkbox" name="temprano_receso" "#<ifstr(@('#./temprano_receso'),'checked','')>"="true")" Temprano receso"}
+                        label(class="d-flex"){input(type="checkbox" name="tarde_receso" "#<ifstr(@('#./tarde_receso'),'checked','')>"="true")" Tarde receso"}
+                    }
+                    
+                }
+
+                script
+                {
+                    $'
+                    asis.pkjustificacion=#<@("#./justificacion")>;
+                    '
                 }
             }
         }

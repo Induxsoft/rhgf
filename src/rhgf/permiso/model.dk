@@ -2,7 +2,7 @@
 #!
 module ""
 {
-    @table_name="rh_permiso"
+    @table_name="rh_justificacion"
     like=" having if(ifnull(@s,'')='',true,concat_ws('',contrato,empleado,inicio,fin,notas) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,
     date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin
@@ -24,6 +24,8 @@ module ""
         inner join rh_empleado_org e on c.ref_empleado=e.sys_pk 
         inner join rh_tipo_contrato t on c.tipo=t.sys_pk 
         inner join rh_unidad_org u on p.ref_unidad_org=u.sys_pk where c.sys_pk=@contrato",params)
+
+        rec<"tipo*">:dbr.list(db,"select * from rh_tipo_justificacion",@null)
     }
     save::&db,&params,&data
     {

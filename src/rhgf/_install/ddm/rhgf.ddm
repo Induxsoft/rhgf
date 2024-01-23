@@ -391,8 +391,18 @@ model "rhgf"
         @"fin" date // es la finalizacion del periodo de pago
     }
 
-    entity "rh_tipo_permiso":"TableModel"
+    entity "rh_tipo_justificacion_motivo":"EnumModel"
     {
+        /*
+        0-Vacaciones
+        1-Comisiones
+        2-Otros
+        */
+    }
+    //Vacaciones y Comisiones -> todo_dia,pagado
+    entity "rh_tipo_justificacion":"TableModel"
+    {
+        @"ref_motivo" ref:"rh_tipo_justificacion_motivo" required
         @"codigo" string(15)
         @"descripcion" string(50)
         @"ent_tarde" bool
@@ -400,9 +410,10 @@ model "rhgf"
         @"todo_dia" bool
         @"pagado" bool
     }
-    entity "rh_permiso" : "TableModel"
+    entity "rh_justificacion" : "TableModel"
     {
         @"ref_contrato" ref:"rh_contrato_empleado" required
+        @"ref_rh_tipo_justificacion" ref:"rh_tipo_justificacion" required
         @"inicio" date
         @"fin" date
         @"cancelado" bool
@@ -439,7 +450,7 @@ model "rhgf"
         @"inasistencia" bool
         @"temprano_receso" bool
         @"tarde_receso" bool
-        @"permiso" ref: "rh_permiso"
+        @"justificacion" ref: "rh_justificacion"
     }
     // Información de la aplicación
     entity "sys_app_catalog"

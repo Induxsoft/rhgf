@@ -23,7 +23,7 @@ module "form.dk"
             {
                 div(class="col-4 d-flex align-items-center p-0")
                 {
-                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Permiso"}
+                    h5(class="tex-no-break m-0"){$"#<ifstr(isNew,'Agregar','Editar')> Justificación"}
                 }
                 div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
                 {
@@ -65,6 +65,24 @@ module "form.dk"
                                 columns="referencia,apellido1,apellido2,nombre_empleado,rfc"
                                 colcaptions="Contrato,Apellido materno,Apellido paterno,Nombre,RFC" required="true"){""}
                     }
+                    div(class="col-sm-6")
+                    {
+                        label{"Tipo de justificación:"}
+                        select(class="induxsoft-form-select" name="ref_rh_tipo_justificacion" required="true")
+                        {""
+                            #!
+                            for i = 0; i < @count(@("&./tipo"))
+                            {
+                                ref t=@item(@("&./tipo"),i)
+                                #$ option(value="#<@@(t,'sys_pk')>"){"#<@@(t,'$codigo')+' - '+@@(t,'$descripcion')>"}
+                            }
+                            #$
+                        }
+                    }
+                    
+                }
+                div(class="row")
+                {
                     div(class="col-sm-3")
                     {
                         #!
