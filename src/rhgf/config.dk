@@ -213,4 +213,8 @@ module "config"
     {
         return @@(@meses,"$"+str(numMes))
     }
+    getDay::numDay
+    {
+        return @@(@dias,"$"+str(numDay))
+    }
 }

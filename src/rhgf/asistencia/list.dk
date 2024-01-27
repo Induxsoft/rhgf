@@ -8,9 +8,9 @@ module "list"
 
     do @context.begin(@crud_context)
 
-    ref data = @("&./")
+    ref data = @("&./asistencias")
     per_as=@("$parameters/per_as")
-    ref periodo=@item(data,0)
+    ref periodo=@("&./datos")
     #$
     div(class="container p-0")
     {
@@ -54,7 +54,7 @@ module "list"
                 }
                 #! else 
                 {
-                    #$ div(style="overflow-y:auto;max-height: 75vh;" class="mb-2" id="list_table_container")
+                    #$ div(style="overflow-y:auto;max-height: 75vh;" class="mb-2" id="list_table_container_1")
                     {
                         table(class="table")
                         {
@@ -62,19 +62,37 @@ module "list"
                             {
                                 tr
                                 {
-                                    // th(class="h6"){"Período de asistencia"}
-                                    th(class="h6"){"Contrato"}
-                                    th(class="h6"){"Empleado"}
-                                    th(class="h6"){"Turno"}
-                                    th(class="h6"){$"Entrada"}
-                                    th(class="h6"){$"Salida"}
-                                    th(class="h6"){$"Inasistencia"}
-                                    th(class="h6"){$"ET"}
-                                    th(class="h6"){$"R"}
-                                    th(class="h6"){$"SA"}
-                                    th(class="h6"){$"HE"}
-                                    th(class="h6"){$"F"}
-                                    th(class="h6"){$""}
+                                    th{""}
+                                    th{""}
+                                    th{""}
+                                    #!
+                                    ref dias=@@(periodo,"&dias")
+                                    for i = 0; i <@count(dias)
+                                    {
+                                        ref d=@item(dias,i)
+                                        #$
+                                        th(colspan="5" rowspan="1" class="text-center"){"#<@@(d,'$fecha')>"}
+                                    }
+                                    #$
+                                }
+                                tr
+                                {
+                                    th(class="h61"){"Contrato"}
+                                    th(class="h61"){"Empleado"}
+                                    th(class="h61"){"Turno"}
+                                    #!
+                                    ref dias=@@(periodo,"&dias")
+                                    for i = 0; i <@count(dias)
+                                    {
+                                        ref d=@item(dias,i)
+                                        #$
+                                        th{"#<@@(d,'$fdia')>"}
+                                        th{"#<@@(d,'$caption_entrada')>"}
+                                        th(colspan="2"){"#<@@(d,'$caption_salida')>"}
+                                        th{""}
+                                    }
+                                    
+                                    #$
                                 }
                             }
                             tbody
@@ -82,30 +100,54 @@ module "list"
                                 $""
                                 #! for i = 0; i < list.count(data)
                                 {
-                                    ref dt = list.obj(data, i)
-
+                                    ref dt = @item(data, i)
+                                    ref ldias= @@(dt,"&dias")
                                     #$ tr
                                     {
-                                        // td{"#<@@(dt,'$pista')>"}
                                         td{"#<@@(dt,'$contrato')>"}
                                         td{"#<@@(dt,'$empleado')>"}
                                         td{"#<@@(dt,'$turno')>"}
-                                        td{$"#<@@(dt,'$fentrada')>"}
-                                        td{$"#<@@(dt,'$fsalida')>"}
-                                        td{$"#<@@(dt,'$finasistencia')>"}
-                                        td{$"#<@@(dt,'$et')>"}
-                                        td{$"#<@@(dt,'$r')>"}
-                                        td{$"#<@@(dt,'$sa')>"}
-                                        td{$"#<@@(dt,'$he')>"}
-                                        td{$"#<@@(dt,'$f')>"}
-                                        td(class="no-print")
+                                        #!
+                                        for j = 0; j < @count(ldias)
                                         {
-                                            div(class="d-flex gap-2 justify-content-center")
-                                            {
-                                                a(href="#<replace(@ASISTENCIAS_ADD_EDIT, '@id', @@(dt,'sys_pk'))+'?per_as='+per_as>" class="btn btn-sm btn-light"){$"Editar"}
-                                                button(class="btn btn-sm btn-light" onclick="InduxsoftCrudlModel.Delete(#<@@(dt,'sys_pk')>)"){$"Eliminar"}
+                                            ref dia=@item(ldias,j)
+                                            et=ifstr(@@(dia,'#entrada_temprano'),'ET',"")
+                                            if et==""{et=ifstr(@@(dia,"#retardo"),"R","")}
+                                            if et==""{et=ifstr(@@(dia,"#falta"),"F","")}
+
+                                            sa=ifstr(@@(dia,"#falta") && et=="","F","")
+                                            if sa==""{sa=ifstr(@@(dia,"#salida_anticipada"),"SA","")}
+                                            if @@(dia,"#he")>0{sa="("+@@(dia,"$he")+")"}
+
+                                            #$
+                                            td{"#<et>"}
+                                            td{"#<@@(dia,'$hora_entrada')>"}
+                                            td{"#<@@(dia,'$hora_salida')>"}
+                                            td{"#<sa>"}
+                                           
+                                            #$
+                                            td(class="no-print")
+                                            {$""
+                                                #!
+                                                if @@(dia,"#sys_pk")>0
+                                                {
+                                                    #$
+                                                    div(class="d-flex gap-2 justify-content-center")
+                                                    {
+                                                        a(href="#<replace(@ASISTENCIAS_ADD_EDIT, '@id', @@(dia,'sys_pk'))+'?per_as='+per_as>" class="btn btn-sm btn-light"){$'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                                                        </svg>'}
+                                                        button(class="btn btn-sm btn-light" onclick="InduxsoftCrudlModel.Delete(#<@@(dia,'sys_pk')>)"){$'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                                        </svg>'}
+                                                    }
+                                                }
+                                                
                                             }
+                                            
                                         }
+                                        
                                     }
                                 } 
                             }

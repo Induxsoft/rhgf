@@ -292,6 +292,7 @@ model "rhgf"
         @"zona_h" int
         @"evento" ref:"rh_acceso_evento" required
         @"ref_turno" ref:"rh_turno" required
+        @"ref_rh_asistencia" ref:"rh_asistencia"
 
         index "rh_acceso_empleado_idx1" unique
         {
@@ -450,6 +451,8 @@ model "rhgf"
         @"inasistencia" bool
         @"temprano_receso" bool
         @"tarde_receso" bool
+        @"retardo" bool
+        @"notas" memo
         @"justificacion" ref: "rh_justificacion"
     }
     // Información de la aplicación
