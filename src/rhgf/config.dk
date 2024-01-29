@@ -26,7 +26,6 @@ module "config"
 
     //#region empleados
     @JS_EMPLEADOS = "/$/rhgf/js/empleados.js"
-    @SAT_REGIMEN_FISCAL = "/$/rhgf/json/sat.c_RegimenFiscal.json"
 
     @URL_BUSCAR_EMPLEADO = "/!/rhgf/empleados/?_view=buscar-empleado&search=@search"
     
@@ -36,8 +35,6 @@ module "config"
     //#region organizacion
     @CSS_ORGANIZACION = "/$/rhgf/css/organizacion.css"
     @JS_ORGANIZACION = "/$/rhgf/js/organizacion.js"
-    @SAT_TIPO_JORNADA = "/$/rhgf/json/sat.c_TipoJornada.json"
-    @SAT_RIESGO_PUESTO = "/$/rhgf/json/sat.c_RiesgoPuesto.json"
 
     @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
 
@@ -49,6 +46,9 @@ module "config"
     @CLAVE_SAT="./rhgf/_static/json/clave_sat.json"
     @TIPO_SAT="./rhgf/_static/json/tipo_sat.json"
     @PERIODO_PAGO="./rhgf/_static/json/periodo_pago.json"
+    @SAT_REGIMEN_FISCAL = "./rhgf/_static/json/sat.c_RegimenFiscal.json"
+    @SAT_TIPO_JORNADA = "./rhgf/_static/json/sat.c_TipoJornada.json"
+    @SAT_RIESGO_PUESTO = "./rhgf/_static/json/sat.c_RiesgoPuesto.json"
 
     //url categoria empleado
     @CATEGORIA_EMPLEADO="/!/rhgf/categoria-empleado/"

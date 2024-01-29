@@ -4,7 +4,6 @@ module "form.puesto.dk"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
-    #include "webcl.dkh"
     #include "uielements.dkl"
     #include "../_lib/icons.dk"
     #include "../config.dk"
@@ -17,23 +16,7 @@ module "form.puesto.dk"
     ref listUnidades = ifnull(@("&./list_unidades"),list.create())
     ref listPuestos = ifnull(@("&./list_puestos"),list.create())
     ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
-    ref listSatRiesgoPuesto = list.create()
-
-    // do rise_error(0,to.json(@http_context))
-
-    codeblock
-    {
-        protocol = @("$http/request/headers/REQUEST_SCHEME")
-        host_name = @("$http/request/headers/HTTP_HOST")
-        url_riesgopuesto = protocol + "://" + path.concat(host_name,@SAT_RIESGO_PUESTO)
-        
-        new header { @"Content-Type": "application/json; charset=utf-8;" }
-        ref listSatRiesgoPuesto = from.json(http.request(url_riesgopuesto,"GET",header,"{}"))
-
-        exception{/*ignore*/}
-    }
-    
-    // do rise_error(0,to.json(@("&.")))
+    ref listSatRiesgoPuesto = if(file.exists(@SAT_RIESGO_PUESTO),from.json(file.rtext(@SAT_RIESGO_PUESTO)),list.create())
 
     new sel_unidad
     {
@@ -132,7 +115,7 @@ module "form.puesto.dk"
             {
                 input(type="hidden" name="sys_pk" value="#<@@(dtpuesto,'#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(dtpuesto,'#sys_recver')>")
-                input(type="hidden" name="shortcut" value="F6")
+                input(type="hidden" name="shortcut" value="F8")
 
                 div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
 

@@ -4,7 +4,6 @@ module "form.dk"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
-    #include "webcl.dkh"
     #include "uielements.dkl"
     #include "../_lib/icons.dk"
     #include "../config.dk"
@@ -20,23 +19,7 @@ module "form.dk"
     ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
     ref listEstadoCivil = ifnull(@("&./list_estado_civil"),list.create())
     ref listTipoVivienda = ifnull(@("&./list_tipo_vivienda"),list.create())
-    ref listSatRegFiscal = list.create()
-
-    // do rise_error(0,to.json(@http_context))
-
-    codeblock
-    {
-        protocol = @("$http/request/headers/REQUEST_SCHEME")
-        host_name = @("$http/request/headers/HTTP_HOST")
-        url_regfis = protocol + "://" + path.concat(host_name,@SAT_REGIMEN_FISCAL)
-        
-        new header { @"Content-Type": "application/json; charset=utf-8;" }
-        ref listSatRegFiscal = from.json(http.request(url_regfis,"GET",header,"{}"))
-
-        exception{/*ignore*/}
-    }
-    
-    // do rise_error(0,to.json(@("&.")))
+    ref listSatRegFiscal = if(file.exists(@SAT_REGIMEN_FISCAL),from.json(file.rtext(@SAT_REGIMEN_FISCAL)),list.create())
 
     new sel_cat_empleado
     {
@@ -147,7 +130,7 @@ module "form.dk"
             {
                 input(type="hidden" name="sys_pk" value="#<@@(dtempleado,'#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(dtempleado,'#sys_recver')>")
-                input(type="hidden" name="shortcut" value="F6")
+                input(type="hidden" name="shortcut" value="F8")
 
                 div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
 

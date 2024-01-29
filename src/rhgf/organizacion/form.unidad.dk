@@ -52,7 +52,7 @@ module "form.unidad.dk"
             {
                 input(type="hidden" name="sys_pk" value="#<@@(dtunidad,'#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(dtunidad,'#sys_recver')>")
-                input(type="hidden" name="shortcut" value="F6")
+                input(type="hidden" name="shortcut" value="F8")
 
                 div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
 

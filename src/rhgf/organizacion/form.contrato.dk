@@ -4,7 +4,6 @@ module "form.contrato.dk"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
-    #include "webcl.dkh"
     #include "uielements.dkl"
     #include "../_lib/icons.dk"
     #include "../config.dk"
@@ -20,23 +19,7 @@ module "form.contrato.dk"
     ref listTipoContrato = ifnull(@("&./list_tipo_contrato"),list.create())
     ref listStatus = ifnull(@("&./list_status"),list.create())
     ref listBancos = ifnull(@("&./list_bancos"),list.create())
-    ref listTipoJornada = list.create()
-
-    // do rise_error(0,to.json(@http_context))
-
-    codeblock
-    {
-        protocol = @("$http/request/headers/REQUEST_SCHEME")
-        host_name = @("$http/request/headers/HTTP_HOST")
-        url_tipojornada = protocol + "://" + path.concat(host_name,@SAT_TIPO_JORNADA)
-        
-        new header { @"Content-Type": "application/json; charset=utf-8;" }
-        ref listTipoJornada = from.json(http.request(url_tipojornada,"GET",header,"{}"))
-
-        exception{/*ignore*/}
-    }
-    
-    // do rise_error(0,to.json(@("&.")))
+    ref listTipoJornada = if(file.exists(@SAT_TIPO_JORNADA),from.json(file.rtext(@SAT_TIPO_JORNADA)),list.create())
 
     new sel_tipo_contrato
     {
@@ -129,7 +112,7 @@ module "form.contrato.dk"
             {
                 input(type="hidden" name="sys_pk" value="#<@@(dtcontrato,'#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(dtcontrato,'#sys_recver')>")
-                input(type="hidden" name="shortcut" value="F6")
+                input(type="hidden" name="shortcut" value="F8")
 
                 div(class="overflow-auto"){ span(class="text-danger" id="err-msg"){$"#<@('$error/message')>"} }
 
