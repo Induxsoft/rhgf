@@ -18,8 +18,26 @@ module ""
     }
     save::&db,&params,&data
     {
-        if trim(@@(data,"$tol_entrada"))==""{data<"tol_entrada">:0}
-        if trim(@@(data,"$tol_salida"))==""{data<"tol_salida">:0}
+        if trim(@@(data,"$lunes_tol_entrada"))==""{data<"lunes_tol_entrada">:0}
+        if trim(@@(data,"$lunes_tol_salida"))==""{data<"lunes_tol_salida">:0}
+
+        if trim(@@(data,"$martes_tol_entrada"))==""{data<"martes_tol_entrada">:0}
+        if trim(@@(data,"$martes_tol_salida"))==""{data<"martes_tol_salida">:0}
+
+        if trim(@@(data,"$miercoles_tol_entrada"))==""{data<"miercoles_tol_entrada">:0}
+        if trim(@@(data,"$miercoles_tol_salida"))==""{data<"miercoles_tol_salida">:0}
+
+        if trim(@@(data,"$jueves_tol_entrada"))==""{data<"jueves_tol_entrada">:0}
+        if trim(@@(data,"$jueves_tol_salida"))==""{data<"jueves_tol_salida">:0}
+
+        if trim(@@(data,"$viernes_tol_entrada"))==""{data<"viernes_tol_entrada">:0}
+        if trim(@@(data,"$viernes_tol_salida"))==""{data<"viernes_tol_salida">:0}
+
+        if trim(@@(data,"$sabado_tol_entrada"))==""{data<"sabado_tol_entrada">:0}
+        if trim(@@(data,"$sabado_tol_salida"))==""{data<"sabado_tol_salida">:0}
+
+        if trim(@@(data,"$domingo_tol_entrada"))==""{data<"domingo_tol_entrada">:0}
+        if trim(@@(data,"$domingo_tol_salida"))==""{data<"domingo_tol_salida">:0}
 
         if parse.bool(@@(data,"lunes")){data<"lunes">:1}
         else{data<"lunes">:0}
@@ -36,8 +54,26 @@ module ""
         if parse.bool(@@(data,"domingo")){data<"domingo">:1}
         else{data<"domingo">:0}
 
-        if parse.bool(@@(data,"dia_siguiente")){data<"dia_siguiente">:1}
-        else{data<"dia_siguiente">:0}
+        if parse.bool(@@(data,"lunes_dia_siguiente")){data<"lunes_dia_siguiente">:1}
+        else{data<"lunes_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"martes_dia_siguiente")){data<"martes_dia_siguiente">:1}
+        else{data<"martes_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"miercoles_dia_siguiente")){data<"miercoles_dia_siguiente">:1}
+        else{data<"miercoles_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"jueves_dia_siguiente")){data<"jueves_dia_siguiente">:1}
+        else{data<"jueves_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"viernes_dia_siguiente")){data<"viernes_dia_siguiente">:1}
+        else{data<"viernes_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"sabado_dia_siguiente")){data<"sabado_dia_siguiente">:1}
+        else{data<"sabado_dia_siguiente">:0}
+
+         if parse.bool(@@(data,"domingo_dia_siguiente")){data<"domingo_dia_siguiente">:1}
+        else{data<"domingo_dia_siguiente">:0}
 
         if parse.bool(@@(data,"c_h_extra")){data<"c_h_extra">:1}
         else{data<"c_h_extra">:0}

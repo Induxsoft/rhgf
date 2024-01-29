@@ -93,32 +93,28 @@ module "form.dk"
                 }
                 #!
                 hora_current=date_str(now(),"HH:mm")
-                hora_entrada=ifstr(@("$./entrada")!="",@("$./entrada"),hora_current)
-                hora_salida=ifstr(@("$./salida")!="",@("$./salida"),hora_current)
+                lhora_entrada=ifstr(@("$./lunes_entrada")!="",@("$./lunes_entrada"),hora_current)
+                lhora_salida=ifstr(@("$./lunes_salida")!="",@("$./lunes_salida"),hora_current)
+
+                mhora_entrada=ifstr(@("$./martes_entrada")!="",@("$./martes_entrada"),hora_current)
+                mhora_salida=ifstr(@("$./martes_salida")!="",@("$./martes_salida"),hora_current)
+
+                mihora_entrada=ifstr(@("$./miercoles_entrada")!="",@("$./miercoles_entrada"),hora_current)
+                mihora_salida=ifstr(@("$./miercoles_salida")!="",@("$./miercoles_salida"),hora_current)
+
+                jhora_entrada=ifstr(@("$./jueves_entrada")!="",@("$./jueves_entrada"),hora_current)
+                jhora_salida=ifstr(@("$./jueves_salida")!="",@("$./jueves_salida"),hora_current)
+
+                vhora_entrada=ifstr(@("$./viernes_entrada")!="",@("$./viernes_entrada"),hora_current)
+                vhora_salida=ifstr(@("$./viernes_salida")!="",@("$./viernes_salida"),hora_current)
+
+                shora_entrada=ifstr(@("$./sabado_entrada")!="",@("$./sabado_entrada"),hora_current)
+                shora_salida=ifstr(@("$./sabado_salida")!="",@("$./sabado_salida"),hora_current)
+
+                dhora_entrada=ifstr(@("$./domingo_entrada")!="",@("$./domingo_entrada"),hora_current)
+                dhora_salida=ifstr(@("$./domingo_salida")!="",@("$./domingo_salida"),hora_current)
                 #$
-                div(class="row")
-                {
-                    div(class="col-md-3")
-                    {
-                        small(class="fw-bold"){"Hora de entrada:"}
-                        input(type="time" class="induxsoft-form-control" name="entrada" min="" max="" required="true" value="#<hora_entrada>")
-                    }
-                    div(class="col-md-3")
-                    {
-                        label{"Minutos de tolerancia:"}
-                        input(type="Number" class="induxsoft-form-control" name="tol_entrada" value="#<@('$./tol_entrada')>")
-                    }
-                    div(class="col-md-3")
-                    {
-                        small(class="fw-bold"){"Hora de salida:"}
-                        input(type="time" class="induxsoft-form-control" name="salida" required="true" value="#<hora_salida>")
-                    }
-                    div(class="col-md-3")
-                    {
-                        label{"Minutos de tolerancia salida:"}
-                        input(type="Number" class="induxsoft-form-control" name="tol_salida" value="#<@('$./tol_salida')>")
-                    }
-                }
+                
                 div(class="row")
                 {
                     div(class="col-md-6")
@@ -135,32 +131,12 @@ module "form.dk"
                             #$
                         }
                     }
-                    div(class="col-md-2 d-flex align-items-center")
-                    {$""
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="dia_siguiente" "#<ifstr(@('#./dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
-                        
-                    }
+                    
                     div(class="col-md-3 d-flex align-items-center")
                     {
                         div(class="w-100"){label(class=""){input(type="checkbox" name="c_h_extra" "#<ifstr(@('#./c_h_extra'),'checked','')>"="true")" Contar horas completas"}}
                     }
-                }
-                
-                hr(style=""){""}
-                h5{"Días de trabajo"}
-                div(class="row")
-                {
-                    div(class="col-md-6")
-                    {
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="lunes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Lunes"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="martes" "#<ifstr(@('#./martes'),'checked','')>"="true")" Martes"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="miercoles" "#<ifstr(@('#./miercoles'),'checked','')>"="true")" Miercoles"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="jueves" "#<ifstr(@('#./jueves'),'checked','')>"="true")" Jueves"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="viernes" "#<ifstr(@('#./viernes'),'checked','')>"="true")" Viernes"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="sabado" "#<ifstr(@('#./sabado'),'checked','')>"="true")" Sabado"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="domingo" "#<ifstr(@('#./domingo'),'checked','')>"="true")" Domingo"}}
-                    }
-                    div(class="col-md-6")
+                    div(class="col-md-1")
                     {$""
                         #!
                         if @@(data, '#sys_pk')>0
@@ -169,6 +145,223 @@ module "form.dk"
                             {
                                 span(class="flex-grow-1"){""}
                                 a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@RH_CTR_ASIST_DESCANSO+'?rh_tur='+@('$./sys_pk')>"){"Descansos"}
+                            }
+                        }
+                    }
+                }
+                
+                hr(style=""){""}
+                h5{"Días de trabajo"}
+                div(class="row mb-2")
+                {
+                    div(class="col-md-12")
+                    {
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="lunes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Lunes"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="lunes_entrada" min="" max="" required="true" value="#<lhora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="lunes_tol_entrada" value="#<@('$./lunes_tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="lunes_salida" required="true" value="#<lhora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="lunes_tol_salida" value="#<@('$./lunes_tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="lunes_dia_siguiente" "#<ifstr(@('#./lunes_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="martes" "#<ifstr(@('#./martes'),'checked','')>"="true")" Martes"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="martes_entrada" min="" max="" required="true" value="#<mhora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="martes_tol_entrada" value="#<@('$./martes_tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="martes_salida" required="true" value="#<mhora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="martes_tol_salida" value="#<@('$./martes_tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="martes_dia_siguiente" "#<ifstr(@('#./martes_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="miercoles" "#<ifstr(@('#./miercoles'),'checked','')>"="true")" Miercoles"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="miercoles_entrada" min="" max="" required="true" value="#<mihora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_entrada" value="#<@('$./tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="miercoles_salida" required="true" value="#<mihora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_salida" value="#<@('$./tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="miercoles_dia_siguiente" "#<ifstr(@('#./dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="jueves" "#<ifstr(@('#./jueves'),'checked','')>"="true")" Jueves"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="jueves_entrada" min="" max="" required="true" value="#<jhora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="jueves_tol_entrada" value="#<@('$./jueves_tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="jueves_salida" required="true" value="#<jhora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="jueves_tol_salida" value="#<@('$./jueves_tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="jueves_dia_siguiente" "#<ifstr(@('#./jueves_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="viernes" "#<ifstr(@('#./viernes'),'checked','')>"="true")" Viernes"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="viernes_entrada" min="" max="" required="true" value="#<vhora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_entrada" value="#<@('$./tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="viernes_salida" required="true" value="#<vhora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_salida" value="#<@('$./tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="viernes_dia_siguiente" "#<ifstr(@('#./viernes_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="sabado" "#<ifstr(@('#./sabado'),'checked','')>"="true")" Sabado"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="sabado_entrada" min="" max="" required="true" value="#<shora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="sabado_tol_entrada" value="#<@('#./tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="sabado_salida" required="true" value="#<shora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="sabado_tol_salida" value="#<@('#./sabado_tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="sabado_dia_siguiente" "#<ifstr(@('#./sabado_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
+                            }
+                        }
+                        hr{}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="domingo" "#<ifstr(@('#./domingo'),'checked','')>"="true")" Domingo"}}
+                        div(class="row")
+                        {
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de entrada:"}
+                                input(type="time" class="induxsoft-form-control" name="domingo_entrada" min="" max="" required="true" value="#<dhora_entrada>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Minutos de tolerancia:"}
+                                input(type="Number" class="induxsoft-form-control" name="domingo_tol_entrada" value="#<@('#./domingo_tol_entrada')>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                small(class="fw-bold"){"Hora de salida:"}
+                                input(type="time" class="induxsoft-form-control" name="domingo_salida" required="true" value="#<dhora_salida>")
+                            }
+                            div(class="col-md-2")
+                            {
+                                label{"Min. tolerancia salida:"}
+                                input(type="Number" class="induxsoft-form-control" name="domingo_tol_salida" value="#<@('#./domingo_tol_salida')>")
+                            }
+                            div(class="col-md-2 d-flex align-items-center")
+                            {$""
+                                div(class="w-100"){label(class=""){input(type="checkbox" name="domingo_dia_siguiente" "#<ifstr(@('#./domingo_dia_siguiente'),'checked','')>"="true")" Día siguiente"}}
+                                
                             }
                         }
                     }

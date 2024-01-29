@@ -427,10 +427,9 @@ model "rhgf"
         @"codigo" string(15) unique
         @"descripcion" string(50)
         @"zona_h" int
-        @"entrada" time required
-        @"tol_entrada" int // Minutos
-        @"salida" time required
-        @"tol_salida" int // Minutos
+        
+        @"c_h_extra" bool //Si es true, se cuentan las horas completas despuéés de la tolerancia de la salida
+
         @"lunes" bool
         @"martes" bool
         @"miercoles" bool
@@ -438,8 +437,48 @@ model "rhgf"
         @"viernes" bool
         @"sabado" bool
         @"domingo" bool
-        @"dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
-        @"c_h_extra" bool //Si es true, se cuentan las horas completas despuéés de la tolerancia de la salida
+
+        @"lunes_entrada" time 
+        @"lunes_tol_entrada" int // Minutos
+        @"lunes_salida" time 
+        @"lunes_tol_salida" int // Minutos
+        @"lunes_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"martes_entrada" time 
+        @"martes_tol_entrada" int // Minutos
+        @"martes_salida" time 
+        @"martes_tol_salida" int // Minutos
+        @"martes_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"miercoles_entrada" time 
+        @"miercoles_tol_entrada" int // Minutos
+        @"miercoles_salida" time 
+        @"miercoles_tol_salida" int // Minutos
+        @"miercoles_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"jueves_entrada" time 
+        @"jueves_tol_entrada" int // Minutos
+        @"jueves_salida" time 
+        @"jueves_tol_salida" int // Minutos
+        @"jueves_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"viernes_entrada" time 
+        @"viernes_tol_entrada" int // Minutos
+        @"viernes_salida" time 
+        @"viernes_tol_salida" int // Minutos
+        @"viernes_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"sabado_entrada" time 
+        @"sabado_tol_entrada" int // Minutos
+        @"sabado_salida" time 
+        @"sabado_tol_salida" int // Minutos
+        @"sabado_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
+
+        @"domingo_entrada" time 
+        @"domingo_tol_entrada" int // Minutos
+        @"domingo_salida" time 
+        @"domingo_tol_salida" int // Minutos
+        @"domingo_dia_siguiente" bool //0 termina en el mismo dia, 1 termina al otro dia
     }
     entity "rh_asistencia":"TableModel"
     {
