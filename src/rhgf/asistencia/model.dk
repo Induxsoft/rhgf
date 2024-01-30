@@ -5,8 +5,8 @@ module ""
     @table_name="rh_asistencia"
     like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
-    date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%H:%i:%s')hentrada,
-    date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%H:%i:%s')hsalida,
+    date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%h:%i:%s')hentrada,
+    date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%h:%i:%s')hsalida,
     if(ifnull(t.inasistencia,0),true,false)finasistencia,
     rt.descripcion turno,
      if(TIME(t.entrada)<time(rt.entrada),true,false)et,
@@ -114,21 +114,26 @@ module ""
     {
         ref ldias=list.create()
         // do rise_error(0,@@(data,"$dia")+" - "+@@(data,"$diasp"))
-        for i = @@(data,"#dia"); i < @@(data,"#diasp")
+        fapertura=@@(data,"$fapertura")
+        day=@@(data,"#dia")
+        for i = 0; i < (@@(data,"#diasp")+1)
         {
+            if day>7{day=1}
             new p
             {
-                @"date":@@(data,"$fapertura")
+                @"date":fapertura
                 @"i":i
             }
             new ndata
             {
                 @"caption_entrada":"Entrada"
                 @"caption_salida":"Salida"
-                @"fecha":dbr.str(db,"select date_add(@date,interval @i day)",p)
-                @"fdia":cut(getDay(i),1)
+                @"fecha":ifstr(i==0,fapertura,dbr.str(db,"select date_add(@date,interval 1 day)",p))
+                @"fdia":cut(getDay(day),1)
             }
             do list.add(ldias,ndata)
+            fapertura=@@(ndata,"$fecha")
+            day=day + 1
         }
         data<"dias*">:ldias
         return data
@@ -170,7 +175,7 @@ module ""
         d= diasp - @count(ldata)
         if d<1{return}
 
-        for i = ndia; i < d
+        for i = 0; i < (d+1)
         {
             do list.add(ldata,genRecordDias(@null))
         }
@@ -213,7 +218,8 @@ module ""
     {
         ref entity= entity.list(db,params)
         ref data= getArrayTable(entity)
-        ref dataperiodo= dbr.rec(db,"select *,DAYOFWEEK(apertura)dia,DATEDIFF(cierre,apertura)diasp,date_format(apertura,'%Y-%m-%d')fapertura
+        ref dataperiodo= dbr.rec(db,"select *,DAYOFWEEK(apertura)dia,DATEDIFF(cierre,apertura)diasp,
+        date_format(apertura,'%Y-%m-%d')fapertura,date_format(cierre,'%Y-%m-%d')fcierre
                     from rh_periodo_asistencia where sys_pk=@per_as",params)
         data<"datos*">: genRecordPeriodo(db,dataperiodo)
 

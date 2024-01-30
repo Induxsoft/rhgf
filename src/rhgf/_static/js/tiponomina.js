@@ -76,13 +76,13 @@ var tn=
     },
     validate()
     {
-        if(Number(tn.final1.value)>=Number(tn.final2.value))
+        if(Number(tn.final1.value)>Number(tn.final2.value))
         {
             alert("El primer período no puede ser mayor al segundo");
             return false;
         }
-        // if( Number(tn.final1.value)>Number(tn.final3.value))
-        if(Number(tn.final2.value)>=Number(tn.final3.value))
+
+        if(Number(tn.final2.value)>Number(tn.final3.value))
         {
             alert("El segundo período no puede ser mayor al tercer período");
             return false;

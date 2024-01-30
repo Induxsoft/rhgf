@@ -3,7 +3,7 @@
 module ""
 {
     @table_name="rh_turno"
-    like=" and if(ifnull(@s,'')='',true,concat_ws('',c.codigo,c.descripcion,t.codigo,t.descripcion,t.entrada,t.salida,t.tol_entrada,t.tol_salida,t.zona_h) like concat('%',@s,'%')  )"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',c.codigo,c.descripcion,t.codigo,t.descripcion,t.zona_h) like concat('%',@s,'%')  )"
     @list_query="select t.*,c.descripcion calendario,u.descripcion unidad from #<@table_name> t 
     inner join rh_calendario c on t.ref_calendario=c.sys_pk
     inner join rh_unidad_org u on t.ref_unidad_org=u.sys_pk

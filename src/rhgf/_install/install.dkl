@@ -38,6 +38,12 @@ program "instalador"
         "rh_edo_civil.csv",
         "rh_nvl_escolaridad.csv",
         "ut_sat_banco.csv",
+        "cb_tipo_asiento_contable.csv",
+        "rh_sat_elemento.csv",
+        "rh_status_contrato.csv",
+        "rh_status_nomina.csv",
+        "rh_tipo_concepto.csv",
+        "rh_tipo_vivienda.csv"
     ]')
 	// Lista de permisos iniciales
     ref permissions_to_import = from.json('[]')

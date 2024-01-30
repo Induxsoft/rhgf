@@ -92,7 +92,7 @@ module "form.dk"
                     div(class="col-sm-3")
                     {
                         #!
-                        entrada=ifstr(@("$./fentrada")!="",@("$./fentrada"),date_str(now(),"yyyy-MM-dd HH:mm:ss"))
+                        entrada=ifstr(@("$./fentrada")!="",@("$./fentrada"),date_str(now(),"yyyy-MM-dd HH:mm"))
                         #$
                         label{"Entrada:"}
                         input(type="datetime-local" name="entrada" id="entrada" class="induxsoft-form-control" value="#<entrada>")
@@ -100,7 +100,7 @@ module "form.dk"
                     div(class="col-sm-3")
                     {
                         #!
-                        salida=ifstr(@("$./fsalida")!="",@("$./fsalida"),date_str(now(),"yyyy-MM-dd HH:mm:ss"))
+                        salida=ifstr(@("$./fsalida")!="",@("$./fsalida"),date_str(now(),"yyyy-MM-dd HH:mm"))
                         #$
                         label{"Salida:"}
                         input(type="datetime-local" name="salida" class="induxsoft-form-control" value="#<salida>")
@@ -117,11 +117,13 @@ module "form.dk"
                         }
                     }
                 }
-
+                label{"Notas:"}
+                textarea(class="induxsoft-form-control" name="notas"){"#<@('$./notas')>"}
                 div(class="mt-4")
                 {
                     div(style="width: max-content;")
                     {
+                        label(class="d-flex"){input(type="checkbox" name="retardo" "#<ifstr(@('#./retardo'),'checked','')>"="true")" Retardo"}
                         label(class="d-flex"){input(type="checkbox" name="temprano_receso" "#<ifstr(@('#./temprano_receso'),'checked','')>"="true")" Temprano receso"}
                         label(class="d-flex"){input(type="checkbox" name="tarde_receso" "#<ifstr(@('#./tarde_receso'),'checked','')>"="true")" Tarde receso"}
                     }

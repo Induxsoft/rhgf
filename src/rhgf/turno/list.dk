@@ -65,10 +65,6 @@ module "list"
                                     th(class="h6"){"Unidad org."}
                                     th(class="h6"){"Código"}
                                     th(class="h6"){$"Descripción"}
-                                    th(class="h6"){$"Entrada"}
-                                    th(class="h6"){$"Tol. entrada"}
-                                    th(class="h6"){$"Salida"}
-                                    th(class="h6"){$"Tol. salida"}
                                     th(class="h6"){$"Zona horaria"}
                                     th(class="h6"){$""}
                                 }
@@ -86,10 +82,6 @@ module "list"
                                         td{"#<@@(dt,'$unidad')>"}
                                         td{"#<@@(dt,'$codigo')>"}
                                         td{$"#<@@(dt,'$descripcion')>"}
-                                        td{$"#<@@(dt,'$entrada')>"}
-                                        td{$"#<@@(dt,'$tol_entrada')>"}
-                                        td{$"#<@@(dt,'$salida')>"}
-                                        td{$"#<@@(dt,'$tol_salida')>"}
                                         td{$"#<getZona_h(@@(dt,'$zona_h'))>"}
                                         td(class="no-print")
                                         {

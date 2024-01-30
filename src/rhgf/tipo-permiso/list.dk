@@ -65,7 +65,7 @@ module "list"
                                     th(class="h6"){$"Descripción"}
                                     th(class="h6"){$"Entrada tarde"}
                                     th(class="h6"){$"Salida temprano"}
-                                    th(class="h6"){$"Todo el dia"}
+                                    th(class="h6"){$"Todo el día"}
                                     th(class="h6"){$"Pagado"}
                                     th(class="h6"){$""}
                                 }

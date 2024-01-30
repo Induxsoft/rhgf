@@ -85,7 +85,7 @@ module "form.dk"
                     {
                         div(class="w-100"){label(class=""){input(type="checkbox" name="ent_tarde" id="ent_tarde" "#<ifstr(@('#./ent_tarde'),'checked','')>"="true")" Entrada tarde"}}
                         div(class="w-100"){label(class=""){input(type="checkbox" name="sal_temp" id="sal_temp" "#<ifstr(@('#./sal_temp'),'checked','')>"="true")" Salida temprano"}}
-                        div(class="w-100"){label(class=""){input(type="checkbox" name="todo_dia" id="todo_dia" "#<ifstr(@('#./todo_dia'),'checked','')>"="true")" Todo el dia"}}
+                        div(class="w-100"){label(class=""){input(type="checkbox" name="todo_dia" id="todo_dia" "#<ifstr(@('#./todo_dia'),'checked','')>"="true")" Todo el día"}}
                     }
                 }
                 

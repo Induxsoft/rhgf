@@ -117,7 +117,7 @@ module "form.dk"
                         #!
                         dia=ifstr(@@(data, '$fdia')!="",@@(data, '$fdia'),date_str(now(),"yyyy-MM-dd"))
                         #$
-                        small(class=""){$"Dia:"}
+                        small(class=""){$"Día:"}
                         input(type="date" class="induxsoft-form-control mb-2" name="dia" value="#<dia>" required="true")
                     }
                     div(class="col-sm-4")

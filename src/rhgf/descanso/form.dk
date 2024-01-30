@@ -50,12 +50,12 @@ module "form.dk"
                 {
                     div(class="col-sm-4")
                     {
-                        small(class=""){$"Hora mínima:"}
+                        small(class=""){$"Horas mínima:"}
                         input(type="Number" class="induxsoft-form-control mb-2" name="min_horas" value="#<@@(data, '$min_horas')>")
                     }
                     div(class="col-sm-4")
                     {
-                        small(class=""){$"Minutos máximo:"}
+                        small(class=""){$"Máximos de minutos :"}
                         input(type="text" class="induxsoft-form-control mb-2" name="max_minutos" value="#<@@(data, '$max_minutos')>")
                     }
                     div(class="col-sm-4")
@@ -66,6 +66,14 @@ module "form.dk"
                 }
                 small{$"Nota:"}
                 textarea(name="text" class="induxsoft-form-control mb-2" ){"#<@@(data, '$text')>"}
+                h5{"Días"}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="lunes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Lunes"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="martes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" martes"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="miercoles" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Miercoles"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="jueves" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Jueves"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="viernes" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Viernes"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="sabado" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Sabado"}}
+                div(class="w-100"){label(class=""){input(type="checkbox" name="domingo" "#<ifstr(@('#./lunes'),'checked','')>"="true")" Domingo"}}
                
             }
         }

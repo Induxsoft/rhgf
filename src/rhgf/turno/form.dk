@@ -76,7 +76,7 @@ module "form.dk"
                     div(class="col-sm-2")
                     {
                         small(class=""){$"Zona horaria:"}
-                        select(class="induxsoft-form-select" name="zona_h")
+                        select(class="induxsoft-form-select" name="zona_h" id="zona_h")
                         {$""
                             #!
                             ref lzona=list.create_from_fields(@zone_h)
@@ -226,7 +226,7 @@ module "form.dk"
                             div(class="col-md-2")
                             {
                                 label{"Minutos de tolerancia:"}
-                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_entrada" value="#<@('$./tol_entrada')>")
+                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_entrada" value="#<@('$./miercoles_tol_entrada')>")
                             }
                             div(class="col-md-2")
                             {
@@ -236,7 +236,7 @@ module "form.dk"
                             div(class="col-md-2")
                             {
                                 label{"Min. tolerancia salida:"}
-                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_salida" value="#<@('$./tol_salida')>")
+                                input(type="Number" class="induxsoft-form-control" name="miercoles_tol_salida" value="#<@('$./miercoles_tol_salida')>")
                             }
                             div(class="col-md-2 d-flex align-items-center")
                             {$""
@@ -286,7 +286,7 @@ module "form.dk"
                             div(class="col-md-2")
                             {
                                 label{"Minutos de tolerancia:"}
-                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_entrada" value="#<@('$./tol_entrada')>")
+                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_entrada" value="#<@('$./viernes_tol_entrada')>")
                             }
                             div(class="col-md-2")
                             {
@@ -296,7 +296,7 @@ module "form.dk"
                             div(class="col-md-2")
                             {
                                 label{"Min. tolerancia salida:"}
-                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_salida" value="#<@('$./tol_salida')>")
+                                input(type="Number" class="induxsoft-form-control" name="viernes_tol_salida" value="#<@('$./viernes_salida')>")
                             }
                             div(class="col-md-2 d-flex align-items-center")
                             {$""
@@ -366,7 +366,25 @@ module "form.dk"
                         }
                     }
                 }
-                
+                script
+                {
+                    $'
+                        document.addEventListener("DOMContentLoaded",()=>
+                        {
+                            if(#<isNew>)
+                            {
+                                var zona_h=document.getElementById("zona_h");
+                                try
+                                {
+                                    var utc=(new Date()).getTimezoneOffset()/60*-1;
+                                    if(zona_h)zona_h.value=utc;
+                                }catch{if(zona_h)zona_h.value=#<@zona_h_default>;}
+                                
+                            }
+                        
+                        });
+                    '
+                }
             }
         }
     }
