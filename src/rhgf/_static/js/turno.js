@@ -41,5 +41,14 @@ var turno=
         crud.trigger(turno.viernes,"change");
         crud.trigger(turno.sabado,"change");
         crud.trigger(turno.domingo,"change");
+    },
+    extraCancelar(url,sys_recver)
+    {
+        var data=
+        {
+            cancelado:1,
+            sys_recver:sys_recver
+        }
+        crud.services(url,data,"PUT");
     }
 }

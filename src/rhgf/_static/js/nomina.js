@@ -492,6 +492,15 @@ var crud=
     {
         var e=new Event(event);
        if(element)element.dispatchEvent(e);
+    },
+    Cancelar(url,sys_recver)
+    {
+        var data=
+        {
+            cancelado:1,
+            sys_recver:sys_recver
+        }
+        crud.services(url,data,"PUT");
     }
 }
 var variable=

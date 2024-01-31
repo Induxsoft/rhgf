@@ -15,11 +15,31 @@ var pa=
 
         if(pa.ref_rh_tipo_nomina)pa.ref_rh_tipo_nomina.addEventListener("change",(e)=>
         {
-            var data=pa.ref_rh_tipo_nomina.getValue();
-            if(!data)return;
-
-            if(data.finicio && pa.apertura)pa.apertura.value=data.finicio;
-            
+            InduxsoftCrudlModel.InvokeService("./?periodo="+pa.ref_rh_tipo_nomina?.value??0,null,
+                function(data)
+                {
+                    var periodo=data?.periodo_anterior??null;
+                    var pdata=true;
+                    if(periodo==null)
+                    {
+                        var option=pa.ref_rh_tipo_nomina.options[pa.ref_rh_tipo_nomina.selectedIndex];
+                        if(option)periodo=JSON.parse(option.getAttribute("data"));
+                        pdata=false;
+                    }
+                    if(periodo==null)return;
+                    
+                    if(pdata)
+                    {
+                        
+                    }
+                    console.log(periodo)
+                },
+                function(error)
+                {
+                    alert(error.message ?? error);
+                },"GET",false);
         });
+
+        crud.trigger(pa.ref_rh_tipo_nomina,"change");
     }
 }

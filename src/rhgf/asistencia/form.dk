@@ -122,10 +122,19 @@ module "form.dk"
                 div(class="mt-4")
                 {
                     div(style="width: max-content;")
-                    {
-                        label(class="d-flex"){input(type="checkbox" name="retardo" "#<ifstr(@('#./retardo'),'checked','')>"="true")" Retardo"}
-                        label(class="d-flex"){input(type="checkbox" name="temprano_receso" "#<ifstr(@('#./temprano_receso'),'checked','')>"="true")" Temprano receso"}
-                        label(class="d-flex"){input(type="checkbox" name="tarde_receso" "#<ifstr(@('#./tarde_receso'),'checked','')>"="true")" Tarde receso"}
+                    {$""
+                        #!
+                        for i = 0; i < @count(@("&./tipo_incidencias"))
+                        {
+                            ref tp=@item(@("&./tipo_incidencias"),i)
+                            checked=isanyword(@@(tp,'$sys_pk'),@("$./ti_asitencia"))
+                            #$
+                             label(class="d-flex"){input(type="checkbox" class="me-2" name="ti_#<@@(tp,'$sys_pk')>" "#<ifstr(checked,'checked','')>"="true")" #<@@(tp,'$codigo')+' - '+@@(tp,'$descripcion')>"}
+                        }
+                        #$
+                        // label(class="d-flex"){input(type="checkbox" name="retardo" "#<ifstr(@('#./retardo'),'checked','')>"="true")" Retardo"}
+                        // label(class="d-flex"){input(type="checkbox" name="temprano_receso" "#<ifstr(@('#./temprano_receso'),'checked','')>"="true")" Temprano receso"}
+                        // label(class="d-flex"){input(type="checkbox" name="tarde_receso" "#<ifstr(@('#./tarde_receso'),'checked','')>"="true")" Tarde receso"}
                     }
                     
                 }

@@ -322,7 +322,7 @@ model "rhgf"
         @"viernes" bool
         @"sabado" bool
         @"domingo" bool
-        
+
         index "rh_descanso_idx1" unique
         {
             field "ref_turno"
@@ -379,7 +379,24 @@ model "rhgf"
         @"final2" int 
         @"final3" int 
     }
+    entity "rh_tipo_incidencia" : "TableModel"
+    {
+        @"codigo" string(15) unique required
+        @"descripcion" string(50) required
+    }
 
+    entity "rh_asistencia_incidencia" : "TableModel"
+    {
+        @"ref_asistencia" ref : "rh_asistencia" required
+        @"ref_tipo_incidencia" ref : "rh_tipo_incidencia" required
+        @"marcada" bool
+        
+        index "rh_asistencia_incidencia_idx1" unique
+        {
+            field "ref_asistencia"
+            field "ref_tipo_incidencia"
+        }
+    }
     entity "rh_turno_extra":"TableModel"
     {
         @"ref_contrato" ref:"rh_contrato_empleado" required
@@ -496,9 +513,9 @@ model "rhgf"
         @"entrada" datetime
         @"salida" datetime
         @"inasistencia" bool
-        @"temprano_receso" bool
-        @"tarde_receso" bool
-        @"retardo" bool
+        // @"temprano_receso" bool
+        // @"tarde_receso" bool
+        // @"retardo" bool
         @"notas" memo
         @"justificacion" ref: "rh_justificacion"
     }

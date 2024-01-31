@@ -17,6 +17,7 @@ module "form.dk"
     #$
     div(class="container")
     {   
+        script(src="#<@JS_TURNO>"){""}
         form(method="POST" action="#<action>" id="form")
         {
             div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
@@ -27,10 +28,23 @@ module "form.dk"
                 }
                 div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
                 {
-                    a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
-                    button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
-                        $'#<@@(@icons,"save2")>'
+                    #!
+                    if not(@("#./cancelado")) && not(isNew)
+                    {
+                        #$
+                        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" type="button" onclick="turno.extraCancelar('.',#<@('#./sys_recver')>)"){"Cancelar"}
                     }
+                    #$
+                    a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
+                    #!
+                    if not(@("#./cancelado"))
+                    {
+                        #$
+                        button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
+                            $'#<@@(@icons,"save2")>'
+                        }
+                    }
+                    
                     a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@TURNO_EXTRA>") {
                         svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16") {
                             path(d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z")
@@ -105,6 +119,13 @@ module "form.dk"
                 label{"Notas:"}
                 textarea(class="induxsoft-form-control" name="notas"){"#<@('$./notas')>"}
             }
+        }
+        script
+        {
+            $'
+            var form=document.querySelectorAll("input,textarea,input-key");
+            if(#<@("#./cancelado")>){tools.$__enableFields(form,false);}
+            '
         }
     }
 }

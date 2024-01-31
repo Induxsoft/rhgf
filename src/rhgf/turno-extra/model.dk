@@ -47,8 +47,9 @@ module ""
 
         exception
         {
+            error=last_error()
             do prepareView(db,params,data)
-            do rise_error(500,last_error())
+            do rise_error(500,error)
         }
     }
 

@@ -43,7 +43,7 @@ var tn=
                 case 7:
                     if(tn.div_1) tn.div_1.style.cssText="display:block";
                     if(tn.final1)tn.final1.innerHTML=tn.semanas;
-                    if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el dia:";
+                    if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el día:";
                     break; //semanal
                 case 10:
                     if(tn.div_1) tn.div_1.style.cssText="display:block";
@@ -53,7 +53,7 @@ var tn=
                 case 14://catorcenal
                     if(tn.div_1) tn.div_1.style.cssText="display:block";
                     if(tn.final1)tn.final1.innerHTML=tn.semanas;
-                    if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el dia:";
+                    if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el día:";
                     break;
                 case 15:
                     if(tn.div_1) tn.div_1.style.cssText="display:block";

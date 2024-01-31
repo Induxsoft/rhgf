@@ -3,18 +3,38 @@
 module ""
 {
     @table_name="rh_asistencia"
-    //  if(TIME(t.entrada)<time(rt.entrada),true,false)et,
-    // if(TIME(t.salida)<time(rt.salida),true,false)sa,
-    // if((hour(t.salida)- hour(rt.salida))>0,(hour(t.salida)- hour(rt.salida)),0) he,
+    condicion_extra="if(TIME(t.entrada)<time(rt.lunes_entrada),true,false)et_l,
+    if(TIME(t.entrada)<time(rt.martes_entrada),true,false)et_m,
+    if(TIME(t.entrada)<time(rt.miercoles_entrada),true,false)et_mi,
+    if(TIME(t.entrada)<time(rt.jueves_entrada),true,false)et_j,
+    if(TIME(t.entrada)<time(rt.viernes_entrada),true,false)et_v,
+    if(TIME(t.entrada)<time(rt.sabado_entrada),true,false)et_s,
+    if(TIME(t.entrada)<time(rt.domingo_entrada),true,false)et_d,
+
+    if(TIME(t.salida)<time(rt.lunes_salida),true,false)sa_l,
+    if(TIME(t.salida)<time(rt.martes_salida),true,false)sa_m,
+    if(TIME(t.salida)<time(rt.miercoles_salida),true,false)sa_mi,
+    if(TIME(t.salida)<time(rt.jueves_salida),true,false)sa_j,
+    if(TIME(t.salida)<time(rt.viernes_salida),true,false)sa_v,
+    if(TIME(t.salida)<time(rt.sabado_salida),true,false)sa_s,
+    if(TIME(t.salida)<time(rt.domingo_salida),true,false)sa_d,
+
+    if((hour(t.salida)- hour(rt.lunes_salida))>0,(hour(t.salida)- hour(rt.lunes_salida)),0) he_l,
+    if((hour(t.salida)- hour(rt.martes_salida))>0,(hour(t.salida)- hour(rt.martes_salida)),0) he_m,
+    if((hour(t.salida)- hour(rt.miercoles_salida))>0,(hour(t.salida)- hour(rt.miercoles_salida)),0) he_mi,
+    if((hour(t.salida)- hour(rt.jueves_salida))>0,(hour(t.salida)- hour(rt.jueves_salida)),0) he_j,
+    if((hour(t.salida)- hour(rt.viernes_salida))>0,(hour(t.salida)- hour(rt.viernes_salida)),0) he_v,
+    if((hour(t.salida)- hour(rt.sabado_salida))>0,(hour(t.salida)- hour(rt.sabado_salida)),0) he_s,
+    if((hour(t.salida)- hour(rt.domingo_salida))>0,(hour(t.salida)- hour(rt.domingo_salida)),0) he_d
+    "
     like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%h:%i:%s')hentrada,
     date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%h:%i:%s')hsalida,
     if(ifnull(t.inasistencia,0),true,false)finasistencia,
     rt.descripcion turno,
-	 if(ifnull(t.retardo,0),true,false)r,
 	 if(IFNULL(t.inasistencia,0),true,false)f,
-    DAYOFWEEK(pa.apertura)dia,DATEDIFF(pa.cierre,pa.apertura)diasp
+    DAYOFWEEK(pa.apertura)dia,DATEDIFF(pa.cierre,pa.apertura)diasp,"+condicion_extra+"
     FROM #<@table_name> t 
     inner join rh_periodo_asistencia pa on t.ref_rh_periodo_asistencia=pa.sys_pk
     INNER JOIN rh_contrato_empleado c ON t.ref_contrato=c.sys_pk
@@ -31,11 +51,16 @@ module ""
     INNER JOIN rh_empleado_org e ON c.ref_empleado=e.sys_pk
     where ifnull(t.sys_deleted,0)=0 and t.ref_rh_periodo_asistencia=@per_as and t.#<@keyfield>=@_entity_id limit 1"
 
+    @update_fields="sys_pk,sys_recver,ref_rh_periodo_asistencia,ref_turno,ref_contrato,entrada,salida,inasistencia,notas,justificacion"
+    @create_fields=@update_fields
+
     prepareView::&db,&params,&rec
     {
         if isnull(rec){return}
+        
         params<"contrato">:@@(rec,"#ref_contrato")
         params<"turno">:@@(rec,"ref_turno")
+        params<"asistencia">:@@(rec,"#sys_pk")
 
         rec<"contrato*">:dbr.rec(db,"select e.codigo codigo_empleado, t.nombre nom_tipocontrato, p.descripcion desc_puesto, e.apellido1, e.apellido2, e.nombre nombre_empleado, e.curp, e.rfc, e.nss, c.* 
         from rh_contrato_empleado c 
@@ -43,6 +68,10 @@ module ""
         inner join rh_empleado_org e on c.ref_empleado=e.sys_pk 
         inner join rh_tipo_contrato t on c.tipo=t.sys_pk 
         inner join rh_unidad_org u on p.ref_unidad_org=u.sys_pk where c.sys_pk=@contrato",params)
+
+        rec<"tipo_incidencias*">:dbr.list(db,"select *,replace(codigo,' ','')fcod from rh_tipo_incidencia",params)
+        rec<"ti_asitencia">:dbr.str(db,"SELECT GROUP_CONCAT(a.ref_tipo_incidencia) FROM rh_asistencia_incidencia a
+        WHERE a.ref_asistencia=@asistencia",params)
 
         rec<"turno*">:dbr.rec(db,"select t.*,c.descripcion calendario,u.descripcion unidad from rh_turno t 
             inner join rh_calendario c on t.ref_calendario=c.sys_pk
@@ -57,14 +86,15 @@ module ""
             params<"tentrada">:@@(turno,"$entrada")
             params<"tsalida">:@@(turno,"$salida")
         }
-        ref periodo=dbr.rec(db,"select p.*,date_format(p.inicio,'%Y-%m-%d')finicio,date_format(p.fin,'%Y-%m-%d')ffin,t.inicio tinicio from  rh_periodo_asistencia p 
+        ref periodo=dbr.rec(db,"select p.*,date_format(p.apertura,'%Y-%m-%d')finicio,date_format(p.cierre,'%Y-%m-%d')ffin,t.inicio tinicio from  rh_periodo_asistencia p 
                 inner join rh_tipo_nomina t on p.ref_rh_tipo_nomina=t.sys_pk
                 where p.sys_pk=@periodo",params)
 
         params<"pinicio">:@@(periodo,"$finicio")
         params<"pfin">:@@(periodo,"$ffin")
-        
-        rec<"justificaciones*">:dbr.list(db,"SELECT j.sys_pk,t.descripcion,t.codigo,date_format(j.inicio,'%Y-%m-%d')finicio,date_format(j.fin,'%Y-%m-%d')ffin FROM rh_justificacion j
+        // do rise_error(0,to.json(params))
+        rec<"justificaciones*">:dbr.list(db,"SELECT j.sys_pk,t.descripcion,t.codigo,date_format(j.inicio,'%Y-%m-%d')finicio,date_format(j.fin,'%Y-%m-%d')ffin 
+        FROM rh_justificacion j
         INNER JOIN rh_contrato_empleado c ON j.ref_contrato=c.sys_pk
         INNER JOIN rh_tipo_justificacion t ON j.ref_rh_tipo_justificacion=t.sys_pk
         WHERE IFNULL(j.sys_deleted,0)=0 and if(ifnull(@pkcontrato,0)=0,true,c.sys_pk=@pkcontrato)
@@ -74,30 +104,56 @@ module ""
     }
     save::&db,&params,&data
     {
+        params<"per_as">:@@(data,"$ref_rh_periodo_asistencia")
+
         if parse.bool(@@(data,"inasistencia")){data<"inasistencia">:1}
         else{data<"inasistencia">:0}
-
-        if parse.bool(@@(data,"temprano_receso")){data<"temprano_receso">:1}
-        else{data<"temprano_receso">:0}
-        if parse.bool(@@(data,"tarde_receso")){data<"tarde_receso">:1}
-        else{data<"tarde_receso">:0}
-
-        data<"retardo">:if(parse.bool(@@(data,"retardo")),1,0)
         
         if trim(@@(data,"$justificacion")){data<"justificacion*">:@null}
         ref entity=@null
-    
-        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
-        else{ref entity=entity.create(db,params,data)}
 
+        @use_transaction = @false
+        do dbr.begin(db)
+            if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+            else{ref entity=entity.create(db,params,data)}
+
+            pk_asistencia=field.num(entity,"sys_pk",0)
+            params<"asistencia">:pk_asistencia
+            
+            do dbr.execute(db,"delete from rh_asistencia_incidencia where ref_asistencia=@asistencia",params)
+        
+            ref campos = list.create_from_fields(data)
+            for aa = 0; aa < list.count(campos)
+            {
+                if contains(list.str(campos,aa),"ti_")
+                {
+                    checked=parse.bool(field.str(data,list.str(campos,aa)))
+                    if checked
+                    {
+                        new rh_ai
+						{
+							@"ref_tipo_incidencia":parse.num(replace(list.str(campos,aa),"ti_",""))
+							@"ref_asistencia": pk_asistencia
+                            @"marcada":if(checked,1,0)
+							@"sys_pk":0
+							@"sys_recver":0
+						}
+						
+						do dbr.save(db,"rh_asistencia_incidencia",rh_ai)
+                    }
+                }
+            }
+        do dbr.commit(db)
         @url_redir=replace(@ASISTENCIAS,"@id",@@(data,"$ref_rh_periodo_asistencia"))
 
         return entity
 
         exception
         {
+            error=last_error()
+            if dbr.in_transaction(db){do dbr.rollback(db)}
             do prepareView(db,params,data)
-            do rise_error(500,last_error())
+            do rise_error(500,error)
         }
     }
 
@@ -126,12 +182,14 @@ module ""
                 @"date":fapertura
                 @"i":i
             }
+            tdia=getDay(day)
             new ndata
             {
                 @"caption_entrada":"Entrada"
                 @"caption_salida":"Salida"
                 @"fecha":ifstr(i==0,fapertura,dbr.str(db,"select date_add(@date,interval 1 day)",p))
-                @"fdia":cut(getDay(day),1)
+                @"fdia":cut(tdia,1)
+                @"dia":tdia
             }
             do list.add(ldias,ndata)
             fapertura=@@(ndata,"$fecha")
@@ -142,17 +200,113 @@ module ""
     }
     genRecordDias::&data
     {
+        fday=@@(data,"$name_dia")
         new ndata
         {
             @"sys_pk":@@(data,"#sys_pk")
-            @"dia":cut(getDay(@@(data,"#dia")),1)
-            @"entrada_temprano":parse.bool(@@(data,"et"))
-            @"salida_anticipada":parse.bool(@@(data,"sa"))
-            @"he":@@(data,"#h3")
+            @"dia":cut(fday,1)
+            @"fday":fday
             @"falta":parse.bool(@@(data,"inasistencia"))
             @"fecha":@@(data,"$fentrada")
             @"hora_entrada":ifstr(@@(data,"$hentrada")=="","-",@@(data,"$hentrada"))
             @"hora_salida":ifstr(@@(data,"$hsalida")=="","-",@@(data,"hsalida"))
+            @"retardo":@@(data,"r")
+        }
+        // @"et_l":@@(data,"et_l")
+        // @"et_m":@@(data,"et_m")
+        // @"et_mi":@@(data,"et_mi")
+        // @"et_j":@@(data,"et_j")
+        // @"et_v":@@(data,"et_v")
+        // @"et_s":@@(data,"et_s")
+        // @"et_d":@@(data,"et_d")
+
+        // @"sa_l":@@(data,"sa_l")
+        // @"sa_m":@@(data,"sa_m")
+        // @"sa_mi":@@(data,"sa_mi")
+        // @"sa_j":@@(data,"sa_j")
+        // @"sa_v":@@(data,"sa_v")
+        // @"sa_s":@@(data,"sa_s")
+        // @"sa_d":@@(data,"sa_d")
+
+        // @"he_l":@@(data,"he_l")
+        // @"he_m":@@(data,"he_m")
+        // @"he_mi":@@(data,"he_mi")
+        // @"he_j":@@(data,"he_j")
+        // @"he_v":@@(data,"he_v")
+        // @"he_s":@@(data,"he_s")
+        // @"he_d":@@(data,"he_d")
+        switch tolower(fday)
+        {
+            case "lunes"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_l")
+                    @"sa":@@(data,"sa_l")
+                    @"he":@@(data,"he_l")
+                }
+                break
+            }
+            case "martes"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_m")
+                    @"sa":@@(data,"sa_m")
+                    @"he":@@(data,"he_m")
+                }
+                break
+            }
+            case "miercoles"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_mi")
+                    @"sa":@@(data,"sa_mi")
+                    @"he":@@(data,"he_mi")
+                }
+                break
+            }
+            case "jueves"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_j")
+                    @"sa":@@(data,"sa_j")
+                    @"he":@@(data,"he_j")
+                }
+                break
+            }
+            case "viernes"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_v")
+                    @"sa":@@(data,"sa_v")
+                    @"he":@@(data,"he_v")
+                }
+                break
+            }
+            case "sabado"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_s")
+                    @"sa":@@(data,"sa_s")
+                    @"he":@@(data,"he_s")
+                }
+                break
+            }
+            case "domingo"
+            {
+                using ndata
+                {
+                    @"et":@@(data,"et_d")
+                    @"sa":@@(data,"sa_d")
+                    @"he":@@(data,"he_d")
+                }
+                break
+            }
         }
         return ndata
     }
@@ -182,14 +336,14 @@ module ""
             do list.add(ldata,genRecordDias(@null))
         }
     }
-    VerifyFecha::&l,fecha
+    GetDataFecha::&l,fecha
     {
         for i = 0; i < @count(l)
         {
             ref tm=@item(l,i)
-            if @@(tm,"$fecha")==fecha{return @true}
+            if @@(tm,"$fecha")==fecha{return tm}
         }
-        return @false
+        return @null
     }
     getArrayTable::&data,&rasistencias
     {
@@ -217,9 +371,12 @@ module ""
 
             if fenum>=fanum && fenum<=fcnum
             {
+                
                 for a = 0; a < @count(dias)
                 {
                     ref d=@item(dias,a)
+                    itm<"name_dia">:@@(d,"$dia")
+
                     a_dias=@@(d,"fecha")
                     fnum=parse.num(replace(a_dias,"-",""))
                     fkey=key+"_"+str(fnum)
@@ -228,8 +385,8 @@ module ""
                     {
                         if fenum>fnum && not(@@(d,"#"+fkey))
                         {
-                            // do list.add(@@(obj,"&dias"),genRecordDias(@null))
-                            // d<fkey>:@true
+                            do list.add(@@(obj,"&dias"),genRecordDias(@null))
+                            d<fkey>:@true
                         }
                         else if fenum==fnum 
                         {
@@ -237,12 +394,16 @@ module ""
                             isadd=@true
                         }
                     }
-                    else 
+                    // else 
+                    // {
+                    //     do list.add(@@(obj,"&dias"),genRecordDias(itm))
+                    //     isadd=@true
+                    // }
+                    if isadd
                     {
-                        // do list.add(@@(obj,"&dias"),genRecordDias(itm))
-                        // isadd=@true
+                        d<fkey>:@true
+                        break
                     }
-                    if isadd{break}
                 }
             }
         }

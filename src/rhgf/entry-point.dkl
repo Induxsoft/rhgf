@@ -72,6 +72,7 @@ module "Controller configs"
 	do crudl.routes.entity("/tipo-permiso/","tipo-permiso")
 	do crudl.routes.entity("/permiso/","permiso")
 	do crudl.routes.entity("/asistencia/","asistencia")
+	do crudl.routes.entity("/tipo-incidencia/","tipo-incidencia")
 	// @http_context<"session/idp/database*">:@null
 	@dbmvc_path="crudl/"
 	

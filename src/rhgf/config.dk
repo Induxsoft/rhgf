@@ -91,6 +91,11 @@ module "config"
     //tipo de permiso
     @TIPO_PERMISO="/!/rhgf/tipo-permiso/"
     @TIPO_PERMISO_ADD_EDIT="/!/rhgf/tipo-permiso/@id/"
+
+    //tipo de incidencias
+    @TIPO_INCIDENCIAS="/!/rhgf/tipo-incidencia/"
+    @TIPO_INCIDENCIAS_ADD_EDIT="/!/rhgf/tipo-incidencia/@id/"
+
     //Permisos
     @PERMISOS="/!/rhgf/permiso/"
     @PERMISOS_ADD_EDIT="/!/rhgf/permiso/@id/"

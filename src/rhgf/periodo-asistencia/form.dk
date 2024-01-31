@@ -68,19 +68,6 @@ module "form.dk"
                             }
                             #$
                         }
-                        // "input-key"(id="ref_rh_tipo_nomina"
-                        //         name="ref_rh_tipo_nomina"
-                        //         "data-key"="sys_pk"
-                        //         "data-search"="sys_pk"
-                        //         "data-text"="nombre"
-                        //         "data-value"='#<to.json(@("&./tiponomina"))>'
-                        //         "data-source"="#<@TIPO_NOMINA>?s=@search"
-                        //         "box-title-text"="Seleccione un turno"
-                        //         "box-placeholder-text"="Buscar turnos"
-                        //         "box-nodata-text"="No se encontraron datos"
-                        //         "#<disabled>"="true"
-                        //         columns="nombre,dias"
-                        //         colcaptions="Nombre,Días" required="true"){""}
                     }
                 }
                 #!

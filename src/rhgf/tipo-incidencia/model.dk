@@ -1,0 +1,49 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    @table_name="rh_tipo_incidencia"
+    like=" and if(ifnull(@s,'')='',true,concat_ws('',t.codigo,t.descripcion) like concat('%',@s,'%')  )"
+    @list_query="select t.*
+     from #<@table_name> t 
+    where ifnull(t.sys_deleted,0)=0  "+ like+ " order by t.sys_pk desc limit 200"
+
+    prepareView::&db,&params,&rec
+    {
+        if isnull(rec){return}
+    }
+    save::&db,&params,&data
+    {
+
+        ref entity=@null
+    
+        if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
+        else{ref entity=entity.create(db,params,data)}
+    
+        return entity
+
+        exception
+        {
+            do prepareView(db,params,data)
+            do rise_error(500,last_error())
+        }
+    }
+
+    blank::&db,&params
+    {
+       new entity{@"codigo":""}
+       do prepareView(db,params,entity)
+       return entity
+    }
+    read::&db,&params
+    {
+        ref entity= entity.read(db,params)
+        do prepareView(db,params,entity)
+        return entity
+    }
+    
+    point @read to read
+    point @blank to blank
+    point @create to save
+    point @update to save
+}
