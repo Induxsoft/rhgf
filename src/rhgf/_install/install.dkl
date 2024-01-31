@@ -45,6 +45,10 @@ program "instalador"
         "rh_tipo_concepto.csv",
         "rh_tipo_vivienda.csv"
     ]')
+    //nombres y directorio de los archivos dkt para datos iniciales
+    list_files_dkt="rh_grupo_conceptos._rec_tdk,rh_tipo_nomina._rec_tdk,rh_concepto_nomina._rec_tdk,rh_tipo_contrato._rec_tdk,rh_variable._rec_tdk,rh_tabla_calculo._rec_tdk"
+    dir_path_dkt=path.concat(path_install, "initial_data")
+
 	// Lista de permisos iniciales
     ref permissions_to_import = from.json('[]')
 
@@ -105,6 +109,13 @@ program "instalador"
                 do dbr.vars.ImportList(database,CsvData,table_name)
             }
         }
+    }
+
+    ref files_dkt=split(list_files_dkt,",")
+    if @count(files_dkt)>0
+    {
+        do print("\nIMPORTANDO DATOS INICIALES DKT")
+        do dbr.vars.ImportListDkt(database,files_dkt,dir_path_dkt)
     }
 
     if file.exists(categories_file)

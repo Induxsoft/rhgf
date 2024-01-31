@@ -75,6 +75,7 @@ module "config"
     @JS_TIPO_DE_NOMINA="/$/rhgf/js/tiponomina.js"
     @JS_PERIODO_ASISTENCIA="/$/rhgf/js/periodo-asistencia.js"
     @JS_ASISTENCIA="/$/rhgf/js/asistencia.js"
+    @JS_TURNO="/$/rhgf/js/turno.js"
     // _PACKAGE
     @RH_CTR_ASIST_CALENDARIO = "/!/rhgf/calendario/"
     @RH_CTR_ASIST_DIA_INHABIL = "/!/rhgf/dia_inhabil/"

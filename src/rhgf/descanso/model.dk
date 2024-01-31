@@ -5,7 +5,7 @@ module ""
     @table_name="rh_descanso"
     like=" and if(ifnull(@s,'')='',true,concat_ws('',min_horas,text) like concat('%',@s,'%')  )"
     @list_query="select d.*,t.descripcion turno from #<@table_name> d inner join rh_turno t on d.ref_turno=t.sys_pk
-    where ifnull(d.sys_deleted,0)=0 "+ like
+    where ifnull(d.sys_deleted,0)=0 and t.sys_pk=@rh_tur "+ like
 
     prepareView::&db,&params,&rec
     {
@@ -18,6 +18,15 @@ module ""
         if @@(data,"$max_minutos")==""{data<"max_minutos">:0}
         if @@(data,"$max_veces")==""{data<"max_veces">:0}
 
+        data<"lunes">:if(parse.bool(@@(data,"lunes")),1,0)
+        data<"martes">:if(parse.bool(@@(data,"martes")),1,0)
+        data<"miercoles">:if(parse.bool(@@(data,"miercoles")),1,0)
+        data<"jueves">:if(parse.bool(@@(data,"jueves")),1,0)
+        data<"viernes">:if(parse.bool(@@(data,"viernes")),1,0)
+        data<"sabado">:if(parse.bool(@@(data,"sabado")),1,0)
+        data<"domingo">:if(parse.bool(@@(data,"domingo")),1,0)
+
+        
         ref entity=@null
     
         if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 

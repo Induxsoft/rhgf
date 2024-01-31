@@ -315,6 +315,14 @@ model "rhgf"
         @"max_veces" int
         @"text"  string(32)
 
+        @"lunes" bool
+        @"martes" bool
+        @"miercoles" bool
+        @"jueves" bool
+        @"viernes" bool
+        @"sabado" bool
+        @"domingo" bool
+        
         index "rh_descanso_idx1" unique
         {
             field "ref_turno"

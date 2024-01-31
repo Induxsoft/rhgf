@@ -10,8 +10,28 @@ document.addEventListener("DOMContentLoaded",()=>
     tipopermiso.init();
 })
 
-var util=
+var tools=
 {
+    $__enableFields:function(fields,enabled=false,enabledhidden=true)
+	{
+		if(fields==null)return;
+		
+		for(var i=0;i<fields.length;i++)
+		{
+			var inp=fields[i];
+			this.$_enableField(inp,enabled,enabledhidden);
+		}
+	},
+	$_enableField(inp,enabled=false,enabledhidden=true)
+	{
+		if(inp)
+		{
+			if(enabled)inp.removeAttribute("disabled");
+			else inp.setAttribute("disabled",true);
+
+			if(inp.type=="hidden" && enabledhidden)inp.removeAttribute("disabled");
+		}
+	},
     messageEvent(element,message="")
     {
         if(element)
@@ -77,14 +97,14 @@ var util=
 						{
 							if(elm.getValue()==null)
 							{
-								util.alerText(idlblart,"Aviso: "+text);
+								tools.alerText(idlblart,"Aviso: "+text);
 								elm.focus();
 								return false;
 							}
 						}
 						else if(elm.value.trim()=="" && !validatefrm)
 						{
-							util.alerText(idlblart,"Aviso: "+text);
+							tools.alerText(idlblart,"Aviso: "+text);
 							elm.focus();
 							return false;
 						}
@@ -92,20 +112,20 @@ var util=
 						{
 							if(Number(elm.value)<Number(elm.getAttribute("nmin")??0))
 							{
-								util.alerText(idlblart,"Aviso: "+(elm.getAttribute("tmin")??""));
+								tools.alerText(idlblart,"Aviso: "+(elm.getAttribute("tmin")??""));
 								elm.focus();
 								return false;
 							}
-							if(Number(elm.value)>(util.existencia??0) && !elm.hasAttribute("not_existencia"))
+							if(Number(elm.value)>(tools.existencia??0) && !elm.hasAttribute("not_existencia"))
 							{
-								util.alerText(idlblart,"Aviso: La cantidad no debe ser mayor a la existencia");
+								tools.alerText(idlblart,"Aviso: La cantidad no debe ser mayor a la existencia");
 								elm.focus();
 								return false;
 							}
 						}
 						if(validatefrm && elm.value.trim()=="")
 						{
-							util.messageEvent(elm);
+							tools.messageEvent(elm);
 							return false;
 						}
 					}
@@ -136,7 +156,7 @@ var util=
         var chark = String.fromCharCode(key);
         var tempValue = input.value+chark;
         if(key >= 48 && key <= 57){
-            if(util.filter(tempValue,dec)=== false){
+            if(tools.filter(tempValue,dec)=== false){
                 return false;
             }else{       
                 return true;
@@ -145,7 +165,7 @@ var util=
               if(key == 8 || key == 13 || key == 0) {     
                   return true;              
               }else if(key == 46){
-                    if(util.filter(tempValue,dec)=== false){
+                    if(tools.filter(tempValue,dec)=== false){
                         return false;
                     }else{       
                         return true;
@@ -175,7 +195,7 @@ var util=
         var chark = String.fromCharCode(key);
         var tempValue = input.value+chark;
         if(key >= 48 && key <= 57){
-            if(util.filterI(tempValue)=== false){
+            if(tools.filterI(tempValue)=== false){
                 return false;
             }else{       
                 return true;
@@ -184,7 +204,7 @@ var util=
               if(key == 8 || key == 13 || key == 0) {     
                   return true;              
               }else if(key == 46){
-                    if(util.filterI(tempValue)=== false){
+                    if(tools.filterI(tempValue)=== false){
                         return false;
                     }else{       
                         return true;
@@ -486,15 +506,15 @@ var variable=
     {
         if(!add)
         {
-            util.fields(variable.modal_variables,"clean");
+            tools.fields(variable.modal_variables,"clean");
             nomina.openModal("modal_frm_variables");
             if(variable.btn_aceptar)variable.btn_aceptar.setAttribute("onclick","variable.addVariable(true)");
         }
         else
         {
-            if(!util.fields(variable.modal_variables,"validate","","",true))return;
+            if(!tools.fields(variable.modal_variables,"validate","","",true))return;
             
-            var datas=util.fields(variable.modal_variables,"get");
+            var datas=tools.fields(variable.modal_variables,"get");
             if(!datas)
             {
                 alert("Debe rellenar los campos correspondientes");
@@ -528,7 +548,7 @@ var variable=
         }
         var data=variable.table_variables.DataArray[variable.table_variables.CurrentRowIndex()];
         itm_add=data;
-        util.fields(variable.modal_variables,"set");
+        tools.fields(variable.modal_variables,"set");
         nomina.openModal("modal_frm_variables");
         if(variable.btn_aceptar)variable.btn_aceptar.setAttribute("onclick","variable.addVariable(true,"+data.sys_pk+")");
     }
@@ -558,15 +578,15 @@ var tipocontrato=
     {
         if(!add)
         {
-            util.fields(tipocontrato.modal,"clean");
+            tools.fields(tipocontrato.modal,"clean");
             nomina.openModal("modal_frm_tipocontrato");
             if(tipocontrato.btn_aceptar)tipocontrato.btn_aceptar.setAttribute("onclick","tipocontrato.Add(true)");
         }   
         else
         {
-            if(!util.fields(tipocontrato.modal,"validate","","",true))return;
+            if(!tools.fields(tipocontrato.modal,"validate","","",true))return;
 
-            var data=util.fields(tipocontrato.modal,"get");
+            var data=tools.fields(tipocontrato.modal,"get");
             crud.services(tipocontrato.url+_entity_id+"/",data,method);
         }
     },
@@ -581,7 +601,7 @@ var tipocontrato=
         var data=tipocontrato.table.DataArray[tipocontrato.table.CurrentRowIndex()];
         itm_add=data;
 
-        util.fields(tipocontrato.modal,"set");
+        tools.fields(tipocontrato.modal,"set");
         nomina.openModal("modal_frm_tipocontrato");
         if(tipocontrato.btn_aceptar)tipocontrato.btn_aceptar.setAttribute("onclick","tipocontrato.Add(true,"+data.sys_pk+",'PUT')");
     }
@@ -651,15 +671,15 @@ var gconceptos=
     {
         /* if(!add)
         {
-            util.fields(gconceptos.modal,"clean");
+            tools.fields(gconceptos.modal,"clean");
             nomina.openModal("modal_frm_gconceptos");
             if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true)");
         }
         else
         {
-            if(!util.fields(gconceptos.modal,"validate","","",true))return;
+            if(!tools.fields(gconceptos.modal,"validate","","",true))return;
 
-            var data=util.fields(gconceptos.modal,"get");
+            var data=tools.fields(gconceptos.modal,"get");
             crud.services(gconceptos.url+_entity_id+"/",data,method);
         } */
         
@@ -678,7 +698,7 @@ var gconceptos=
 
         var data=gconceptos.table.DataArray[gconceptos.table.CurrentRowIndex()];
         /* itm_add=data;
-        util.fields(gconceptos.modal,"set");
+        tools.fields(gconceptos.modal,"set");
         nomina.openModal("modal_frm_gconceptos");
         if(gconceptos.btn_save)gconceptos.btn_save.setAttribute("onclick","gconceptos.Add(true,"+data.sys_pk+",'PUT')"); */
 

@@ -11,7 +11,6 @@ module "list"
     ref data = @("&./asistencias")
     per_as=@("$parameters/per_as")
     ref periodo=@("&./datos")
-    // do rise_error(0,to.json(periodo))
     #$
     div(class="container p-0")
     {
@@ -45,7 +44,7 @@ module "list"
             div
             {
                 #! lenght = list.count(data)
-                if lenght <= 0
+                if lenght <= 0 && isnull(periodo)
                 {
                     message = ""
                     if @@(@crud_context,"$parameters/s") == "" { message = "Sin registros." }
@@ -93,7 +92,7 @@ module "list"
                                         th(style="border-left:1px solid gray" class="h6" ){"#<@@(d,'$fdia')>"}//
                                         th(class="h6" ){"#<@@(d,'$caption_entrada')>"}
                                         th(colspan="2" class="h6" ){"#<@@(d,'$caption_salida')>"}
-                                        th{""}
+                                        th(style="border-right:1px solid gray"){""}
                                     }
                                     
                                     #$
@@ -130,7 +129,7 @@ module "list"
                                             td{"#<sa>"}
                                            
                                             #$
-                                            td(class="no-print")
+                                            td(class="no-print" style="border-right:1px solid gray")
                                             {$""
                                                 #!
                                                 if @@(dia,"#sys_pk")>0

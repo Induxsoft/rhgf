@@ -3,24 +3,25 @@
 module ""
 {
     @table_name="rh_asistencia"
+    //  if(TIME(t.entrada)<time(rt.entrada),true,false)et,
+    // if(TIME(t.salida)<time(rt.salida),true,false)sa,
+    // if((hour(t.salida)- hour(rt.salida))>0,(hour(t.salida)- hour(rt.salida)),0) he,
     like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%h:%i:%s')hentrada,
     date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%h:%i:%s')hsalida,
     if(ifnull(t.inasistencia,0),true,false)finasistencia,
     rt.descripcion turno,
-     if(TIME(t.entrada)<time(rt.entrada),true,false)et,
-	 if(time(t.entrada)>TIME(date_add(rt.entrada,INTERVAL rt.tol_entrada minute)),true,false)r,
-	 if(TIME(t.salida)<time(rt.salida),true,false)sa,
+	 if(ifnull(t.retardo,0),true,false)r,
 	 if(IFNULL(t.inasistencia,0),true,false)f,
-	 if((hour(t.salida)- hour(rt.salida))>0,(hour(t.salida)- hour(rt.salida)),0) he,
     DAYOFWEEK(pa.apertura)dia,DATEDIFF(pa.cierre,pa.apertura)diasp
     FROM #<@table_name> t 
     inner join rh_periodo_asistencia pa on t.ref_rh_periodo_asistencia=pa.sys_pk
     INNER JOIN rh_contrato_empleado c ON t.ref_contrato=c.sys_pk
     inner join rh_turno rt on t.ref_turno=rt.sys_pk
     INNER JOIN rh_empleado_org e ON c.ref_empleado=e.sys_pk
-    where ifnull(t.sys_deleted,0)=0 and t.ref_rh_periodo_asistencia=@per_as "+ like +" ORDER BY t.sys_pk desc "
+    where ifnull(t.sys_deleted,0)=0 and t.ref_rh_periodo_asistencia=@per_as and date(t.entrada)>=date(@apertura) 
+    and date(t.salida)<=date(@cierre)  "+ like +" ORDER BY t.entrada asc"
 
     @read_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d %H:%i:%s')fentrada,date_format(t.salida,'%Y-%m-%d %H:%i:%s')fsalida,if(ifnull(t.inasistencia,0),'Sí','No')finasistencia
@@ -81,6 +82,8 @@ module ""
         if parse.bool(@@(data,"tarde_receso")){data<"tarde_receso">:1}
         else{data<"tarde_receso">:0}
 
+        data<"retardo">:if(parse.bool(@@(data,"retardo")),1,0)
+        
         if trim(@@(data,"$justificacion")){data<"justificacion*">:@null}
         ref entity=@null
     
@@ -113,7 +116,6 @@ module ""
     genRecordPeriodo::&db,&data
     {
         ref ldias=list.create()
-        // do rise_error(0,@@(data,"$dia")+" - "+@@(data,"$diasp"))
         fapertura=@@(data,"$fapertura")
         day=@@(data,"#dia")
         for i = 0; i < (@@(data,"#diasp")+1)
@@ -148,7 +150,7 @@ module ""
             @"salida_anticipada":parse.bool(@@(data,"sa"))
             @"he":@@(data,"#h3")
             @"falta":parse.bool(@@(data,"inasistencia"))
-            @"fecha":"fecha "//@@(data,"#f")
+            @"fecha":@@(data,"$fentrada")
             @"hora_entrada":ifstr(@@(data,"$hentrada")=="","-",@@(data,"$hentrada"))
             @"hora_salida":ifstr(@@(data,"$hsalida")=="","-",@@(data,"hsalida"))
         }
@@ -180,26 +182,71 @@ module ""
             do list.add(ldata,genRecordDias(@null))
         }
     }
-    getArrayTable::&data
+    VerifyFecha::&l,fecha
+    {
+        for i = 0; i < @count(l)
+        {
+            ref tm=@item(l,i)
+            if @@(tm,"$fecha")==fecha{return @true}
+        }
+        return @false
+    }
+    getArrayTable::&data,&rasistencias
     {
         if isnull(data){return}
-
+        ref datos=@@(rasistencias,"&datos")
+        ref dias=@@(datos,"&dias")
+        
         ref record=record.create()
+        fanum=parse.num(replace(@@(datos,"$fapertura"),"-",""))
+        fcnum=parse.num(replace(@@(datos,"$fcierre"),"-",""))
+
         for i = 0; i < @count(data)
         {
             ref itm=@item(data,i)
             key=@@(itm,"$ref_contrato")+"_"+@@(itm,"$ref_rh_periodo_asistencia")+"_"+@@(itm,"$ref_turno")
             
+            if isnull(@@(record,"&"+key)){record<key+"*">:genRecordArray(itm)}
             ref obj=@@(record,"&"+key)
-            if isnull(obj){record<key+"*">:genRecordArray(itm)}
-            
-            do list.add(@@(record,"&"+key+"/dias"),genRecordDias(itm))
+
+            i_entrada=@@(itm,"$fentrada")
+            i_salida=@@(itm,"$fsalida")
+
+            fenum=parse.num(replace(i_entrada,"-",""))
+            isadd = @false
+
+            if fenum>=fanum && fenum<=fcnum
+            {
+                for a = 0; a < @count(dias)
+                {
+                    ref d=@item(dias,a)
+                    a_dias=@@(d,"fecha")
+                    fnum=parse.num(replace(a_dias,"-",""))
+                    fkey=key+"_"+str(fnum)
+
+                    if i_entrada==i_salida
+                    {
+                        if fenum>fnum && not(@@(d,"#"+fkey))
+                        {
+                            // do list.add(@@(obj,"&dias"),genRecordDias(@null))
+                            // d<fkey>:@true
+                        }
+                        else if fenum==fnum 
+                        {
+                            do list.add(@@(obj,"&dias"),genRecordDias(itm))
+                            isadd=@true
+                        }
+                    }
+                    else 
+                    {
+                        // do list.add(@@(obj,"&dias"),genRecordDias(itm))
+                        // isadd=@true
+                    }
+                    if isadd{break}
+                }
+            }
         }
-        new rasistencias
-        {
-            @"datos*":record.create()
-            @"asistencias*":list.create()
-        }
+        
         ref lrecord=list.create_from_fields(record)
         for i = 0; i < @count(lrecord)
         {
@@ -216,13 +263,20 @@ module ""
     }
     list::&db,&params
     {
-        ref entity= entity.list(db,params)
-        ref data= getArrayTable(entity)
         ref dataperiodo= dbr.rec(db,"select *,DAYOFWEEK(apertura)dia,DATEDIFF(cierre,apertura)diasp,
-        date_format(apertura,'%Y-%m-%d')fapertura,date_format(cierre,'%Y-%m-%d')fcierre
+            date_format(apertura,'%Y-%m-%d')fapertura,date_format(cierre,'%Y-%m-%d')fcierre
                     from rh_periodo_asistencia where sys_pk=@per_as",params)
-        data<"datos*">: genRecordPeriodo(db,dataperiodo)
-
+        new rasistencias
+        {
+            @"datos*":genRecordPeriodo(db,dataperiodo)
+            @"asistencias*":list.create()
+        }
+        params<"apertura">:@@(dataperiodo,"$fapertura")
+        params<"cierre">:@@(dataperiodo,"$fcierre")
+        
+        ref entity= entity.list(db,params)
+        ref data= getArrayTable(entity,rasistencias)
+       
         return data
     }
     
