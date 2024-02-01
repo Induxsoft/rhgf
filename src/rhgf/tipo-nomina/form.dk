@@ -68,8 +68,10 @@ module ""
         {
             key=list.str(lperiodo_final,i)
             fselected=ifstr(key==selected,'selected','')
+
             if fselected!=""{do list.add(l,@true)}
-            if i==itm_fin && @count(l)<1{fselected="selected"}
+            
+            if i==itm_fin && @count(l)<1 && selected!=""{fselected="selected"}
 
             #$ 
             option(value="#<key>" "#<fselected>"="true"){"#<getPeriodoFinal(key)>"}

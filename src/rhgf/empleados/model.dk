@@ -87,9 +87,11 @@ module ""
                 OR curp LIKE CONCAT('%',@search,'%')
                 OR nss LIKE CONCAT('%',@search,'%')
             )"
-            return dbr.list(db,sql,params)
+            // return dbr.list(db,sql,params)
         }
-        return list.create()
+        else{sql=sql + " limit 200"}
+        
+        return dbr.list(db,sql,params)
     }
 
     rh.prepareView::&db,&params,&data

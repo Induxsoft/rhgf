@@ -135,7 +135,7 @@ var empleado =
         buscarEmpleado() {
             let text = this.txt_search_empleado.value.trim();
             let url = this.txt_search_empleado.getAttribute("data-url-search").trim();
-            if (!text) return;
+            // if (!text) return;
             if (!url) { alert("No se indico un destino"); return; }
             if (!this.tEmpleados) { alert("No se ha definido la tabla de proveedores."); return; }
             url = url.replace("@search",text);
