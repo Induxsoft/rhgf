@@ -257,6 +257,7 @@ model "rhgf"
         @"ano" int
         @"dia" int required
         @"pago_extra" bool
+        @"todos_anos" bool
 
         index "rh_dia_inhabil_idx1" unique
         {

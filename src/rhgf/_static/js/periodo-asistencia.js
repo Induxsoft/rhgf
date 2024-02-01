@@ -20,19 +20,29 @@ var pa=
                 {
                     var periodo=data?.periodo_anterior??null;
                     var pdata=true;
-                    if(periodo==null)
-                    {
-                        var option=pa.ref_rh_tipo_nomina.options[pa.ref_rh_tipo_nomina.selectedIndex];
-                        if(option)periodo=JSON.parse(option.getAttribute("data"));
-                        pdata=false;
-                    }
-                    if(periodo==null)return;
+
+                    var option=pa.ref_rh_tipo_nomina.options[pa.ref_rh_tipo_nomina.selectedIndex];
+                    var dataoption=null;
+                    if(option)dataoption=JSON.parse(option.getAttribute("data"));
+
+                    if(periodo==null){ pdata=false;}
                     
                     if(pdata)
                     {
-                        
+                        if(pa.apertura && (periodo?.fapertura??"")!="" )pa.apertura.value=periodo.fapertura;
+                        if(pa.inicio && (periodo?.finicio??"") )pa.inicio.value=periodo.finicio;
+                        if(pa.cierre && (periodo?.fcierre??"") )pa.cierre.value=periodo.fcierre;
+                        if(pa.fin && (periodo?.ffin??"") )pa.fin.value=periodo.ffin;
+
                     }
-                    console.log(periodo)
+                    else
+                    {
+                        if(pa.apertura && (dataoption?.fapertura??"")!="" )pa.apertura.value=dataoption.fapertura;
+                        // if(pa.inicio && (periodo?.finicio??"") )pa.inicio.value=periodo.finicio;
+                        if(pa.cierre && (dataoption?.fcierre??"") )pa.cierre.value=dataoption.fcierre;
+                        // if(pa.fin && (periodo?.ffin??"") )pa.fin.value=periodo.ffin;
+                    }
+                    
                 },
                 function(error)
                 {

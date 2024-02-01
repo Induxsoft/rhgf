@@ -18,18 +18,27 @@ module ""
     prepareView::&db,&params,&rec
     {
         if isnull(rec){return}
+
         if @@(params,"#periodo")
         {
-            rec<"periodo_anterior*">:dbr.rec(db,"SELECT DATE_FORMAT(date_add(p.apertura,interval 1 day),'%Y-%m-%d')fapertura,
-            DATE_FORMAT(date_add(p.cierre,interval 1 day),'%Y-%m-%d')fcierre,
-            DATE_FORMAT(date_add(p.inicio,interval 1 day),'%Y-%m-%d')finicio,
-            DATE_FORMAT(date_add(p.fin,interval 1 day),'%Y-%m-%d')ffin
-            FROM rh_periodo_asistencia p WHERE p.ref_rh_tipo_nomina=@periodo ORDER BY sys_pk DESC LIMIT 1",params)
+            rec<"periodo_anterior*">:dbr.rec(db,"SELECT 
+            DATE_FORMAT(date_add(p.cierre,interval 1 day),'%Y-%m-%d')fapertura,
+            DATE_FORMAT(date_add(p.fin,interval 1 day),'%Y-%m-%d')finicio,
+            DATE_FORMAT(DATE_ADD(date_add(p.cierre,interval 1 DAY),INTERVAL (ifnull(f.dias,0) - IFNULL(tn.dias_cierre,0) ) DAY),'%Y-%m-%d')fcierre,
+            DATE_FORMAT(DATE_ADD(date_add(p.fin,interval 1 DAY),INTERVAL ifnull(f.dias,0) day),'%Y-%m-%d')ffin
+            FROM rh_periodo_asistencia p
+				INNER JOIN rh_tipo_nomina tn ON p.ref_rh_tipo_nomina=tn.sys_pk 
+				INNER JOIN rh_frec_periodo f ON tn.ref_rh_frec_periodo=f.id
+				WHERE p.ref_rh_tipo_nomina=@periodo ORDER BY p.sys_pk DESC LIMIT 1",params)
 
             return rec
         }
         params<"tiponomina">:@@(rec,"#ref_rh_tipo_nomina")
-        rec<"tiponominas*">:dbr.list(db,"Select * from rh_tipo_nomina",params)
+        rec<"tiponominas*">:dbr.list(db,"Select t.*,ifnull(f.dias,0) fdias,IFNULL(t.dias_cierre,0)dcierre,
+        DATE_FORMAT(t.inicio,'%Y-%m-%d')fapertura
+        ,date_format(DATE_ADD(t.inicio,INTERVAL (ifnull(f.dias,0)- IFNULL(t.dias_cierre,0)) DAY),'%Y-%m-%d')fcierre
+        from rh_tipo_nomina t 
+        LEFT JOIN rh_frec_periodo f ON t.ref_rh_frec_periodo=f.id",params)
     }
     save::&db,&params,&data
     {

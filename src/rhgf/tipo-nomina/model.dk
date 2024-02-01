@@ -3,8 +3,9 @@
 module ""
 {
     @table_name="rh_tipo_nomina"
-    @list_query="Select t.*,date_format(t.inicio,'%Y-%m-%d')finicio  from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by nombre;"
+    @list_query="Select t.*,date_format(t.inicio,'%Y-%m-%d')finicio  from rh_tipo_nomina t where if (isnull(@text),true, t.nombre like concat('%',@text,'%')) order by sys_pk desc;"
     @read_query="Select t.*,date_format(t.inicio,'%Y-%m-%d')finicio from rh_tipo_nomina t where t.#<@keyfield>=@_entity_id"
+
     PrepareView::&db,&params,&record
     {
         if isnull(record){return}
@@ -27,6 +28,10 @@ module ""
 
     save::&db,&params,&data
     {
+        if @@(data,"#final1")==99{data<"final1">:dbr.num(db,"SELECT date_format(LAST_DAY(NOW()),'%d')",@null)}
+        if @@(data,"#final2")==99{data<"final2">:dbr.num(db,"SELECT date_format(LAST_DAY(NOW()),'%d')",@null)}
+        if @@(data,"#final3")==99{data<"final3">:dbr.num(db,"SELECT date_format(LAST_DAY(NOW()),'%d')",@null)}
+
         data<"dias_cierre">:@@(data,"#dias_cierre")
         if parse.bool(@@(data,"sel_manual_empleados")){data<"sel_manual_empleados">:1}
         else{data<"sel_manual_empleados">:0}

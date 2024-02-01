@@ -39,8 +39,10 @@ module "list"
                 h5(class="flex-grow-1"){"#<@@(calendario,'$codigo')+' '+@@(calendario,'$descripcion')>"}
                 input(type="hidden" name="rh_cal" value="#<rh_cal>")
                 select(class="induxsoft-form-select w-50" id="filter" name="s" )
-                {""
-                    #! for i = 0; i < @count(anos)
+                {
+                    option(value="0"){"Todos"}
+                    #!
+                    for i = 0; i < @count(anos)
                     {
                         ref ano=@item(anos,i)
 

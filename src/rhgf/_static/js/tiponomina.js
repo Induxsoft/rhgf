@@ -31,39 +31,39 @@ var tn=
             var data=JSON.parse(option.getAttribute("data"));
             
             if(tn.lbl_final1)tn.lbl_final1.innerHTML="Fin del primer periodo del mes:";
-            if(tn.div_1) tn.div_1.style.cssText="display:none";
-            if(tn.div_2) tn.div_2.style.cssText="display:none";
-            if(tn.div_3) tn.div_3.style.cssText="display:none";
+            if(tn.div_1) tools.toggle(tn.div_1);
+            if(tn.div_2) tools.toggle(tn.div_2);
+            if(tn.div_3) tools.toggle(tn.div_3);
             if(tn.inicio)tn.inicio.style.cssText="display:block";
             if(tn.dias_cierre)tn.dias_cierre.style.cssText="display:block";
 
             if(tn.final1)tn.final1.innerHTML=htmlfinal1;
             switch(data.dias??0)
             {
-                case 7:
-                    if(tn.div_1) tn.div_1.style.cssText="display:block";
+                case 7://semanal
+                    if(tn.div_1) tools.toggle(tn.div_1,true);
                     if(tn.final1)tn.final1.innerHTML=tn.semanas;
                     if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el día:";
-                    break; //semanal
-                case 10:
-                    if(tn.div_1) tn.div_1.style.cssText="display:block";
-                    if(tn.div_2) tn.div_2.style.cssText="display:block";
-                    if(tn.div_3) tn.div_3.style.cssText="display:block";
-                    break; //decenal
+                    break; 
+                case 10://decenal
+                    if(tn.div_1) tools.toggle(tn.div_1,true);
+                    if(tn.div_2) tools.toggle(tn.div_2,true);
+                    if(tn.div_3) tools.toggle(tn.div_3,true);
+                    break; 
                 case 14://catorcenal
-                    if(tn.div_1) tn.div_1.style.cssText="display:block";
+                    if(tn.div_1) tools.toggle(tn.div_1,true);
                     if(tn.final1)tn.final1.innerHTML=tn.semanas;
                     if(tn.lbl_final1)tn.lbl_final1.innerHTML="Finaliza el día:";
                     break;
-                case 15:
-                    if(tn.div_1) tn.div_1.style.cssText="display:block";
-                    if(tn.div_2) tn.div_2.style.cssText="display:block";
-                    break;//quincenal
+                case 15://quincenal
+                    if(tn.div_1) tools.toggle(tn.div_1,true);
+                    if(tn.div_2) tools.toggle(tn.div_2,true);
+                    break;
                 case 30://mensual
-                case 60:
-                    if(tn.div_1) tn.div_1.style.cssText="display:block";
+                case 60://bimestral
+                    if(tn.div_1) tools.toggle(tn.div_1,true);
                     if(tn.lbl_final1)tn.lbl_final1.innerHTML="Día del mes:";
-                    break;//bimestral
+                    break;
                 default:
                     if(tn.inicio)tn.inicio.style.cssText="display:none";
                     if(tn.dias_cierre)tn.dias_cierre.style.cssText="display:none";
@@ -76,13 +76,17 @@ var tn=
     },
     validate()
     {
-        if(Number(tn.final1.value)>Number(tn.final2.value))
+        const isHidde_1 = tn.div_1.classList.contains('d-none');
+        const isHidde_2 = tn.div_2.classList.contains('d-none');
+        const isHidde_3 = tn.div_3.classList.contains('d-none');
+
+        if(Number(tn.final1.value)>Number(tn.final2.value) && !isHidde_2)
         {
             alert("El primer período no puede ser mayor al segundo");
             return false;
         }
 
-        if(Number(tn.final2.value)>Number(tn.final3.value))
+        if(Number(tn.final2.value)>Number(tn.final3.value) && !isHidde_3)
         {
             alert("El segundo período no puede ser mayor al tercer período");
             return false;

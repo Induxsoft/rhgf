@@ -51,8 +51,8 @@ module "form.dk"
                 {
                     div(class="col-sm-4")
                     {
-                        small{$"Año:"}
-                        input(type="Number" class="induxsoft-form-control mb-2" name="ano" value="#<ano>" maxlength="10")
+                        label("for"="todos_anos"){$"" input(type="checkbox" name="todos_anos" id="todos_anos" "#<ifstr(@('#./todos_anos'),'checked','')>"="true")" Todos los años:"}
+                        input(type="Number" class="induxsoft-form-control mb-2" required="true" name="ano" id="ano" value="#<ano>" maxlength="10")
                     }
                     div(class="col-sm-4")
                     {

@@ -8,10 +8,19 @@ document.addEventListener("DOMContentLoaded",()=>
     gconceptos.init();
     tnomina.init();
     tipopermiso.init();
+    dia_inhabil.init();
 })
 
 var tools=
 {
+    toggle(elm,visible=false,classl="d-none")
+    {
+        if(!elm)return;
+
+        var isHidde = elm.classList.contains(classl);
+        if(visible)elm.classList.remove(classl);
+        else elm.classList.add(classl);
+    },
     $__enableFields:function(fields,enabled=false,enabledhidden=true)
 	{
 		if(fields==null)return;
@@ -822,5 +831,24 @@ var tipopermiso=
             return false;
         }
         return true;
+    }
+}
+
+var dia_inhabil=
+{
+    init()
+    {
+        dia_inhabil.todos_anos=document.getElementById("todos_anos");
+        dia_inhabil.ano=document.getElementById("ano");
+
+        if(dia_inhabil.todos_anos)dia_inhabil.todos_anos.addEventListener("change",()=>
+        {
+            tools.$_enableField(dia_inhabil.ano,!dia_inhabil.todos_anos.checked);
+            if(dia_inhabil.todos_anos.checked)
+            {
+                if(dia_inhabil.ano)dia_inhabil.ano.value="";
+            }
+        });
+        crud.trigger(dia_inhabil.todos_anos,"change");
     }
 }

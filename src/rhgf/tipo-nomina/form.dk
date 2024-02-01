@@ -60,11 +60,19 @@ module ""
     createOptionPeriodoFinal::&lperiodo_final,selected
     {
         #!
-        for i = 0; i < @count(lperiodo_final)
+        count=@count(lperiodo_final)
+        itm_fin=count -1 
+
+        ref l=list.create()
+        for i = 0; i < count
         {
             key=list.str(lperiodo_final,i)
+            fselected=ifstr(key==selected,'selected','')
+            if fselected!=""{do list.add(l,@true)}
+            if i==itm_fin && @count(l)<1{fselected="selected"}
+
             #$ 
-            option(value="#<key>" "#<ifstr(key==selected,'selected','')>"="true"){"#<getPeriodoFinal(key)>"}
+            option(value="#<key>" "#<fselected>"="true"){"#<getPeriodoFinal(key)>"}
             #!
         }
     }

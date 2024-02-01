@@ -10,10 +10,11 @@ module ""
 
     save::&db,&params,&data
     {
-        if @@(data,"$ano")==""{data<"ano*">:@null}
+        data<"pago_extra">:if(parse.bool(@@(data,"pago_extra")),1,0)
+        data<"todos_anos">:if(parse.bool(@@(data,"todos_anos")),1,0)
 
-        if parse.bool(@@(data,"pago_extra")){data<"pago_extra">:1}
-        else{data<"pago_extra">:0}
+        if @@(data,"#todos_anos"){data<"ano*">:@null}
+        if @@(data,"$ano")==""{data<"ano*">:@null}
 
         ref entity=@null
     
@@ -29,7 +30,7 @@ module ""
         {
             @"dias_inhabilies*":entity.list(db,params)
             @"calendario*":dbr.rec(db,"select * from rh_calendario where sys_pk=@rh_cal",params)
-            @"anos*":dbr.list(db,"SELECT distinct ifnull(d.ano,'Todos')ano FROM rh_dia_inhabil d where ref_rh_calendario=@rh_cal",params)
+            @"anos*":dbr.list(db,"SELECT distinct ifnull(d.ano,0)ano FROM rh_dia_inhabil d where ref_rh_calendario=@rh_cal AND IFNULL(d.ano,0)<>0",params)
         }
         return entity
     }
