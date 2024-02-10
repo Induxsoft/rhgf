@@ -41,7 +41,7 @@ module ""
     inner join rh_turno rt on t.ref_turno=rt.sys_pk
     INNER JOIN rh_empleado_org e ON c.ref_empleado=e.sys_pk
     where ifnull(t.sys_deleted,0)=0 and t.ref_rh_periodo_asistencia=@per_as and date(t.entrada)>=date(@apertura) 
-    and date(t.salida)<=date(@cierre)  "+ like +" ORDER BY t.entrada asc"
+    and date(t.salida)<=date(@cierre) and if(ifnull(@emp,0)=0,true,e.sys_pk=@emp)  "+ like +" ORDER BY t.entrada asc"
 
     @read_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d %H:%i:%s')fentrada,date_format(t.salida,'%Y-%m-%d %H:%i:%s')fsalida,if(ifnull(t.inasistencia,0),'Sí','No')finasistencia
