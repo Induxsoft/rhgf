@@ -25,14 +25,21 @@ module ""
     if((hour(t.salida)- hour(rt.jueves_salida))>0,(hour(t.salida)- hour(rt.jueves_salida)),0) he_j,
     if((hour(t.salida)- hour(rt.viernes_salida))>0,(hour(t.salida)- hour(rt.viernes_salida)),0) he_v,
     if((hour(t.salida)- hour(rt.sabado_salida))>0,(hour(t.salida)- hour(rt.sabado_salida)),0) he_s,
-    if((hour(t.salida)- hour(rt.domingo_salida))>0,(hour(t.salida)- hour(rt.domingo_salida)),0) he_d
+    if((hour(t.salida)- hour(rt.domingo_salida))>0,(hour(t.salida)- hour(rt.domingo_salida)),0) he_d,
+    ifnull(rt.lunes,0)descanso_l,
+    ifnull(rt.martes,0)descanso_m,
+    ifnull(rt.miercoles,0)descanso_mi,
+    ifnull(rt.jueves,0)descanso_j,
+    ifnull(rt.viernes,0)descanso_v,
+    ifnull(rt.sabado,0)descanso_s,
+    ifnull(rt.domingo,0)descanso_d
     "
     like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%h:%i:%s')hentrada,
     date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%h:%i:%s')hsalida,
     if(ifnull(t.inasistencia,0),true,false)finasistencia,
-    rt.descripcion turno,
+    rt.descripcion turno,rt.sys_pk pkturno,
 	 if(IFNULL(t.inasistencia,0),true,false)f,
     DAYOFWEEK(pa.apertura)dia,DATEDIFF(pa.cierre,pa.apertura)diasp,"+condicion_extra+"
     FROM #<@table_name> t 
@@ -211,6 +218,7 @@ module ""
             @"hora_entrada":ifstr(@@(data,"$hentrada")=="","-",@@(data,"$hentrada"))
             @"hora_salida":ifstr(@@(data,"$hsalida")=="","-",@@(data,"hsalida"))
             @"retardo":@@(data,"r")
+            @"pkturno":@@(data,"#pkturno")
         }
         // @"et_l":@@(data,"et_l")
         // @"et_m":@@(data,"et_m")
