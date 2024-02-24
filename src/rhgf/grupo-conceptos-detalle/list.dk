@@ -1,0 +1,71 @@
+#include "dkli.dkh"
+#!
+module
+{
+    #include "functions.dkh"
+    #include "../config.dk"
+    #include "uielements.v12.dkl"
+
+    do @context.begin(@crud_context)
+    ref @http_context = @('&http')
+    ref get = @@(@http_context,"&request/get")
+    ref list_conceptos = ifnull(@("&."),list.create())
+
+    @group = @@(get,"group")
+
+    new table_definition
+    {
+        @"datatable*": list_conceptos
+        @"table_footer": "Mostrando los primeros # conceptos ordenados por nombre"
+        member @"columns"
+        {
+            member @"concepto" { @"caption":"Código" }
+            member @"_actions" 
+            { 
+                @"caption":"Acciones" 
+                @"template":'<button onclick="InduxsoftCrudlModel.Delete(${DataRow.sys_pk})" style="cursor:pointer; border: none; outline: none; padding: 2px 8px; background-color: #F5F5F5; color: #000;">Eliminar</button>'
+                @"no-print":@true
+            }
+        }
+    }
+
+    header_act::
+    { 
+        #$ a(href="#<@GRUPOS_CONCEPTOS_DETALLE>_new/?group=#<@group>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
+    {
+        @"title": "Coceptos del grupo de conceptos"
+        @"buttons*": general_act
+        @"urlexit": @GRUPOS_CONCEPTOS + @@(get,"_entity_id")+ "/"
+    }
+
+    #$
+    div(class="container-fluid p-0")
+    {
+        #! do uie.printV12FormBar(nav_config)
+        
+        #$ div(id="work_area" class="container-section mt-1 p-2 pt-0")
+        {
+            p{$"#<@('$error/message')>"}
+
+            form(action="./" method="GET" id="form_search" class="no-print my-1 d-flex py-1")
+            {
+                "filter-text"(
+                    "id"="ft_search"
+                    "text-field"="s"
+                    "placeholder"="Buscar por nombre"
+                    "form"="#form_search"
+                    "value"="#<@@(get,'$s')>"
+                    "auto-submit"="true"
+                    "class"="w-100"
+                ){$""}
+            }
+
+            #! do uie.dbeditable(table_definition, "tbl_conceptos")
+        }
+    }
+}

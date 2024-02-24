@@ -1,0 +1,13 @@
+#include "dkli.dkh"
+#!
+module "controller"
+{
+    switch @@(@http_context,"$request/get/_view")
+    {
+        case "conceptos"
+        {
+            point @list to search_conceptos
+            break
+        }
+    }
+}

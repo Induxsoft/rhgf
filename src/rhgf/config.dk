@@ -19,6 +19,8 @@ module "config"
     @CONCEPTO_NOMINA_ADD=@CONCEPTO_NOMINA + "_new/"
     @TABLAS="/!/rhgf/tablas/"
     @GRUPOS_CONCEPTOS="/!/rhgf/grupos-conceptos/"
+    @GRUPOS_CONCEPTOS_DETALLE="/!/rhgf/grupo-conceptos-detalle/"
+    @GCD_SEARCH_CONCEPTOS="/!/rhgf/grupo-conceptos-detalle/?_view=conceptos"
     @TIPO_NOMINA="/!/rhgf/tipo-nomina/"
     @TIPO_NOMINA_ADD=@TIPO_NOMINA + "_new/"
 

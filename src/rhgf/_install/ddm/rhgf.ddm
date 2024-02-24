@@ -520,6 +520,13 @@ model "rhgf"
         @"notas" memo
         @"justificacion" ref: "rh_justificacion"
     }
+
+    entity "rh_detalle_grupo_conceptos" : "TableModel"
+    {
+        @"ref_grupo" ref:"rh_grupo_conceptos" required
+        @"ref_concepto" ref:"rh_concepto_nomina" required
+    }
+
     // Información de la aplicación
     entity "sys_app_catalog"
     {

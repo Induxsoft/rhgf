@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module
+{
+    @table_name = "rh_detalle_grupo_conceptos"
+
+    @list_query = "
+        SELECT rh_dgc.sys_pk, rh_cn.descripcion
+        FROM rh_detalle_grupo_conceptos rh_dgc
+            INNER JOIN rh_concepto_nomina rh_cn ON rh_dgc.ref_concepto = rh_cn.sys_pk
+        WHERE rh_dgc.ref_grupo = @group
+            AND IF(IFNULL(@s,'')='', true, rh_cn.descripcion LIKE CONCAT('%',@s,'%'))
+        ORDER BY rh_cn.descripcion;
+    "
+
+    function search_conceptos(&db, &params)
+    {
+        return dbr.list(db, "SELECT sys_pk, codigo, descripcion FROM rh_concepto_nomina WHERE IF(IFNULL(@s,'')='', true, codigo LIKE CONCAT('%',@s,'%') OR descripcion LIKE CONCAT('%',@s,'%'))")
+    }
+}
