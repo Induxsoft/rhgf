@@ -7,8 +7,12 @@ module ""
 
     create::&db,&params,&data
     {
-        do entity.create(db,params,data)
+        save_and_close = parse.bool(field.dnum(params,"save_and_close",1))
+
+        ref res = entity.create(db,params,data)
         @url_redir = @GRUPOS_CONCEPTOS
+
+        if not(save_and_close) { @url_redir = @url_redir + @@(res,"$sys_pk") + "/" }
     }
 
     update::&db,&params,&data

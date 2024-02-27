@@ -16,6 +16,7 @@ module "form.dk"
             div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"Grupo de conceptos para cálculos en general"} }
             div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
             {
+                button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_conceptos"){$"Conceptos espécificos de éste grupo"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar" onclick="window.location.reload()"){$"Refrescar"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"Guardar"}
                 a(href="#<@GRUPOS_CONCEPTOS>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"Salir"}
@@ -29,7 +30,7 @@ module "form.dk"
                 input(type="hidden" name="sys_pk" value="#<@('#./sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
 
-                label(class="form-label"){$"Nombre:"}
+                label(class="form-label fw-bold"){$"Nombre:"}
                 input(class="form-control" id="nombre" name="nombre" value="#<@('$./nombre')>" required="true" maxlength="50")
             }
         }
@@ -43,10 +44,25 @@ module "form.dk"
                 document.addEventListener("DOMContentLoaded", () => {
                     let formGConcepto = document.getElementById("form_gp_conceptos");
                     let btnSave = document.getElementById("btn_save");
+                    let btn_conceptos = document.getElementById("btn_conceptos");
+                    let entity_id = "#<@("$parameters/_entity_id")>";
 
                     btnSave.addEventListener("click", () => {
                         if (!formGConcepto.reportValidity()) return;
                         formGConcepto.submit();
+                    });
+                    btn_conceptos.addEventListener("click", () => {
+                        if (entity_id === "_new"){
+                            if (!confirm("El grupo de conceptos no ha sido guardado. ¿Desea guardarlo ahoramismo?")) return;
+                            formGConcepto.setAttribute("action", "./?save_and_close=0");
+                            
+                            if (!formGConcepto.reportValidity()) return;
+                            formGConcepto.submit();
+                        }
+                        else
+                        {
+                            window.location.href = "#<@GRUPOS_CONCEPTOS_DETALLE>?group=" + entity_id + "";
+                        }
                     });
                 });
             '}

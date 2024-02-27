@@ -9,13 +9,12 @@ module "form.dk"
 
     do @context.begin(@crud_context)
 
-    ref linea = @("&./")
-    entityId = @("$parameters/_entity_id")
-    errorMsg = @("$error/message")
+    ref gcd = @("&./")
+    group = @("$parameters/group")
 
     #$ div(class="container")
     {
-        form(method="POST" action="./" id="form")
+        div
         {
             div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
             {
@@ -25,11 +24,11 @@ module "form.dk"
                 }
                 div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
                 {
-                    a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
-                    button(type="submit" class="btn btn-sm border-secondary induxsoft-corners btn-main-action"){
+                    button(onclick="window.location.reload();" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
+                    button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){
                         $'#<@@(@icons,"save")>'
                     }
-                    a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@PRODSERV_LINEA>") {
+                    a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action" href="#<@GRUPOS_CONCEPTOS_DETALLE>?group=#<group>") {
                         svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16") {
                             path(d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z")
                         }
@@ -39,11 +38,47 @@ module "form.dk"
             div(id="work_area" class="container-section")
             {
                 div(class="#<ifstr(@('error/message')!='','alert alert-danger','')>"){$"#<@('error/message')>"}
-            }
-            div(id="status_bar" class="container-section")
-            {
-                $""
+
+                input(type="hidden" name="sys_pk" value="@@(gcd,'sys_pk')")
+                input(type="hidden" name="sys_recver" value="@@(gcd,'sys_recver')")
+
+                button(type="button" class="btn btn-sm btn-outline-secondary mt-3 induxsoft-corners" id="btn_add_concepto"){$"Agregar concepto"}
+
+                "input-key"(
+                    id="ik_concepto"
+                    "data-key"="sys_pk"
+                    "data-search"="codigo"
+                    "data-text"="descripcion"
+                    "data-source"="#<@GCD_SEARCH_CONCEPTOS>"
+                    "columns"="codigo,descripcion"
+                    "colcaptions"="Código,Descripción"
+                    "box-title-text"="Seleccione un concepto"
+                    "box-placeholder-text"="Buscar concepto"
+                    "box-nodata-text"="No se encontraron conceptos"
+                    "control-styles"="#container{ display: none !important; }"
+                    "hidden-input"="false"
+                ){$""}
+
+                div(style="max-height: 70vh; display: flex;" class="mt-4")
+                {
+                    "edit-table"(id="table_conceptos" style="width: 100%;" "hidde-selector"="true")
+                    {
+                        "edit-thead"
+                        {
+                            "edit-tr"
+                            {
+                                "edit-th"(type="NoEditable" field="codigo"){$"Código"}
+                                "edit-th"(type="NoEditable" field="descripcion"){$"Concepto"}
+                            }
+                        }
+                    }
+                }
             }
         }
+        script(src="#<@JS_GRUPOS_CONCEPTOS_DETALLE>"){$""}
+        script{$'
+            grupo_concepto_detalle.url = "#<@GRUPOS_CONCEPTOS_DETALLE>";
+            grupo_concepto_detalle.group_pk = "#<group>";
+        '}
     }
 }

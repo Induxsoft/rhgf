@@ -19,8 +19,6 @@ module "config"
     @CONCEPTO_NOMINA_ADD=@CONCEPTO_NOMINA + "_new/"
     @TABLAS="/!/rhgf/tablas/"
     @GRUPOS_CONCEPTOS="/!/rhgf/grupos-conceptos/"
-    @GRUPOS_CONCEPTOS_DETALLE="/!/rhgf/grupo-conceptos-detalle/"
-    @GCD_SEARCH_CONCEPTOS="/!/rhgf/grupo-conceptos-detalle/?_view=conceptos"
     @TIPO_NOMINA="/!/rhgf/tipo-nomina/"
     @TIPO_NOMINA_ADD=@TIPO_NOMINA + "_new/"
 
@@ -41,6 +39,12 @@ module "config"
     @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
 
     @RH_ORGANIZACION = "/!/rhgf/organizacion/"
+    //#endregion
+
+    //#region grupo-conceptos-detalle
+    @GRUPOS_CONCEPTOS_DETALLE="/!/rhgf/grupo-conceptos-detalle/"
+    @GCD_SEARCH_CONCEPTOS="/!/rhgf/grupo-conceptos-detalle/?_view=conceptos"
+    @JS_GRUPOS_CONCEPTOS_DETALLE = "/$/rhgf/js/grupo_concepto_detalle.js"
     //#endregion
 
     //configurar la ruta del archivo si es necesario

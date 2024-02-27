@@ -19,11 +19,12 @@ module
         @"table_footer": "Mostrando los primeros # conceptos ordenados por nombre"
         member @"columns"
         {
-            member @"concepto" { @"caption":"Código" }
-            member @"_actions" 
+            member @"codigo" { @"caption":"Código" }
+            member @"descripcion" { @"caption":"Concepto" }
+            member @"_actions"
             { 
                 @"caption":"Acciones" 
-                @"template":'<button onclick="InduxsoftCrudlModel.Delete(${DataRow.sys_pk})" style="cursor:pointer; border: none; outline: none; padding: 2px 8px; background-color: #F5F5F5; color: #000;">Eliminar</button>'
+                @"template":'<div style="display:flex;justify-content:center;width:100%;"><button onclick="InduxsoftCrudlModel.Delete(${DataRow.sys_pk})" style="cursor:pointer; border: none; outline: none; padding: 2px 8px; background-color: #F5F5F5; color: #000;">Eliminar</button></div>'
                 @"no-print":@true
             }
         }
@@ -38,9 +39,9 @@ module
 
     new nav_config
     {
-        @"title": "Coceptos del grupo de conceptos"
+        @"title": "Conceptos del grupo de conceptos"
         @"buttons*": general_act
-        @"urlexit": @GRUPOS_CONCEPTOS + @@(get,"_entity_id")+ "/"
+        @"urlexit": @GRUPOS_CONCEPTOS + @@(get,"group")
     }
 
     #$

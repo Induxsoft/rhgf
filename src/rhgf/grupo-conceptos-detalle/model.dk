@@ -5,7 +5,7 @@ module
     @table_name = "rh_detalle_grupo_conceptos"
 
     @list_query = "
-        SELECT rh_dgc.sys_pk, rh_cn.descripcion
+        SELECT rh_dgc.sys_pk, rh_cn.codigo, rh_cn.descripcion
         FROM rh_detalle_grupo_conceptos rh_dgc
             INNER JOIN rh_concepto_nomina rh_cn ON rh_dgc.ref_concepto = rh_cn.sys_pk
         WHERE rh_dgc.ref_grupo = @group
@@ -13,8 +13,45 @@ module
         ORDER BY rh_cn.descripcion;
     "
 
+    function create(&db, &params, &data)
+    {
+        ref conceptos = @@(data,"&conceptos")
+        grupo = @@(data,"#grupo")
+
+        @use_transaction = @false
+        do dbr.begin(db)
+
+        if not(isnull(conceptos)) && list.count(conceptos) > 0
+        {
+            for i = 0; i < list.count(conceptos)
+            {
+                ref concepto = list.obj(conceptos,i)
+                new detalle
+                {
+                    @"sys_pk": 0
+                    @"sys_guid": uuid()
+                    @"sys_timestamp*": dbr.sql("NOW()")
+                    @"sys_recver": 0
+                    @"ref_grupo": grupo
+                    @"ref_concepto": @@(concepto, "#sys_pk")
+                }
+                do dbr.insert(db, "rh_detalle_grupo_conceptos", detalle)
+            }
+        }
+
+        do dbr.commit(db)
+
+        exception
+        {
+            if dbr.in_transaction(db) { do dbr.rollback(db) }
+            do rise_error(last_error_code(),last_error())
+        }
+    }
+
     function search_conceptos(&db, &params)
     {
-        return dbr.list(db, "SELECT sys_pk, codigo, descripcion FROM rh_concepto_nomina WHERE IF(IFNULL(@s,'')='', true, codigo LIKE CONCAT('%',@s,'%') OR descripcion LIKE CONCAT('%',@s,'%'))")
+        return dbr.list(db, "SELECT sys_pk, codigo, descripcion FROM rh_concepto_nomina WHERE IF(IFNULL(@s,'')='', true, codigo LIKE CONCAT('%',@s,'%') OR descripcion LIKE CONCAT('%',@s,'%')) ORDER BY descripcion", params)
     }
+
+    point @create to create
 }
