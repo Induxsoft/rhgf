@@ -41,7 +41,7 @@ module
     {
         @"title": "Conceptos del grupo de conceptos"
         @"buttons*": general_act
-        @"urlexit": @GRUPOS_CONCEPTOS + @@(get,"group")
+        @"urlexit": @GRUPOS_CONCEPTOS + @group
     }
 
     #$
@@ -55,6 +55,8 @@ module
 
             form(action="./" method="GET" id="form_search" class="no-print my-1 d-flex py-1")
             {
+                input(type="hidden" name="group" value="#<@group>")
+                
                 "filter-text"(
                     "id"="ft_search"
                     "text-field"="s"
