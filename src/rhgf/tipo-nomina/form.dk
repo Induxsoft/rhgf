@@ -6,6 +6,7 @@ module ""
     #include "serialize.dkh"
     #include "uielements.dkl"
     #include "../config.dk"
+    #include "uielements.v12.dkl"
 
     do @context.begin(@crud_context)
 
@@ -90,150 +91,245 @@ module ""
         }
         return options
     }
+
+    @vars_field_name = "var"
+
+    parse_str_to_objects::str,separator,fieldname
+    {
+        ref list = list.create()
+        if trim(str)==""{ return list }
+        ref values = split(str,separator)
+        for i = 0; i < list.count(values)
+        {
+            value = list.str(values,i)
+            ref obj = record.create()
+            obj<fieldname>:value
+            do list.add(list, obj)
+        }
+        return list
+    }
+
+    ref var_general = parse_str_to_objects(@('$./var_general'),",",@vars_field_name)
+    ref var_empleado = parse_str_to_objects(@('$./var_empleado'),",",@vars_field_name)
+
+    header_act::
+    { 
+        #$ button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="tn.validate()"){$"Aceptar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
+    {
+        @"title": "Tipo de nómina"
+        @"buttons*": general_act
+        member @"hidden" { @"print": @true }
+        @"urlexit": ftext("#<@CONCEPTO_NOMINA>")
+    }
+
     #$
     div(class="container")
     {
         script(src="#<@JS_TIPO_DE_NOMINA>"){""}
-        h1(class="h4"){$"Tipo de nómina"}
+        //h1(class="h4"){$"Tipo de nómina"}
         div
         {
             p(style="color:red"){$"#<@('$error/message')>"}
            
             form(action="." method="POST" onsubmit="return tn.validate()")
             {
-                 div(class="bg-light my-1")
+                #! do uie.printV12FormBar(nav_config)
+                //  div(class="bg-light my-1")
+                // {
+                //     div(class="btn-group" role="group")
+                //     {
+                //         a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm")
+                //         { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                //             <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                //             </svg>'
+                //         }
+                //         button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick=""){"Aceptar"}//tipocontrato.Add()
+                //     }
+                // }
+                // NAV TABS
+                #$ ul(class="nav nav-tabs mt-3 mb-3" id="myTab" role="tablist")
                 {
-                    div(class="btn-group" role="group")
-                    {
-                        a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm")
-                        { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
-                            </svg>'
-                        }
-                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick=""){"Aceptar"}//tipocontrato.Add()
+                    li(class="nav-item" role="presentation") {
+                        button(class="nav-link active" id="general-tab" "data-bs-toggle"="tab" "data-bs-target"="#general" type="button" role="tab" "aria-controls"="general" "aria-selected"="true"){$"General"}
+                    }
+                    li(class="nav-item" role="presentation") {
+                        button(class="nav-link" id="var_nomina-tab" "data-bs-toggle"="tab" "data-bs-target"="#var_nomina" type="button" role="tab" "aria-controls"="var_nomina" "aria-selected"="false"){$"Variables de nómina"}
+                    }
+                    li(class="nav-item" role="presentation") {
+                        button(class="nav-link" id="var_empleado-tab" "data-bs-toggle"="tab" "data-bs-target"="#var_empleado" type="button" role="tab" "aria-controls"="var_empleado" "aria-selected"="false"){$"Variables por empleado"}
                     }
                 }
-                div(class="row")
+                // PANEL TABS
+                div(class="tab-content" id="tabContent")
                 {
-                    div(class="col-md-6")
+                    // PANEL GENERAL
+                    div(class="tab-pane fade show active" id="general" role="tabpanel" "aria-labelledby"="general-tab")
                     {
-                        label{"Nombre:"}
-                        input(class="induxsoft-form-control" name="nombre" value="#<@('$./nombre')>" required="true")
-                    }
-                    div(class="col-md-6")
-                    {
-                        label{"Días a pagar:"}
-                        input(type="Number" class="induxsoft-form-control" name="dias" value="#<@('$./dias')>"  required="true" min="1")
-                    }
-                }
-                
-                div(class="row")
-                {
-                    div(class="col-md-6")
-                    {
-                        label{"Tipo:"}
-                        #! do uie.dbSelect(tipo)
-                    }
-                    #$div(class="col-md-6")
-                    {
-                        label{"Periocidad de pagos:"}
-                        #! do uie.dbSelect(periodo)
-                    }
-                }
-                #$ hr{""}
-                h5{"Frecuecia de período"}
-                div(class="row")
-                {
-                    div(class="col-md-6")
-                    {
-                        label{"Frecuencia período:"}
-                        select(class="induxsoft-form-select" name="ref_rh_frec_periodo" id="ref_rh_frec_periodo")
-                        {$"" 
-                            #!
-                            for i = 0; i < @count(@("&./frec_periodo"))
+                        div(class="row")
+                        {
+                            div(class="col-md-6")
                             {
-                                ref fperiodo=@item(@("&./frec_periodo"),i)
-                                #$ option(value="#<@@(fperiodo,'$id')>" "#<ifstr(@('#./ref_rh_frec_periodo')==@@(fperiodo,'#id'),'selected','')>"="true" data="#<to.json(fperiodo)>"){"#<@@(fperiodo,'$codigo_sat') + ' ' +@@(fperiodo,'$const')>"}
+                                label(class="fw-bold"){"Nombre:"}
+                                input(class="induxsoft-form-control" name="nombre" value="#<@('$./nombre')>" required="true")
                             }
-                            #$
-                        }
-                    }
-                    div(class="col-md-3")
-                    {
-                        #!
-                        inicio=ifstr(@("$./finicio")!="",@("$./finicio"),date_str(now(),"yyyy-MM-dd"))
-                        #$
-                        div(id="div_inicio")
-                        {
-                            label{"Inicio:"}
-                            input(type="date" class="induxsoft-form-control" name="inicio" id="inicio" value="#<inicio>")
+                            div(class="col-md-6")
+                            {
+                                label(class="fw-bold"){"Días a pagar:"}
+                                input(type="Number" class="induxsoft-form-control" name="dias" value="#<@('$./dias')>"  required="true" min="1")
+                            }
                         }
                         
-                    }
-                    div(class="col-md-3")
-                    {
-                        div(id="div_dias_cierre")
+                        div(class="row")
                         {
-                            label{"Días cierre:"}
-                            input(type="Number"  class="induxsoft-form-control" name="dias_cierre" id="dias_cierre" value="#<@('#./dias_cierre')>")
+                            div(class="col-md-6")
+                            {
+                                label{"Tipo:"}
+                                #! do uie.dbSelect(tipo)
+                            }
+                            #$ div(class="col-md-6")
+                            {
+                                label{"Periocidad de pagos:"}
+                                #! do uie.dbSelect(periodo)
+                            }
                         }
-                        
-                    }
-                }
-                div(class="row")
-                {
-                    div(class="col-md-3" id="div_1")
-                    {
-                        label(id="lbl_final1"){"Fin del primer periodo del mes:"}
-                        select(class="induxsoft-form-select" name="final1" id="final1" )
-                        {$""
-                            #!
-                            do createOptionPeriodoFinal(lperiodo_final,@("$./final1"))
-                            #$
+                        #$ hr{""}
+                        h5{"Frecuecia de período"}
+                        div(class="row")
+                        {
+                            div(class="col-md-6")
+                            {
+                                label{"Frecuencia período:"}
+                                select(class="induxsoft-form-select" name="ref_rh_frec_periodo" id="ref_rh_frec_periodo")
+                                {$"" 
+                                    #! for i = 0; i < @count(@("&./frec_periodo"))
+                                    {
+                                        ref fperiodo=@item(@("&./frec_periodo"),i)
+                                        #$ option(value="#<@@(fperiodo,'$id')>" "#<ifstr(@('#./ref_rh_frec_periodo')==@@(fperiodo,'#id'),'selected','')>"="true" data="#<to.json(fperiodo)>"){"#<@@(fperiodo,'$codigo_sat') + ' ' +@@(fperiodo,'$const')>"}
+                                    }
+                                }
+                            }
+                            div(class="col-md-3")
+                            {
+                                #! inicio=ifstr(@("$./finicio")!="",@("$./finicio"),date_str(now(),"yyyy-MM-dd"))
+                                #$ div(id="div_inicio")
+                                {
+                                    label{"Inicio:"}
+                                    input(type="date" class="induxsoft-form-control" name="inicio" id="inicio" value="#<inicio>")
+                                }
+                            }
+                            div(class="col-md-3")
+                            {
+                                div(id="div_dias_cierre")
+                                {
+                                    label{"Días cierre:"}
+                                    input(type="Number"  class="induxsoft-form-control" name="dias_cierre" id="dias_cierre" value="#<@('#./dias_cierre')>")
+                                }
+                            }
                         }
-                    }
-                    div(class="col-md-3" id="div_2")
-                    {
-                        label(id="lbl_final2"){"Fin del segundo periodo del mes:"}
-                        select(class="induxsoft-form-select" name="final2" id="final2" )
-                        {$""
-                            #!
-                            do createOptionPeriodoFinal(lperiodo_final,@("$./final2"))
-                            #$
+                        div(class="row")
+                        {
+                            div(class="col-md-3" id="div_1")
+                            {
+                                label(id="lbl_final1"){"Fin del primer periodo del mes:"}
+                                select(class="induxsoft-form-select" name="final1" id="final1" )
+                                {$""
+                                    #! do createOptionPeriodoFinal(lperiodo_final,@("$./final1"))
+                                }
+                            }
+                            #$ div(class="col-md-3" id="div_2")
+                            {
+                                label(id="lbl_final2"){"Fin del segundo periodo del mes:"}
+                                select(class="induxsoft-form-select" name="final2" id="final2" )
+                                {$""
+                                    #! do createOptionPeriodoFinal(lperiodo_final,@("$./final2"))
+                                }
+                            }
+                            #$ div(class="col-md-3" id="div_3")
+                            {
+                                label(id="lbl_final3"){"Fin del tercer periodo del mes:"}
+                                select(class="induxsoft-form-select" name="final3" id="final3")
+                                {$""
+                                    #! do createOptionPeriodoFinal(lperiodo_final,@("$./final3"))
+                                }
+                            }
                         }
-                    }
-                    div(class="col-md-3" id="div_3")
-                    {
-                        label(id="lbl_final3"){"Fin del tercer periodo del mes:"}
-                        select(class="induxsoft-form-select" name="final3" id="final3")
-                        {$""
-                            #!
-                            do createOptionPeriodoFinal(lperiodo_final,@("$./final3"))
-                            #$
-                        }
-                    }
-                }
-                #$ hr{""}
-                h5{"Adicional"}
+                        #$ hr{""}
+                        h5{"Adicional"}
 
-                div(class="row")
-                {
-                    div(class="col-md-6")
-                    {
-                        label{"Grupo de conceptos:"}
-                        #! do uie.dbSelect(gconceptos)
+                        div(class="row")
+                        {
+                            div(class="col-md-6")
+                            {
+                                label{"Grupo de conceptos:"}
+                                #! do uie.dbSelect(gconceptos)
+                            }
+                            #$ div(class="col-md-6 d-flex align-items-center")
+                            {
+                                label{input(type="checkbox" name="sel_manual_empleados" "#<ifstr(@('#./sel_manual_empleados'),'checked','')>"="true") " Selección manual de empleados a incluir"}
+                            }
+                        }
+                        input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
                     }
-                    #$ div(class="col-md-6 d-flex align-items-center")
+                    // PANEL VARIABLES NÓMINA
+                    div(class="tab-pane fade" id="var_nomina" role="tabpanel" "aria-labelledby"="var_nomina-tab")
                     {
-                        label{input(type="checkbox" name="sel_manual_empleados" "#<ifstr(@('#./sel_manual_empleados'),'checked','')>"="true") " Selección manual de empleados a incluir"}
+                        div(class="w-100 d-flex gap-1")
+                        {
+                            input(id="ipt_var_nomina" class="induxsoft-form-control")
+                            button(type="button" id="btn_add_varnomina" iptid="ipt_var_nomina" inputhidden="var_general" table="table_var_nomina" class="btn btn-white rounded-0" style="outline:1px solid #ced4da;"){$"Agregar"}
+                            button(type="button" id="btn_del_varnomina" table="table_var_nomina" inputhidden="var_general" class="btn btn-light rounded-0" style="outline:1px solid #ced4da;"){$"Eliminar"}
+                        }
+                        div(style="height: 50vh; display: flex;")
+                        {
+                            "edit-table"(id="table_var_nomina" data="#<to.json(var_general)>" style="width: 100%;" "hidde-selector"="true")
+                            {
+                                "edit-thead"
+                                {
+                                    "edit-tr"
+                                    {
+                                        "edit-th"(type="NoEditable" field="#<@vars_field_name>"){$""}
+                                    }
+                                }
+                            }
+                            input(type="hidden" name="var_general" value="#<@('$./var_general')>")
+                        }
+                    }
+                    // PANEL VARIABLES EMPLEADO
+                    div(class="tab-pane fade" id="var_empleado" role="tabpanel" "aria-labelledby"="var_empleado-tab")
+                    {
+                        div(class="w-100 d-flex gap-1")
+                        {
+                            input(id="ipt_var_empleado" class="induxsoft-form-control")
+                            button(type="button" id="btn_add_varempleado" iptid="ipt_var_empleado" inputhidden="var_empleado" table="table_var_empleado" class="btn btn-white rounded-0" style="outline:1px solid #ced4da;"){$"Agregar"}
+                            button(type="button" id="btn_del_varempleado" table="table_var_empleado" inputhidden="var_empleado" class="btn btn-light rounded-0" style="outline:1px solid #ced4da;"){$"Eliminar"}
+                        }
+                        div(style="height: 50vh; display: flex;")
+                        {
+                            "edit-table"(id="table_var_empleado" data="#<to.json(var_empleado)>" style="width: 100%;" "hidde-selector"="true")
+                            {
+                                "edit-thead"
+                                {
+                                    "edit-tr"
+                                    {
+                                        "edit-th"(type="NoEditable" field="#<@vars_field_name>"){$""}
+                                    }
+                                }
+                            }
+                            input(type="hidden" name="var_empleado" value="#<@('$./var_empleado')>")
+                        }
                     }
                 }
-                input(type="hidden" name="sys_recver" value="#<@('#./sys_recver')>")
             }
             script
             {
                 $'
                 tn.semanas="#<optionDias(@("$./final1"))>";
+                tn.vars_field_name="#<@vars_field_name>";
                 '
             }
         }

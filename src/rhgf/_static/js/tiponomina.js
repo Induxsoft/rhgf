@@ -73,6 +73,78 @@ var tn=
         });
 
         crud.trigger(tn.ref_rh_frec_periodo,"change");
+
+        const table_var_nomina = document.getElementById("table_var_nomina");
+        const table_var_empleado = document.getElementById("table_var_empleado");
+
+        if (table_var_nomina && table_var_empleado)
+        {
+            [table_var_nomina, table_var_empleado].forEach(table=>{
+                table.AutoAddRow = false;
+                table.AutoDelRow = false;
+                table.EverMove = false;
+            });
+        }
+
+        ["btn_add_varnomina","btn_add_varempleado"].forEach(id=>{
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', () => { this.addVar(btn) });
+        });
+        ["btn_del_varnomina","btn_del_varempleado"].forEach(id=>{
+            let btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', () => { this.deleteVar(btn) });
+        });
+        ["ipt_var_nomina","ipt_var_empleado"].forEach(id=>{
+            const input = document.getElementById(id);
+            if (input) input.addEventListener('keydown', e => {
+                if (e.key==="Enter") {
+                    e.preventDefault();
+                    const btn = document.querySelector(`button[iptid=${id}]`);
+                    if (btn) btn.click();
+                    return;
+                }
+            });
+        });
+    },
+    addVar(btn)
+    {
+        const input = document.getElementById(btn.getAttribute("iptid"));
+        const table = document.getElementById(btn.getAttribute("table"));
+        
+        if (input && table)
+        {
+            const val =  input.value;
+            if (!val) return;
+
+            const reg = /^[a-zA-Z@_][a-zA-Z0-9@_]*$/;
+
+            if (!reg.exec(val)) {
+                alert("El identificador (nombre) para la variable no es válido. Debe iniciar con una letra [a-z], el guión bajo [_], o el caracter arroba [@], no debe contener espacios en blanco, signos, símbolos o caracteres especiales");
+                input.select();
+                return;
+            }
+
+            let obj = {};
+            obj[tn.vars_field_name] = val;
+            table.DataArray.push(obj);
+            table._printRows();
+            input.value="";
+            this.setInputHidenValues(btn,table);
+        }
+    },
+    deleteVar(btn)
+    {
+        const table = document.getElementById(btn.getAttribute("table"));
+        if (table) { 
+            table._dataArrayBackup=[]; 
+            table.DeleteCurrentRow(); 
+            this.setInputHidenValues(btn,table);
+        }
+    },
+    setInputHidenValues(btn,table)
+    {
+        const inputHiden = document.querySelector(`input[name=${btn.getAttribute("inputhidden")??'_qwerty_'}]`);
+        if (inputHiden) inputHiden.value = table.DataArray.map(obj=>{ return obj[tn.vars_field_name]}).toString();
     },
     validate()
     {
@@ -89,6 +161,18 @@ var tn=
         if(Number(tn.final2.value)>Number(tn.final3.value) && !isHidde_3)
         {
             alert("El segundo período no puede ser mayor al tercer período");
+            return false;
+        }
+
+        const name = document.querySelector("input[name='nombre']");
+        const dias = document.querySelector("input[name='dias']");
+        
+        if (name && name.value.trim()==""){
+            alert("El campo Nombre es requerido");
+            return false;
+        }
+        if (dias && dias.value.trim()==""){
+            alert("El campo Días a pagar es requerido");
             return false;
         }
         return true;
