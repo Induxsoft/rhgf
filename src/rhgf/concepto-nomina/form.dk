@@ -5,6 +5,7 @@ module ""
     #include "functions.dkh"
     #include "serialize.dkh"
     #include "uielements.dkl"
+    #include "uielements.v12.dkl"
     #include "../config.dk"
 
     do @context.begin(@crud_context)
@@ -51,28 +52,35 @@ module ""
         @"text_field":"const"
         @"selected":@('$./sat_elemento')
     }
+
+    header_act::
+    { 
+        #$ button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="tipocontrato.Add()"){"Aceptar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
+    {
+        @"title": "Conceptos de cálculo de nóminas"
+        @"buttons*": general_act
+        @"urlexit": @CONCEPTO_NOMINA
+        member @"hidden"
+        {
+            @"print": @true
+        }
+    }
+    
     #$
     div(class="container")
     {
-        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
         div
-        {
-            p(style="color:red"){$"#<@('$error/message')>"}
-           
+        {           
             form(action="." method="POST")
             {
-                 div(class="bg-light my-1")
-                {
-                    div(class="btn-group" role="group")
-                    {
-                        a(href="#<@CONCEPTO_NOMINA>" class="btn btn-sm")
-                        { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
-                            </svg>'
-                        }
-                        button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="tipocontrato.Add()"){"Aceptar"}
-                    }
-                }
+                #! do uie.printV12FormBar(nav_config)
+                #$ p(style="color:red"){$"#<@('$error/message')>"}
+                
                 div(class="row")
                 {
                     div(class="col-md-6")

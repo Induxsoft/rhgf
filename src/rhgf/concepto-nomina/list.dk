@@ -5,44 +5,81 @@ module "list.recibo"
     #include "functions.dkh"
     #include "serialize.dkh"
     #include "uielements.dkl"
+    #include "uielements.v12.dkl"
     #include "../config.dk"
 
     do @context.begin(@crud_context)
+    ref @http_context = @('&http')
+    ref get = @@(@http_context,"&request/get")
     ref data=@("&./data")
-    #$
-    div(class="container")
+
+    ref listConceptos = ifnull(@("&."),list.create())
+
+    new table_definition
     {
-        h1(class="h4"){$"Conceptos de cálculo de nóminas"}
-        div
+        @"datatable*": listConceptos
+        @"table_footer": "Mostrando los primeros # conceptos"
+        member @"columns"
         {
-            p(style="color:red"){$"#<@('$error/message')>"}
-            div(class="bg-light my-1")
-            {
-                div(class="btn-group" role="group")
-                {
-                    a(class="btn btn-sm btn-outline-success induxsoft-corners m-1" href="#<@CONCEPTO_NOMINA_ADD>"){"Agregar"}
-                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="cnomina.Editar()"){"Editar"}
-                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="cnomina.Delete()"){"Eliminar"}
-                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
-                }
-            }
-            "edit-table"(class="w-100 h-100" id="lst_conceptos_nomina" data="#<to.json(@('&.'))>" "hidde-selector"="true")
-            {
-                "edit-thead"
-                {
-                    "edit-tr"
-                    {
-                        "edit-th"(type="NoEditable" field="codigo" style="width: 40%;"){$"Código"}
-                        "edit-th"(type="NoEditable" field="descripcion"){$"Descripción"}
-                        "edit-th"(type="NoEditable" field="tipoconcepto"){$"Tipo de concepto"}
-                        "edit-th"(type="NoEditable" field="tiposat"){$"Tipo SAT"}
-                        "edit-th"(type="NoEditable" field="fsat_clave"){$"Clave SAT"}
-                    }
-                }
+            member @"codigo" { @"caption":"Código" }
+            member @"descripcion" { @"caption":"Descripción" }
+            member @"tipoconcepto" { @"caption":"Tipo de concepto" }
+            member @"tiposat" { @"caption":"Tipo SAT" }
+            member @"fsat_clave" { @"caption":"Clave SAT" }
+            member @"_actions" 
+            { 
+                @"caption":"Acciones" 
+                @"template":'
+                    <div style="display:flex;gap:8px;justify-content:center;width:100%;" class="no-print">
+                        <a href="./${DataRow.sys_pk}/" style="cursor:pointer; text-decoration: none; padding: 0px 8px; background-color: #F5F5F5; color: #000;">Editar</a>
+                        <button onclick="InduxsoftCrudlModel.Delete(${DataRow.sys_pk})" style="cursor:pointer; border: none; outline: none; padding: 0px 8px; background-color: #F5F5F5; color: #000;">Eliminar</button>
+                    </div>
+                '
+                @"no-print":@true
             }
         }
+    }
+
+    header_act::
+    { 
+        #$ a(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" href="#<@CONCEPTO_NOMINA_ADD>"){"Agregar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
+    {
+        @"title": "Conceptos de cálculo de nóminas"
+        @"buttons*": general_act
+        @"urlexit": "/"
+    }
+
+    #$
+    div(class="container-fluid p-0")
+    {
+        #! do uie.printV12FormBar(nav_config)
+
+        #$ div(id="work_area" class="container-section mt-1 p-2 pt-0")
+        {
+            p{$"#<@('$error/message')>"}
+
+            form(action="./" method="GET" id="form_search" class="no-print my-1 d-flex py-1")
+            {
+                "filter-text"(
+                    "id"="ft_search"
+                    "text-field"="s"
+                    "placeholder"="Buscar por código o descripción"
+                    "form"="#form_search"
+                    "value"="#<@@(get,'$s')>"
+                    "auto-submit"="true"
+                    "class"="w-100"
+                ){$""}
+            }
+
+            #! do uie.dbeditable(table_definition, "lst_conceptos_nomina")
+        }
        
-        script
+        #$ script
         {
             $'
             cnomina.url="#<@CONCEPTO_NOMINA>";
