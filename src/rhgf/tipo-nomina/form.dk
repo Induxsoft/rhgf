@@ -5,8 +5,8 @@ module ""
     #include "functions.dkh"
     #include "serialize.dkh"
     #include "uielements.dkl"
-    #include "../config.dk"
     #include "uielements.v12.dkl"
+    #include "../config.dk"
 
     do @context.begin(@crud_context)
 
@@ -27,6 +27,7 @@ module ""
         @"text_field":"valor"
         @"selected":@('$./sat_tiponomina')
     }
+
     new periodo
     {
         @"datatable*":periodosat
@@ -41,6 +42,7 @@ module ""
         @"text_field":"valor"
         @"selected":@('$./sat_periodicidad')
     }
+
     new gconceptos
     {
         @"datatable*":@("&./gconceptos")
@@ -56,7 +58,9 @@ module ""
         @"text_field":"nombre"
         @"selected":@('$./ref_grupo_conceptos')
     }
+
     ref lperiodo_final=list.create_from_fields(@periodo_final)
+
     #!
     createOptionPeriodoFinal::&lperiodo_final,selected
     {
@@ -79,6 +83,7 @@ module ""
             #!
         }
     }
+    
     optionDias::selected
     {
         ref ldias=list.create_from_fields(@dias)
@@ -325,6 +330,7 @@ module ""
                     }
                 }
             }
+
             script
             {
                 $'

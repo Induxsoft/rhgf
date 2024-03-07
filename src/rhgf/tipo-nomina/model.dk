@@ -19,6 +19,7 @@ module ""
         do PrepareView(db,params,entity)
         return entity
     }
+    
     blank::&db,&params
     {
         new entity
@@ -49,6 +50,7 @@ module ""
             do rise_error(500,error)
         }
     }
+
     point @read to read
     point @blank to blank
     point @create to save
