@@ -1,7 +1,16 @@
 #include "dkli.dkh"
 #!
-module ""
+
+module "model"
 {
-    @list_query="select * from rh_tabla_calculo order by nombre;"
-    @table_name="rh_tabla_calculo"
+    @table_name = "rh_tabla_calculo"
+    @list_query = "SELECT * FROM rh_tabla_calculo ORDER BY nombre"
+
+    function tablas_delete(&db,&params)
+    {
+        do entity.delete(db,params)
+        return @true
+    }
+
+    point @delete to tablas_delete
 }
