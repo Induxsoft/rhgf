@@ -1,14 +1,16 @@
 #include "dkli.dkh"
 #!
+
 module "var"
 {
-    @list_query="Select * from rh_variable Order by nombre;"
-    @table_name="rh_variable"
+    @table_name = "rh_variable"
+    @list_query = "SELECT * FROM rh_variable ORDER BY nombre;"
 
     update::&db,&params,&data
     {
         do dbr.update(db,@table_name,data,"sys_pk=@_entity_id",params)
         return @null
     }
+    
     point @update to update
 }

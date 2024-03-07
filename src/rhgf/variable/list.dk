@@ -4,33 +4,42 @@ module "list.recibo"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
+    #include "uielements.v12.dkl"
     #include "../config.dk"
 
     do @context.begin(@crud_context)
     ref data=@("&./data")
+
+    header_act::
+    { 
+        #$
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="variable.addVariable()"){"Agregar"}
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="variable.EditarVariable()"){"Editar"}
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="variable.DeleteVariable()"){"Eliminar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
+    {
+        @"title": "Variables y fórmulas"
+        member @"hidden"
+        {
+            @"print": @false
+        }
+        @"buttons*": general_act
+        @"urlexit": "/"
+    }
     
     #$
-    div(class="container")
+    div(class="container p-0")
     {
-        h1(class="h4"){$"Variables y fórmulas"}
-        div
+        #! do uie.printV12FormBar(nav_config)
+
+        #$ div(id="work_area" class="container-section pt-2")
         {
-            p(style="color:red"){$"#<@('$error/message')>"}
-            div(class="bg-light my-1")
-            {
-                div(class="btn-group" role="group")
-                {
-                    // a(href="#<@NOMINAS+@@(data,'$ref_nomina')>/" class="btn btn-sm")
-                    // { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-                    //     <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
-                    //     </svg>'
-                    // }
-                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="variable.addVariable()"){"Agregar"}
-                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="variable.EditarVariable()"){"Editar"}
-                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="variable.DeleteVariable()"){"Eliminar"}
-                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
-                }
-            }
+            p{$"#<@('$error/message')>"}
+
             "edit-table"(class="w-100 h-100" id="lst_variables" data="#<to.json(@('&.'))>" "hidde-selector"="true")
             {
                 "edit-thead"
@@ -44,8 +53,10 @@ module "list.recibo"
                 }
             }
         }
+
         #!
         #include "modals.dk"
+
         #$
         script
         {
