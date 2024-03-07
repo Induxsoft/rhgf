@@ -24,6 +24,15 @@ module "list nomina"
         obligaciones = obligaciones + @@(itm,"#obligaciones")
     }
 
+    header_act::
+    { 
+        #$
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="nomina.Editar()"){"Editar"}
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="nomina.DeleteNomina()"){"Eliminar"}
+    }
+
+    #! point general_act to header_act
+
     new nav_config
     {
         @"title": "Nóminas"
@@ -31,6 +40,7 @@ module "list nomina"
         {
             @"print": @false
         }
+        @"buttons*": general_act
         @"urlexit": "/"
     }
 
@@ -45,19 +55,8 @@ module "list nomina"
 
             div(class="bg-light my-1")
             {
-                div(class="d-flex gap-2" role="group")
-                {
-                    // a(href="#<@MENU>" class="btn btn-sm")
-                    // { $'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-                    //     <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
-                    //     </svg>'
-                    // }
-                    div(class="flex-grow-1 d-flex gap-2")
-                    {
-                        button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar()"){"Editar"}
-                        button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteNomina()"){"Eliminar"}
-                    }
-                    
+                div(class="d-flex gap-2 flex-row-reverse" role="group")
+                {                    
                    div(class="d-flex gap-2")
                    {
                         label(class="d-flex ms-1"){"Percepciones: $"h5(class="ms-1"){"#<format(percepciones,'#,#.00')>"}}
@@ -65,8 +64,6 @@ module "list nomina"
                         label(class="d-flex ms-1"){"Liquido: $"h5(class="ms-1"){" #<format(liquido,'#,#.00')>"}}
                         label(class="d-flex ms-1"){"Obligaciones: $"h5(class="ms-1"){" #<format(obligaciones,'#,#.00')>"}}
                    }
-                    
-                    
                 }
             }
 
@@ -92,6 +89,7 @@ module "list nomina"
                 }
             }
         }
+
         script
         {
             $'

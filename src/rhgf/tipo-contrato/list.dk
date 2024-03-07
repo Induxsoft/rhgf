@@ -4,59 +4,74 @@ module "list.recibo"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
-    #include "uielements.dkl"
+    #include "uielements.v12.dkl"
     #include "../config.dk"
 
     do @context.begin(@crud_context)
-    ref data=@("&./data")
+    ref data = @("&./data")
     
-    ref tc=if(file.exists(@TIPO_CONTRATO_SAT),from.json(file.rtext(@TIPO_CONTRATO_SAT)),list.create())
+    ref tc = if(file.exists(@TIPO_CONTRATO_SAT),from.json(file.rtext(@TIPO_CONTRATO_SAT)),list.create())
 
     new tipocontrato
     {
-        @"datatable*":tc
-        @"id":"sat_tipocontrato"
+        @"datatable*": tc
+        @"id": "sat_tipocontrato"
         member "attributes"
         {
-            @"class":"induxsoft-form-select"
-            @"name":"sat_tipocontrato"
-            @"required":"true"
+            @"class": "induxsoft-form-select"
+            @"name": "sat_tipocontrato"
+            @"required": "true"
         }
-        @"value_field":"clave"
-        @"text_field":"valor"
-        @"selected":@('$./sat_tipocontrato')
+        @"value_field": "clave"
+        @"text_field": "valor"
+        @"selected": @('$./sat_tipocontrato')
     }
+
     new tiponominaordinaria
     {
-        @"datatable*":@("&./tiponomina")
-        @"id":"ref_tipo_nominaordinaria"
+        @"datatable*": @("&./tiponomina")
+        @"id": "ref_tipo_nominaordinaria"
         member "attributes"
         {
-            @"class":"induxsoft-form-select"
-            @"name":"ref_tipo_nominaordinaria"
-            @"required":"true"
+            @"class": "induxsoft-form-select"
+            @"name": "ref_tipo_nominaordinaria"
+            @"required": "true"
         }
-        @"value_field":"sys_pk"
-        @"text_field":"ftext"
-        @"selected":@('$./ref_tipo_nominaordinaria')
+        @"value_field": "sys_pk"
+        @"text_field": "ftext"
+        @"selected": @('$./ref_tipo_nominaordinaria')
     }
-    #$
-    div(class="container")
+
+    header_act::
+    { 
+        #$
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="tipocontrato.Add()"){"Agregar"}
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="tipocontrato.Editar()"){"Editar"}
+        button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" onclick="tipocontrato.Delete()"){"Eliminar"}
+    }
+
+    #! point general_act to header_act
+
+    new nav_config
     {
-        h1(class="h4"){$"Tipos de contratos"}
-        div
+        @"title": "Tipos de contratos"
+        member @"hidden"
         {
-            p(style="color:red"){$"#<@('$error/message')>"}
-            div(class="bg-light my-1")
-            {
-                div(class="btn-group" role="group")
-                {
-                    button(class="btn btn-sm btn-outline-success induxsoft-corners m-1" onclick="tipocontrato.Add()"){"Agregar"}
-                    button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="tipocontrato.Editar()"){"Editar"}
-                    button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="tipocontrato.Delete()"){"Eliminar"}
-                    button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
-                }
-            }
+            @"print": @false
+        }
+        @"buttons*": general_act
+        @"urlexit": "/"
+    }
+
+    #$
+    div(class="container p-0")
+    {
+        #! do uie.printV12FormBar(nav_config)
+
+        #$ div(id="work_area" class="container-section pt-2")
+        {
+            p{$"#<@('$error/message')>"}
+
             "edit-table"(class="w-100 h-100" id="lst_tipocontrato" data="#<to.json(@('&./data'))>" "hidde-selector"="true")
             {
                 "edit-thead"
@@ -69,8 +84,10 @@ module "list.recibo"
                 }
             }
         }
+
         #!
         #include "modals.dk"
+
         #$
         script
         {
