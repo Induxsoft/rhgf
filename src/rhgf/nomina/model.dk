@@ -2,6 +2,8 @@
 #!
 module ""
 {
+    @table_name="rh_nomina"
+
     @list_query="select n.sys_pk, n.sys_timestamp, n.sys_guid, n.sys_dtcreated, n.sys_recver, n.sys_deleted, n.sys_lock, n.inicio, n.fin, n.ref_tipo, n.fpago, n.notas,n.dias,n.nombre,n.fproceso,n.fcancelada,n.status,n.variables, ifnull(n.error_log,'')error_log,n.sat_entidad, tn.nombre tipo_nomina,tn.sat_tiponomina, s.const status_nomina,
     sum(if(c.tipo=0,dnc.importe,0)) percepciones,
     sum(if(c.tipo=1,dnc.importe,0)) deducciones,
@@ -28,7 +30,6 @@ module ""
     dn.ref_nomina, dn.ref_contrato, dn.notas,c.fechainicio, c.fechavencimiento, c.referencia
     order by e.apellido1, e.apellido2, e.nombre;"
 
-    @table_name="rh_nomina"
     list::&db,&params
     {
         new entity
@@ -40,6 +41,7 @@ module ""
         entity<"recibos*">:entity.list(db,params)
         return entity
     }
+
     delete::&db,&params
     {
         ref tl=dbr.list(db,"select count(sys_pk) as tablacount from rh_detalle_nomina where ref_nomina=@_entity_id;",params)
@@ -134,7 +136,6 @@ module ""
                }
            }
         }
-        // do entity.delete(db,params)
     }
 
     point @list to list

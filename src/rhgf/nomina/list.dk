@@ -4,29 +4,45 @@ module "list nomina"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
+    #include "uielements.v12.dkl"
     #include "../config.dk"
+
     do @context.begin(@crud_context)
 
-    ref recibos=@('&./recibos')
-    percepciones=0
-    deducciones=0
-    liquido=0
-    obligaciones=0
+    ref recibos = @('&./recibos')
+    percepciones = 0
+    deducciones = 0
+    liquido = 0
+    obligaciones = 0
+
     for i = 0; i < @count(recibos)
     {
-        ref itm=@item(recibos,i)
-        percepciones=percepciones + @@(itm,"#percepciones")
-        deducciones=deducciones + @@(itm,"#deducciones")
-        liquido=liquido + @@(itm,"#liquido")
-        obligaciones=obligaciones + @@(itm,"#obligaciones")
+        ref itm = @item(recibos,i)
+        percepciones = percepciones + @@(itm,"#percepciones")
+        deducciones = deducciones + @@(itm,"#deducciones")
+        liquido = liquido + @@(itm,"#liquido")
+        obligaciones = obligaciones + @@(itm,"#obligaciones")
     }
-    #$
-    div(class="container")
+
+    new nav_config
     {
-        h1(class="h4"){$"Nóminas"}
-        div
+        @"title": "Nóminas"
+        member @"hidden"
         {
-            p(style="color:red"){$"#<@('$error/message')>"}
+            @"print": @false
+        }
+        @"urlexit": "/"
+    }
+
+    #$
+    div(class="container p-0")
+    {
+        #! do uie.printV12FormBar(nav_config)
+        
+        #$ div(id="work_area" class="container-section pt-2")
+        {
+            p{$"#<@('$error/message')>"}
+
             div(class="bg-light my-1")
             {
                 div(class="d-flex gap-2" role="group")
@@ -40,7 +56,6 @@ module "list nomina"
                     {
                         button(class="btn btn-sm btn-outline-primary induxsoft-corners m-1" onclick="nomina.Editar()"){"Editar"}
                         button(class="btn btn-sm btn-outline-danger induxsoft-corners m-1" onclick="nomina.DeleteNomina()"){"Eliminar"}
-                        button(class="btn btn-sm btn-outline-secondary induxsoft-corners m-1" onclick="window.location.reload()"){"Refrescar"}
                     }
                     
                    div(class="d-flex gap-2")
