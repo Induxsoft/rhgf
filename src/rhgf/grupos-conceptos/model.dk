@@ -3,7 +3,7 @@
 module ""
 {
     @table_name="rh_grupo_conceptos"
-    @list_query="Select * from rh_grupo_conceptos order by nombre;"
+    @list_query="Select * from rh_grupo_conceptos WHERE IF(IFNULL(@s,'')='',true,nombre like concat('%',@s,'%')) order by nombre;"
 
     create::&db,&params,&data
     {
