@@ -59,7 +59,7 @@ module "form.dk"
                                 "data-key"="sys_pk"
                                 "data-search"="referencia"
                                 "data-text"="referencia"
-                                "data-value"='#<to.json(@("&./contrato"))>'
+                                "data-value"='#<to.json(ifnull(@("&./contrato"),record.create()))>'
                                 "data-source"="#<@CONTRATO_EMPLEADO>?p_activo=1&s=@search"
                                 "box-title-text"="Seleccione un contrato"
                                 "box-placeholder-text"="Buscar contratos"
@@ -76,7 +76,7 @@ module "form.dk"
                                 "data-key"="sys_pk"
                                 "data-search"="codigo"
                                 "data-text"="descripcion"
-                                "data-value"='#<to.json(@("&./turno"))>'
+                                "data-value"='#<to.json(ifnull(@("&./turno"),record.create()))>'
                                 "data-source"="#<@RH_CTR_ASIST_DIA_TURNO>?s=@search"
                                 "box-title-text"="Seleccione un turno"
                                 "box-placeholder-text"="Buscar turnos"
