@@ -526,17 +526,7 @@ model "rhgf"
         @"ref_grupo" ref:"rh_grupo_conceptos" required
         @"ref_concepto" ref:"rh_concepto_nomina" required
     }
-    ///reeg
-    entity "rhgf_ree_status":"EnumModel"
-    {
-        /*
-        0-Por aprobar
-        9-Rechazada
-        10-Aprobada
-        20-Pagada
-        99-Cancelada
-        */
-    }
+    
     entity "ctasasiva" : "EnumModel" {}
     entity "cformaspago" : "EnumModel" {}
     entity "cstatusadministrativos" : "EnumModel" {}
@@ -566,18 +556,6 @@ model "rhgf"
         @"codcuenta" string(50) unique
         @"codigo" string(5) unique required
         @"descripcion" string(50) unique required
-    }
-    entity "ut_gasto" : "TableModel"
-    {
-        @"referencia" string(50) unique required
-        @"fecha" datetime required
-        @"vencimiento" datetime required
-        @"concepto" string(1500) required
-        @"iproveedor" ref:"proveedor" required
-        @"icategoria" ref:"categoria" required
-        @"idivisa" ref:"divisa" required
-        @"formapago" ref:"cformaspago" required
-        @"statusadministrativo" ref:"cstatusadministrativos" required
     }
     
     
