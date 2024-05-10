@@ -1,0 +1,20 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "uielements.v12.dkl"
+    #include "../config.dk"
+
+    do @context.begin(@crud_context)
+    url_exit=replace(@REEG_ADD_EDIT,"{id}",@("$./sys_pk"))
+    #$
+    div(class="container")
+    {
+        #!
+        do uie.printMainBar(@null,"Pagar",@true,url_exit)
+        #$
+        h3{"Pagar"}
+    }
+}

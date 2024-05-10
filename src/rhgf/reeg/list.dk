@@ -1,0 +1,75 @@
+#include "dkli.dkh"
+#!
+module "list"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "../config.dk"
+    #include "uielements.dkl"
+    #include "uielements.v12.dkl"
+
+    do @context.begin(@crud_context)
+
+    url_edit=replace(@REEG_ADD_EDIT,"{id}","${DataRow.sys_pk}")
+    ref data = @("&./")
+    new table
+    {
+        @"datatable*":data
+        @"leyend":""
+        @"auto-confirm":"true"
+        member @"columns"
+        {
+            member @"fecha_solicitud"{@"caption":"Fecha solicitud"}
+            member @"empleado"{@"caption":"Empleado"}
+            member @"status"{@"caption":"Estado"}
+            member @"importe_solicitado"
+            {
+                @"caption":"Importe solicitado"
+                @"textalign":"end" 
+                @"format":"true" 
+                @"decs":"2" 
+                @"prefix":"$ " 
+                @"thousandssep":"true"
+            } 
+            member @"concepto"{@"caption":"Concepto"} 
+            member @"_actions"
+            {
+                @"caption":"Acciones"
+                @"no-print":@true
+                @"template":ftext('
+                    <div>
+                        <a class="btn btn-sm" href="#<url_edit>">Editar</a>
+                    </div>
+                ')
+            }
+        }
+    }
+    isnew=@("$parameters/_entity_id")=="_new"
+    @url_new=replace(@REEG_ADD_EDIT,"{id}","_new")
+
+    buttons::
+    {
+        #$
+        a(href="#<@url_new>" class="btn btn-sm border-secondary induxsoft-corners"){"Agregar"}
+        #!
+    }
+    point buttons to buttons
+    #$ div(class="container-fuid")
+    {
+        #!
+        do uie.printMainBar(buttons,"Reembolso de gastos de empleado",@true,"")
+        #$
+        div(id="work_area" class="container-section pt-2")
+        {
+            form(action="./" method="GET" id="form_search" class="d-flex mb-2 no-print")
+            {$""
+            }
+            div(class="ps-2 pe-2")
+            {
+                #!
+                do uie.dbeditable(table,"table_reeg")
+                #$
+            }
+        }
+    }
+}

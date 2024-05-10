@@ -526,7 +526,82 @@ model "rhgf"
         @"ref_grupo" ref:"rh_grupo_conceptos" required
         @"ref_concepto" ref:"rh_concepto_nomina" required
     }
+    ///reeg
+    entity "rhgf_ree_status":"EnumModel"
+    {
+        /*
+        0-Por aprobar
+        9-Rechazada
+        10-Aprobada
+        20-Pagada
+        99-Cancelada
+        */
+    }
+    entity "ctasasiva" : "EnumModel" {}
+    entity "cformaspago" : "EnumModel" {}
+    entity "cstatusadministrativos" : "EnumModel" {}
+    
+    entity "divisa" : "TableModel"
+    {
+        @"codigo" string(5) unique required
+        @"descripcion" string(30) unique required
+    }
+    entity "tipoproveedor" : "TableModel"
+    {
+        @"codigo" string(15) unique required
+        @"descripcion" string(50) unique required
+    }
+    entity "proveedor" : "TableModel"
+    {
+        @"codcuenta" string(50) unique          // Código de cuenta contable asociado
+        @"codigo" string(35) unique required    // Código o identificador del proveedor
+        @"curp" string(35) unique        
+        @"nombre" string(150) unique required              // Status del proveedor (normal o bloqueado)
+        @"tasaiva" ref:"ctasasiva" required
+        @"idivisa" ref:"divisa" required    
+        @"tipo" ref:"tipoproveedor" required  
+    }
+     entity "categoria" : "TableModel"
+    {
+        @"codcuenta" string(50) unique
+        @"codigo" string(5) unique required
+        @"descripcion" string(50) unique required
+    }
+    entity "ut_gasto" : "TableModel"
+    {
+        @"referencia" string(50) unique required
+        @"fecha" datetime required
+        @"vencimiento" datetime required
+        @"concepto" string(1500) required
+        @"iproveedor" ref:"proveedor" required
+        @"icategoria" ref:"categoria" required
+        @"idivisa" ref:"divisa" required
+        @"formapago" ref:"cformaspago" required
+        @"statusadministrativo" ref:"cstatusadministrativos" required
+    }
+    entity "rhgf_ree":"TableModel" //Reembolsos a empleados
+    {
+        @"ref_empleado" ref:"rh_empleado_org" required
+        @"f_solicitud" date required
+        @"status" ref:"rhgf_ree_status" required
+        @"concepto" memo required
+        @"importe_solicitado" decimal(12,4) required
+        @"importe_aprobado" decimal(12,4)
+        @"f_rechazo" date
+        @"f_aprobacion" date
+        @"ref_gasto" ref:"ut_gasto"
+        @"inc_nomina" bool
+        @"percepcion" ref:"rh_detalle_nomina"
+        @"usuario" string(50)
+        @"hoja" memo
+    }
 
+    entity "rhgf_ree_bit":"TableModel" //Bitácora de solicitud de reembolso a empleados
+    {
+        @"ref_ree" ref:"rhgf_ree" required
+        @"nota" memo required
+        @"usuario" string(50)
+    }
     // Información de la aplicación
     entity "sys_app_catalog"
     {

@@ -46,7 +46,13 @@ program "instalador"
         "rh_status_contrato.csv",
         "rh_status_nomina.csv",
         "rh_tipo_concepto.csv",
-        "rh_tipo_vivienda.csv"
+        "rh_tipo_vivienda.csv",
+        "rhgf_ree_status.csv",
+        "categoria.csv",
+        "cformaspago.csv",
+        "cstatusadministrativos.csv",
+        "divisa.csv",
+        "tipoproveedor.csv"
     ]')
     //nombres y directorio de los archivos dkt para datos iniciales
     list_files_dkt="rh_grupo_conceptos._rec_tdk,rh_tipo_nomina._rec_tdk,rh_concepto_nomina._rec_tdk,rh_tipo_contrato._rec_tdk,rh_variable._rec_tdk,rh_tabla_calculo._rec_tdk"

@@ -22,6 +22,9 @@ module "config"
     @TIPO_NOMINA="/!/rhgf/tipo-nomina/"
     @TIPO_NOMINA_ADD=@TIPO_NOMINA + "_new/"
 
+    @REEG="/!/rhgf/reeg/"
+    @REEG_ADD_EDIT="/!/rhgf/reeg/{id}/"
+    @LIMIT_ROWS = 200
     @CONTRATO_EMPLEADO="/!/rhgf/contrato-empleado/"
 
     //#region empleados
@@ -35,6 +38,7 @@ module "config"
     //#region organizacion
     @CSS_ORGANIZACION = "/$/rhgf/css/organizacion.css"
     @JS_ORGANIZACION = "/$/rhgf/js/organizacion.js"
+    @JS_REEG="/$/rhgf/js/reeg.js"
 
     @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
 
@@ -114,6 +118,20 @@ module "config"
 
     @icon_color = "#888"
     @default_max_rows=250
+
+    //status reeg
+    @REEG_POR_APROBAR = 0  
+    @REEG_RECHAZAR= 9
+    @REEG_APROBAR = 10
+    @REEG_PAGAR = 20
+    @REEG_CANCELAR = 99
+
+    // 0-Por aprobar
+    // 9-Rechazada
+    // 10-Aprobada
+    // 20-Pagada
+    // 99-Cancelada
+
     new @icons
     {
         @"discard": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill='+@icon_color+' class="bi bi-arrow-return-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"/></svg>'
