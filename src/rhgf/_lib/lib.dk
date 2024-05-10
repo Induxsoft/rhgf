@@ -132,4 +132,8 @@ module "lib.dk"
         NOW = NDATETIME.NOW()
         return NDATETIME.YEAR(NOW)
     }
+    limpiarTexto::texto
+	{
+		return tolower(trim(replace(ranychars(texto,'$,/\n)("\'[]-%+/',' ')," ","_")))
+	}
 }

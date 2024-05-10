@@ -579,29 +579,8 @@ model "rhgf"
         @"formapago" ref:"cformaspago" required
         @"statusadministrativo" ref:"cstatusadministrativos" required
     }
-    entity "rhgf_ree":"TableModel" //Reembolsos a empleados
-    {
-        @"ref_empleado" ref:"rh_empleado_org" required
-        @"f_solicitud" date required
-        @"status" ref:"rhgf_ree_status" required
-        @"concepto" memo required
-        @"importe_solicitado" decimal(12,4) required
-        @"importe_aprobado" decimal(12,4)
-        @"f_rechazo" date
-        @"f_aprobacion" date
-        @"ref_gasto" ref:"ut_gasto"
-        @"inc_nomina" bool
-        @"percepcion" ref:"rh_detalle_nomina"
-        @"usuario" string(50)
-        @"hoja" memo
-    }
-
-    entity "rhgf_ree_bit":"TableModel" //Bitácora de solicitud de reembolso a empleados
-    {
-        @"ref_ree" ref:"rhgf_ree" required
-        @"nota" memo required
-        @"usuario" string(50)
-    }
+    
+    
     // Información de la aplicación
     entity "sys_app_catalog"
     {

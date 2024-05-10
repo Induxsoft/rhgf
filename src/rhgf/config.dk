@@ -60,6 +60,13 @@ module "config"
     @SAT_TIPO_JORNADA = "./rhgf/_static/json/sat.c_TipoJornada.json"
     @SAT_RIESGO_PUESTO = "./rhgf/_static/json/sat.c_RiesgoPuesto.json"
 
+    //path static
+    @PATH_STATIC="rhgf/_static/"
+    @PATH_FILES_REEG=@PATH_STATIC + "reeg/"
+
+    //URLS FILES
+    @URL_FILES_REEG="/$/rhgf/reeg/"
+
     //url categoria empleado
     @CATEGORIA_EMPLEADO="/!/rhgf/categoria-empleado/"
     @CATEGORIA_EMPLEADO_ADD_EDIT="/!/rhgf/categoria-empleado/@id/"
@@ -126,6 +133,9 @@ module "config"
     @REEG_PAGAR = 20
     @REEG_CANCELAR = 99
 
+    //DIAS DE FILTRO REEG
+    @DAY_FILTER_DEFAULT="-30"
+    
     // 0-Por aprobar
     // 9-Rechazada
     // 10-Aprobada
