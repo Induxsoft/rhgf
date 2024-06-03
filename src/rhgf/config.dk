@@ -126,6 +126,8 @@ module "config"
     @icon_color = "#888"
     @default_max_rows=250
 
+    //Contrato de tiempo indeterminado
+    @TIPOS_CONTRATOS_INDETERMINADOS="01" //tipo de contrato sat - separado por comas las que son indeterminado
     //status reeg
     @REEG_POR_APROBAR = 0  
     @REEG_RECHAZAR= 9

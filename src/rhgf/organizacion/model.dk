@@ -213,7 +213,7 @@ module ""
             }
             case ""
             {
-                sql_tipo_contrato = "SELECT sys_pk, nombre FROM rh_tipo_contrato WHERE NOT IFNULL(sys_deleted,0)"
+                sql_tipo_contrato = "SELECT sys_pk, nombre,sat_tipocontrato FROM rh_tipo_contrato WHERE NOT IFNULL(sys_deleted,0)"
                 sql_status = "SELECT id, const FROM rh_status_contrato"
                 sql_bancos = "SELECT sys_pk, uf_cve, CONCAT(uf_cve,' - ',uf_nombre) AS `text` FROM ut_sat_banco WHERE NOT IFNULL(sys_deleted,0)"
 
@@ -274,8 +274,9 @@ module ""
         if @@(data,"#ref_empleado") <= 0 { do rise_error(99,"No se ha indicado un empleado.") }
         if @@(data,"#ref_puesto") <= 0 { do rise_error(99,"Es necesario indicar el puesto.") }
         if @@(data,"#tipo") <= 0 { do rise_error(99,"Es necesario indicar el tipo de contrato.") }
+
         if trim(@@(data,"$fechainicio")) == "" { do rise_error(99,"No se ha indicado la fecha de inicio del contrato.") }
-        if trim(@@(data,"$fechavencimiento")) == "" { do rise_error(99,"No se ha indicado la fecha de terminación del contrato.") }
+        if field.exist(data,"fechavencimiento") && trim(@@(data,"$fechavencimiento")) == "" { do rise_error(99,"No se ha indicado la fecha de terminación del contrato.") }
         if trim(@@(data,"$referencia")) == "" { do rise_error(99,"El folio o referencia es requerido.") }
         if trim(@@(data,"$sat_tipojornada")) == "" { do rise_error(99,"Es necesario indicar el tipo de jornada.") }
         if trim(@@(data,"$sueldomensualbruto")) == "" { do rise_error(99,"El sueldo mensual bruto es requerido.") }

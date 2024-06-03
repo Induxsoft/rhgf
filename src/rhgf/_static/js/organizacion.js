@@ -14,11 +14,14 @@ document.addEventListener("DOMContentLoaded",
 });
 var org =
 {
-    path: "",
+    path: "",contratos_indeterminados:"",
     inicialize()
     {
         org.ref_turno=document.getElementById("ref_turno");
         org.ik_puesto=document.getElementById("ik_puesto");
+        this.sel_tipo_contrato=document.getElementById("sel_tipo_contrato");
+        this.txt_fin_contrato=document.getElementById("txt_fin_contrato");
+
         if(org.ik_puesto)org.ik_puesto.addEventListener("change",
         ()=>
         {
@@ -41,6 +44,35 @@ var org =
             }
            
         });
+
+        if(this.sel_tipo_contrato)this.sel_tipo_contrato.addEventListener("change",
+        ()=>
+        {
+            if(!org.contratos_indeterminados)return;
+            if(org.txt_fin_contrato)
+            {
+                org.txt_fin_contrato.removeAttribute("disabled");
+                org.txt_fin_contrato.setAttribute("required",true);
+            }
+
+            var option_selected=org.sel_tipo_contrato.options[org.sel_tipo_contrato.selectedIndex]??null;
+            var strdata=option_selected?.getAttribute("tipo-contrato")??"";
+
+            if(strdata.trim()!="")
+            {
+                if(org.contratos_indeterminados.includes(strdata))
+                {
+                    if(org.txt_fin_contrato)
+                    {
+                        org.txt_fin_contrato.value="",
+                        org.txt_fin_contrato.setAttribute("disabled",true);
+                        org.txt_fin_contrato.removeAttribute("required");
+                    }
+                }
+            }
+        });
+
+        tools.trigger(this.sel_tipo_contrato,"change");
     },
     init()
     {

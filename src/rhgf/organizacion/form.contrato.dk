@@ -31,6 +31,10 @@ module "form.contrato.dk"
             @"name": "tipo"
             @"required": ""
         }
+        member @"attr_options"
+        {
+            @"tipo-contrato":"#<@@(row,'$sat_tipocontrato')>"
+        }
         @"value_field": "sys_pk"
         @"text_field": "nombre"
         @"selected": form("tipo","nm",dtcontrato)
@@ -138,6 +142,12 @@ module "form.contrato.dk"
                     contrato.form.init();
                 });
             '}
+            script(type="text/javascript")
+            {
+                $'
+                    org.contratos_indeterminados="#<@TIPOS_CONTRATOS_INDETERMINADOS>";
+                '
+            }
         }
     }
 }
