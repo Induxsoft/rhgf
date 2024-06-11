@@ -77,7 +77,7 @@ module "form.dk"
                                 "data-search"="codigo"
                                 "data-text"="descripcion"
                                 "data-value"='#<to.json(ifnull(@("&./turno"),record.create()))>'
-                                "data-source"="#<@URL_BUSCAR_EMPLEADO>"
+                                "data-source"="#<@RH_CTR_ASIST_DIA_TURNO_SEARCH>"
                                 "box-title-text"="Seleccione un turno"
                                 "box-placeholder-text"="Buscar turnos"
                                 "box-nodata-text"="No se encontraron datos"
