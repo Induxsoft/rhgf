@@ -60,7 +60,7 @@ module "form.dk"
                                 "data-search"="referencia"
                                 "data-text"="referencia"
                                 "data-value"='#<to.json(ifnull(@("&./contrato"),record.create()))>'
-                                "data-source"="#<@CONTRATO_EMPLEADO>?p_activo=1&s=@search"
+                                "data-source"="#<@CONTRATO_EMPLEADO>?p_activo=1&p_text=@search"
                                 "box-title-text"="Seleccione un contrato"
                                 "box-placeholder-text"="Buscar contratos"
                                 "box-nodata-text"="No se encontraron datos"
