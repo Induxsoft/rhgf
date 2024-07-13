@@ -338,7 +338,7 @@ module ""
     {
         d= diasp - @count(ldata)
         if d<1{return}
-
+        
         for i = 0; i < (d+1)
         {
             do list.add(ldata,genRecordDias(@null))
@@ -370,16 +370,17 @@ module ""
             
             if isnull(@@(record,"&"+key)){record<key+"*">:genRecordArray(itm)}
             ref obj=@@(record,"&"+key)
-
+            
             i_entrada=@@(itm,"$fentrada")
             i_salida=@@(itm,"$fsalida")
 
             fenum=parse.num(replace(i_entrada,"-",""))
             isadd = @false
-
-            if fenum>=fanum && fenum<=fcnum
+            
+            if not(isnull(obj)) && fenum>=fanum && fenum<=fcnum
             {
-                
+                if isnull(@@(obj,"&dias")){obj<"dias*">:list.create()}
+
                 for a = 0; a < @count(dias)
                 {
                     ref d=@item(dias,a)
@@ -393,20 +394,19 @@ module ""
                     {
                         if fenum>fnum && not(@@(d,"#"+fkey))
                         {
-                            do list.add(@@(obj,"&dias"),genRecordDias(@null))
+                            ref dtitm=genRecordDias(@null)
+                            do list.add(@@(obj,"&dias"),dtitm)
                             d<fkey>:@true
                         }
                         else if fenum==fnum 
                         {
-                            do list.add(@@(obj,"&dias"),genRecordDias(itm))
+                            ref dtitm=genRecordDias(itm)
+                            do list.add(@@(obj,"&dias"),dtitm)
+
                             isadd=@true
                         }
                     }
-                    // else 
-                    // {
-                    //     do list.add(@@(obj,"&dias"),genRecordDias(itm))
-                    //     isadd=@true
-                    // }
+
                     if isadd
                     {
                         d<fkey>:@true

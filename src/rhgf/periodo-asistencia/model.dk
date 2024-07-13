@@ -48,8 +48,8 @@ module ""
         d=parse.num(replace(@@(data,"$fin"),"-",""))
 
         if a>b{do rise_error(500,"Apertura debe ser menor o igual a la fecha de inicio")}
-        if c>d{do rise_error(500,"El cierre de ser menor o igual a la fecha del fin del período")}
-        if a>c{do rise_error(500,"Apertura de ser menor a cierre")}
+        if c>d{do rise_error(500,"El cierre debe ser menor o igual a la fecha del fin del período")}
+        if a>c{do rise_error(500,"Apertura debe ser menor a cierre")}
         if b>d{do rise_error(500,"Inicio debe ser menor a la fecha de fin")}
 
         if @@(data,"$pista")==""{data<"pista">:""}
