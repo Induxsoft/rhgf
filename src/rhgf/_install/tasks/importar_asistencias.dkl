@@ -1,0 +1,131 @@
+#include "dkli.dkh"
+#!
+program ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "webcl.dkh"
+    #include "dbr.dkh"
+    #include "batch.v12.dkl"
+
+    // DECLARACIÓN DE FUNCIONES
+    ref lib_csv = _import_library("devkron.serialize.csv.dll")
+    do _map_function(lib_csv,"devkron.serialize.csv.csvHelper","CsvRead","CsvRead","System.String,System.String","*")
+    do _map_function(lib_csv,"devkron.serialize.csv.csvHelper","CsvWrite","CsvWrite","System.String,*System.Object","void")
+
+    path_log="rhgf/_static/logs/"
+    do @context.begin(@batch_context)
+
+    new p
+    {
+        @"status_con_error":4
+        @"status_terminado":3
+    }
+
+    ref db = @("&database")
+    ref @batchDB = db
+    ref params=@("&params")
+    ref job=@("&job")
+
+    token=@@(job,"$id")
+    p<"token">:token
+
+    file=@@(params,"$file")
+
+    new asistencia
+    {
+        @"ref_rh_periodo_asistencia":@@(params,"#periodo")
+    }
+    
+    ref periodo=dbr.rec(db,"select * from rh_periodo_asistencia p where p.sys_pk=@ref_rh_periodo_asistencia",asistencia)
+    if isnull(periodo){do batch.saveLog(token,"No se encontró el periodo indicado")}
+
+    if not(file.exists(file))
+    {
+        do batch.saveLog(token,"No existe el archivo: "+file)
+    }
+    else if not(isnull(periodo))
+    {
+        do batch.saveLog(token,"Obteniendo datos del archivo: "+file)
+
+        ref CsvData = CsvRead(file,"")
+
+        if @count(CsvData)< 1{do batch.saveLog(token,"El archivo no contiene datos...")}
+        rows_inserted = 0
+        for i = 0; i < @count(CsvData)
+        {
+            ref data=record.caseinsensitive(@item(CsvData,i))
+
+            pkcontrato=dbr.num(db,"SELECT ifnull(c.sys_pk,0) FROM rh_contrato_empleado c WHERE c.referencia=@contrato and status=1 ",data)
+            if pkcontrato > 0
+            {
+                pkturno=dbr.num(db,"SELECT ifnull(t.sys_pk,0) FROM rh_turno t where t.codigo=@turno",data)
+                if pkturno < 1{do rise_error(99,"No existe un turno con código: "+@@(data,"$turno") )}
+
+                using asistencia
+                {
+                    @"sys_guid":uuid()
+                    @"sys_dtcreated*":now()
+                    @"sys_timestamp*":now()
+                    @"sys_recver":0
+                    @"ref_turno":pkturno
+                    @"ref_contrato":pkcontrato
+                    @"entrada":@@(data,"$entrada")
+                    @"salida":@@(data,"$salida")
+                    @"inasistencia":@@(data,"#inasistencia")
+                    @"notas":@@(data,"$notas")
+                }
+                if trim(@@(data,"$justificacion"))!=""
+                {
+                    pkjustificacion=dbr.num(db,"select ifnull(sys_pk,0) from rh_justificacion where sys_pk=@justificacion",data)
+                    if pkjustificacion< 1
+                    {
+                        do batch.saveLog(token,"No se encontro la justificación indicada: "+@@(data,"$justificacion") )
+                    }else{asistencia<"justificacion">:pkjustificacion}
+                }
+
+                do dbr.insert(db,"rh_asistencia",asistencia)
+                rows_inserted=rows_inserted + 1 
+            }
+            else 
+            {
+                do rise_error(99,"El contrato "+@@(data,"$contrato")+" no es un contrato válido o activo")
+            }
+            exception
+            {
+                do batch.saveLog(token,last_error() )
+            }
+        }
+        if rows_inserted > 0
+        {
+            do batch.saveLog(token,"Se insertaron "+str(rows_inserted)+" filas" )
+        }
+        if file.exists(file)
+        {
+            do file.delete(file)
+            exception{do batch.saveLog(token,last_error() )}
+        }
+    }
+    
+    do dir.ensure(path_log)
+    if @@(periodo,"$sys_guid")!=""
+    {
+        log=path.concat(path_log,@@(periodo,"$sys_guid"))
+        
+        p<"job_token">:token
+        ref jobs_logs=batch.getStatusJobLog(db,p)
+
+        do file.wtext(log,to.json(jobs_logs))
+    }
+    
+    exception
+    {
+        error=last_error()
+        if isset("p")
+        {
+            do batch.saveLog(token,error)
+            do dbr.execute(db,"update job set jstatus=@status_con_error where sys_guid=@token",p)
+        }
+        do rise_error(500,error)
+    }
+}

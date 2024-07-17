@@ -10,6 +10,7 @@ program "instalador"
     #include "dbr.security.dkl"
     #include "dbr.apps.dkl"
 
+    path_tasks="rhgf/_install/tasks"
     // PREPARACIÓN DE VARIABLES
     ref args = commandline("=")
     src = _get(@_run_settings,"$SourceCodeFile")
@@ -182,6 +183,37 @@ program "instalador"
         do dbr.security.assign(database,admins_groupid,permissions_to_import)
     }
 
+    //Creando tipos de tareas
+    if dir.exists(path_tasks)
+    {
+        include "batch.v12.dkl"
+        pack_name="rhgf"
+        @jobs_group_id = "rhgf"
+
+        do print("\nCREANDO GRUPO DE TAREAS E IMPORTANDO PROGRAMAS")
+
+        new jobsgroup
+        {
+            @"sys_guid": @jobs_group_id
+            @"name": pack_name
+            @"apikey": toupper(md5(pack_name))
+        }
+        do batch.registerJobsGroup(database,jobsgroup)
+
+        ref task_files = list.files(path_tasks,"*.dkl")
+        for i = 0; i < list.count(task_files); i+1
+        {
+            task_file = list.str(task_files,i)
+            task_fname = file.name(task_file)
+            task_jname = file.justname(task_file)
+            mtdt_file = path.concat(path_tasks,task_jname+".json")
+
+            do batch.updateTask(@jobs_group_id,task_fname,file.rtext(task_file))
+            if file.exists(mtdt_file) { do batch.updateTaskMetaData(@jobs_group_id,file.name(mtdt_file),from.json(file.rtext(mtdt_file))) }
+
+            do print(ftext("- #<task_jname>"))
+        }
+    }
     if dbr.is_open(database){ do dbr.close(database) }
 
     exception

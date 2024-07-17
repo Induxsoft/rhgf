@@ -1,0 +1,21 @@
+{
+    "file": 
+    {
+        "control": "file",
+        "required": "true",
+        "caption": "Importar desde (.csv)"
+    },
+    "periodo": 
+    {
+        "control": "select",
+        "required": "true",
+        "caption": "Periodo de asistencia",
+        "source":
+        {
+            "type":"query",
+            "query":"SELECT sys_pk,CONCAT_WS('  ',pista,TRIM(DATE(apertura)),TRIM(DATE(cierre)) )periodo FROM rh_periodo_asistencia ORDER BY sys_pk DESC LIMIT 200",
+            "showfield":"periodo",
+            "keyfield":"sys_pk"
+        }
+    }
+}

@@ -1,0 +1,5 @@
+.event-none
+{
+    pointer-events: none;
+    opacity: .5;
+}

@@ -6,9 +6,12 @@ module "config"
     @NOMINAS="/!/rhgf/nomina/"
 
     @CSS_MAIN = "/$/rhgf/css/main.css"
-
+    @CSS_NOMINA="/$/rhgf/css/nomina.css"
+    
     @NOMINA.RECIBOS="/!/rhgf/recibo/"
     @NOMINA_RECIBOS=@NOMINA.RECIBOS + "_new/?parent_id=@nomina"
+
+    @BATCH_DETAIL_PROG_TASKMAN="/!/batch/taskman/{id}/{taskname}/"
 
     @NOMINA.DETALLE.RECIBO="/!/rhgf/concepto-recibo/"
     @ADD_CONCEPTO_RECIBO=@NOMINA.DETALLE.RECIBO + "_new/?parent_id=@recibo"
@@ -143,6 +146,10 @@ module "config"
     // 10-Aprobada
     // 20-Pagada
     // 99-Cancelada
+
+    //Grupo batch importar asistencia
+    @jobgroup_importar_asiatencia="rhgf"
+    @program_importar_asistencia="importar_asistencias.dkl"
 
     new @icons
     {
