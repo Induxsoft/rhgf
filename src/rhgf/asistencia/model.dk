@@ -2,6 +2,48 @@
 #!
 module ""
 {
+    do _map_function(-1, "System.DateTime", "AddMinutes","dtaddmin","System.Double","*")
+    do _map_function(-1, "System.DateTime", "AddDays","dtaddays","System.Double","*")
+    do _map_function(-1, "System.DateTime", "AddMonths","dtadmonths","System.Int32","*")
+    do _map_function(-1, "System.DateTime", "CompareTo", "dtCompare","*System.DateTime","#")
+    do _map_function(-1, "System.DateTime", "ToString", "toStr","System.String","$")
+    do _map_function(-1, "System.DateTime", "AddSeconds", "addsec","System.Double","*")
+
+    toString::&datetime
+    {
+        nf=_invoke(datetime,"toStr","")
+        return nf
+    }
+    AddSeconds::&datetime,s
+    {
+        ref ns=_invoke(datetime,"addsec", s)
+        return ns
+    }
+    addMinutes::&datetime,m
+    {
+        ref nf=_invoke(datetime,"dtaddmin", m)
+        return nf
+    }
+    addDays::&datetime,d
+    {
+        ref nd=_invoke(datetime,"dtaddays", d)
+        return nd
+    }
+    addMonths::&datetime,m
+    {
+        ref nm=_invoke(datetime,"dtadmonths", m)
+        return nm
+    }
+    /**
+    * Indica si esta instancia es anterior, igual o posterior al valor DateTime especificado.
+    * @return int
+    */
+    compareTo::&datetime1,&datetime2
+    {
+        n=_invoke(datetime1,"dtCompare",datetime2)
+        return n
+    }
+
     @table_name="rh_asistencia"
     condicion_extra="if(TIME(t.entrada)<time(rt.lunes_entrada),true,false)et_l,
     if(TIME(t.entrada)<time(rt.martes_entrada),true,false)et_m,
@@ -34,13 +76,13 @@ module ""
     ifnull(rt.sabado,0)descanso_s,
     ifnull(rt.domingo,0)descanso_d
     "
-    like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia) like concat('%',@s,'%')  )"
+    like=" having if(ifnull(@s,'')='',true,concat_ws('',pista,contrato,empleado,fentrada,fsalida,finasistencia,t.entrada,t.salida,pa.apertura,pa.cierre) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,pa.pista,
     date_format(t.entrada,'%Y-%m-%d')fentrada,date_format(t.entrada,'%H:%i:%s')hentrada,
     date_format(t.salida,'%Y-%m-%d')fsalida,date_format(t.salida,'%H:%i:%s')hsalida,
     if(ifnull(t.inasistencia,0),true,false)finasistencia,
     rt.descripcion turno,rt.sys_pk pkturno,
-	 if(IFNULL(t.inasistencia,0),true,false)f,
+	 if(IFNULL(t.inasistencia,0),true,false)f,pa.apertura,pa.cierre,
     DAYOFWEEK(pa.apertura)dia,DATEDIFF(pa.cierre,pa.apertura)diasp,"+condicion_extra+"
     FROM #<@table_name> t 
     inner join rh_periodo_asistencia pa on t.ref_rh_periodo_asistencia=pa.sys_pk
@@ -121,6 +163,22 @@ module ""
 
         @use_transaction = @false
         do dbr.begin(db)
+            if @@(params,"$_entity_id")=="_new"
+            {
+                ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
+                WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
+                AND a.ref_contrato=@ref_contrato
+                AND a.ref_turno=@ref_turno
+                AND DATE(a.entrada) = DATE(@entrada)
+                AND DATE(a.salida)=DATE(@salida)",data)
+                
+                if @@(exist_asistencia,"#sys_pk") > 0
+                {
+                    params<"_entity_id">:@@(exist_asistencia,"$sys_pk")
+                    data<"sys_recver">:@@(exist_asistencia,"#sys_recver")
+                }
+            }
+            
             if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
             else{ref entity=entity.create(db,params,data)}
 
@@ -360,8 +418,9 @@ module ""
         ref dias=@@(datos,"&dias")
         
         ref record=record.create()
-        fanum=parse.num(replace(@@(datos,"$fapertura"),"-",""))
-        fcnum=parse.num(replace(@@(datos,"$fcierre"),"-",""))
+
+        ref apertura=@@(datos,"&apertura")
+        ref cierre=@@(datos,"&cierre")
 
         for i = 0; i < @count(data)
         {
@@ -371,13 +430,15 @@ module ""
             if isnull(@@(record,"&"+key)){record<key+"*">:genRecordArray(itm)}
             ref obj=@@(record,"&"+key)
             
-            i_entrada=@@(itm,"$fentrada")
-            i_salida=@@(itm,"$fsalida")
+            fecha_entrada=date_str(@@(itm,"&entrada"),"yyyy-MM-dd")
+            fecha_salida=date_str(@@(itm,"&salida"),"yyyy-MM-dd")
 
-            fenum=parse.num(replace(i_entrada,"-",""))
+            ref i_entrada=str2dt(fecha_entrada)
+            ref i_salida=str2dt(fecha_salida)
+            
             isadd = @false
             
-            if not(isnull(obj)) && fenum>=fanum && fenum<=fcnum
+            if not(isnull(obj)) && compareTo(i_entrada,apertura)>= 0 && compareTo(i_salida,cierre)<= 0
             {
                 if isnull(@@(obj,"&dias")){obj<"dias*">:list.create()}
 
@@ -386,32 +447,38 @@ module ""
                     ref d=@item(dias,a)
                     itm<"name_dia">:@@(d,"$dia")
 
-                    a_dias=@@(d,"fecha")
-                    fnum=parse.num(replace(a_dias,"-",""))
-                    fkey=key+"_"+str(fnum)
-
-                    if i_entrada==i_salida
+                    if @@(d,"$fecha")!=""
                     {
-                        if fenum>fnum && not(@@(d,"#"+fkey))
+                        ref a_dias=str2dt(@@(d,"$fecha"))
+
+                        fkey=replace(@@(d,"$fecha"),"-","")
+                        
+                        fkey=key+"_"+str(fkey)
+                        
+                        if compareTo(i_entrada,i_salida) == 0
                         {
-                            ref dtitm=genRecordDias(@null)
-                            do list.add(@@(obj,"&dias"),dtitm)
+                            if compareTo(i_entrada,a_dias)> 0 && not(@@(d,"#"+fkey))
+                            {
+                                ref dtitm=genRecordDias(@null)
+                                do list.add(@@(obj,"&dias"),dtitm)
+                                d<fkey>:@true
+                            }
+                            else if compareTo(i_entrada,a_dias) == 0
+                            {
+                                ref dtitm=genRecordDias(itm)
+                                do list.add(@@(obj,"&dias"),dtitm)
+
+                                isadd=@true
+                            }
+                        }
+
+                        if isadd
+                        {
                             d<fkey>:@true
-                        }
-                        else if fenum==fnum 
-                        {
-                            ref dtitm=genRecordDias(itm)
-                            do list.add(@@(obj,"&dias"),dtitm)
-
-                            isadd=@true
+                            break
                         }
                     }
-
-                    if isadd
-                    {
-                        d<fkey>:@true
-                        break
-                    }
+                    
                 }
             }
         }
@@ -432,18 +499,28 @@ module ""
     }
     list::&db,&params
     {
-        ref dataperiodo= dbr.rec(db,"select *,DAYOFWEEK(apertura)dia,DATEDIFF(cierre,apertura)diasp,
-            date_format(apertura,'%Y-%m-%d')fapertura,date_format(cierre,'%Y-%m-%d')fcierre
-                    from rh_periodo_asistencia where sys_pk=@per_as",params)
+        ref dataperiodo= dbr.rec(db,"select
+                    sys_pk,
+                    date(apertura) apertura,
+                    date(cierre) cierre,
+                    DAYOFWEEK(apertura) dia,
+                    DATEDIFF(cierre, apertura) diasp,
+                    date_format(apertura, '%Y-%m-%d') fapertura,
+                    date_format(cierre, '%Y-%m-%d') fcierre
+            from
+                    rh_periodo_asistencia
+            where
+                    sys_pk = @per_as",params)
         new rasistencias
         {
             @"datos*":genRecordPeriodo(db,dataperiodo)
             @"asistencias*":list.create()
         }
-        params<"apertura">:@@(dataperiodo,"$fapertura")
-        params<"cierre">:@@(dataperiodo,"$fcierre")
+        params<"apertura*">:@@(dataperiodo,"&apertura")
+        params<"cierre*">:@@(dataperiodo,"&cierre")
         
         ref entity= entity.list(db,params)
+        
         ref data= getArrayTable(entity,rasistencias)
        
         return data

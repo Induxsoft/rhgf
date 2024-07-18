@@ -75,6 +75,13 @@ program ""
                     @"inasistencia":@@(data,"#inasistencia")
                     @"notas":@@(data,"$notas")
                 }
+                ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
+                WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
+                AND a.ref_contrato=@ref_contrato
+                AND a.ref_turno=@ref_turno
+                AND DATE(a.entrada) = DATE(@entrada)
+                AND DATE(a.salida)=DATE(@salida)",asistencia)
+                
                 if trim(@@(data,"$justificacion"))!=""
                 {
                     pkjustificacion=dbr.num(db,"select ifnull(sys_pk,0) from rh_justificacion where sys_pk=@justificacion",data)
@@ -84,7 +91,20 @@ program ""
                     }else{asistencia<"justificacion">:pkjustificacion}
                 }
 
-                do dbr.insert(db,"rh_asistencia",asistencia)
+                if @@(exist_asistencia,"#sys_pk") > 0
+                {
+                    do field.remove(asistencia,"sys_guid")
+                    do field.remove(asistencia,"sys_dtcreated")
+                    do field.remove(asistencia,"sys_timestamp")
+
+                    asistencia<"sys_recver">:@@(exist_asistencia,"#sys_recver")
+                    do dbr.update(db,"rh_asistencia",asistencia,"sys_pk=@sys_pk",exist_asistencia)
+                }
+                else
+                {
+                    do dbr.insert(db,"rh_asistencia",asistencia)
+                }
+                
                 rows_inserted=rows_inserted + 1 
             }
             else 
@@ -110,7 +130,7 @@ program ""
     do dir.ensure(path_log)
     if @@(periodo,"$sys_guid")!=""
     {
-        log=path.concat(path_log,@@(periodo,"$sys_guid"))
+        log=path.concat(path_log,@@(periodo,"$sys_guid")+".json")
         
         p<"job_token">:token
         ref jobs_logs=batch.getStatusJobLog(db,p)

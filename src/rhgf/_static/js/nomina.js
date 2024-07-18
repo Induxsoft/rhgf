@@ -876,8 +876,12 @@ var asistencia=
 
         if (this.spinner && btn_run_program) 
         {
+            if(asistencia.show_spinner)
+                if(asistencia.btn_run_program)asistencia.btn_run_program.classList.add("event-none");
+            else if(asistencia.btn_run_program)asistencia.btn_run_program.classList.remove("event-none");
+            
             if(asistencia.job.trim()!="")
-                setInterval(this.checkProgramStatus(this.spinner, btn_run_program), this.interval_time);
+                setInterval(()=>{this.checkProgramStatus(this.spinner, btn_run_program)}, this.interval_time);
         }
     },
     ProgramFile()
@@ -952,6 +956,7 @@ var asistencia=
                 console.error(data.message);
                 return;
             }
+
             spinner.classList.add("d-none");
             if(asistencia.btn_run_program)asistencia.btn_run_program.classList.remove("event-none");
             window.location.reload();
@@ -961,7 +966,6 @@ var asistencia=
     },
     updateLogs()
     {
-
         fetch(asistencia.url2).then(response => response.json())
         .then(data => 
         {
@@ -970,7 +974,6 @@ var asistencia=
                 console.error(data.message);
                 return;
             }
-            console.log(data);
         });
     }
 }
