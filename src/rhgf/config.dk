@@ -59,7 +59,7 @@ module "config"
     @CLAVE_SAT="./rhgf/_static/json/clave_sat.json"
     @TIPO_SAT="./rhgf/_static/json/tipo_sat.json"
     @PERIODO_PAGO="./rhgf/_static/json/periodo_pago.json"
-    @SAT_REGIMEN_FISCAL = "./rhgf/_static/json/sat.c_RegimenFiscal.json"
+    @SAT_REGIMEN_FISCAL = "./rhgf/_static/json/sat.c_TipoRegimen.json"
     @SAT_TIPO_JORNADA = "./rhgf/_static/json/sat.c_TipoJornada.json"
     @SAT_RIESGO_PUESTO = "./rhgf/_static/json/sat.c_RiesgoPuesto.json"
 
