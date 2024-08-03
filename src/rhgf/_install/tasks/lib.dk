@@ -1,0 +1,183 @@
+#include "dkli.dkh"
+#!
+module ":asistencia"
+{
+    @ZONA_H_DEFAULT= -6
+    insertar::&db,&data,&asistencia,token
+    {
+        if not(isset("@rows_inserted")){@rows_inserted= 0}
+        
+        pkcontrato=dbr.num(db,"SELECT ifnull(c.sys_pk,0) FROM rh_contrato_empleado c WHERE c.referencia=@contrato and status=1 ",data)
+        if pkcontrato > 0
+        {
+            pkturno=dbr.num(db,"SELECT ifnull(t.sys_pk,0) FROM rh_turno t where t.codigo=@turno",data)
+            if pkturno < 1{do rise_error(99,"No existe un turno con código: "+@@(data,"$turno") )}
+
+            using asistencia
+            {
+                @"sys_guid":uuid()
+                @"sys_dtcreated*":now()
+                @"sys_timestamp*":now()
+                @"sys_recver":0
+                @"ref_turno":pkturno
+                @"ref_contrato":pkcontrato
+                @"entrada":@@(data,"$entrada")
+                @"salida":@@(data,"$salida")
+                @"inasistencia":@@(data,"#inasistencia")
+                @"notas":@@(data,"$notas")
+            }
+            ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
+            WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
+            AND a.ref_contrato=@ref_contrato
+            AND a.ref_turno=@ref_turno
+            AND DATE(a.entrada) = DATE(@entrada)
+            AND DATE(a.salida)=DATE(@salida)",asistencia)
+            
+            if trim(@@(data,"$justificacion"))!=""
+            {
+                pkjustificacion=dbr.num(db,"select ifnull(sys_pk,0) from rh_justificacion where sys_pk=@justificacion",data)
+                if pkjustificacion< 1
+                {
+                    do batch.saveLog(token,"No se encontro la justificación indicada: "+@@(data,"$justificacion") )
+                }else{asistencia<"justificacion">:pkjustificacion}
+            }
+
+            if @@(exist_asistencia,"#sys_pk") > 0
+            {
+                do field.remove(asistencia,"sys_guid")
+                do field.remove(asistencia,"sys_dtcreated")
+                do field.remove(asistencia,"sys_timestamp")
+
+                asistencia<"sys_recver">:@@(exist_asistencia,"#sys_recver")
+                do dbr.update(db,"rh_asistencia",asistencia,"sys_pk=@sys_pk",exist_asistencia)
+            }
+            else
+            {
+                do dbr.insert(db,"rh_asistencia",asistencia)
+            }
+            
+            @rows_inserted=@rows_inserted + 1 
+        }
+        else 
+        {
+            do rise_error(99,"El contrato "+@@(data,"$contrato")+" no es un contrato válido o activo")
+        }
+        exception
+        {
+            do batch.saveLog(token,last_error() )
+        }
+
+        return asistencia
+    }
+
+    #!
+    accesso::&db,&data,token
+    {
+        in_transaction=@false
+        new rh_acceso_empleado
+        {
+            @"sys_guid":uuid()
+            @"sys_dtcreated*":now()
+            @"sys_timestamp*":now()
+        }
+
+        ref empleado=dbr.rec(db,"SELECT e.sys_pk,c.referencia FROM rh_empleado_org e
+                LEFT JOIN rh_contrato_empleado c ON e.sys_pk=c.ref_empleado
+                where codigo=@empleado ",data)
+        if @@(empleado,"#sys_pk")< 1{do rise_error(99,"No se encontró el empleado indicado: "+@@(data,"$empleado"))}
+
+        pkevento=dbr.num(db,"select sys_pk from rh_acceso_evento where codigo=@evento",data)
+        if pkevento< 1{do rise_error(99,"No se encontró el evento indicado: "+@@(data,"$evento"))}
+
+        ref turno=dbr.rec(db,"select sys_pk,codigo from rh_turno where codigo=@turno",data)
+        pkturno=@@(turno,"#sys_pk")
+        if pkturno< 1{do rise_error(99,"No se encontró el turno indicado: "+@@(data,"$turno"))}
+        
+        if trim(@@(data,"$dia"))==""{do rise_error(99,"Debe indicar la fecha del dia.")}
+        if trim(@@(data,"$hora")){data<"hora">:"12:00:00"}
+
+        if trim(@@(data,"$zona_horaria"))==""{data<"zona_horaria">:@ZONA_H_DEFAULT}
+
+        using rh_acceso_empleado
+        {
+            @"empleado":@@(empleado,"#sys_pk")
+            @"evento":pkevento
+            @"ref_turno":pkturno
+            @"hora":@@(data,"$hora")
+            @"dia":@@(data,"$dia")
+            @"zona_h":parse.num(@@(data,"zona_horaria"))
+        }
+        
+        if not(dbr.in_transaction(db))
+        {
+            do dbr.begin(db)
+            in_transaction=@true
+        }
+            do dbr.execute(db,"insert into rh_acceso_empleado 
+            (sys_guid,sys_dtcreated,sys_timestamp,empleado,evento,ref_turno,hora,dia,zona_h)
+            values(@sys_guid,@sys_dtcreated,@sys_timestamp,@empleado,@evento,@ref_turno,@hora,@dia,@zona_h)
+            on DUPLICATE key update empleado=empleado,evento=evento,ref_turno=ref_turno,hora=hora,dia=dia,zona_h=zona_h",rh_acceso_empleado)
+            // do dbr.insert(db,"rh_acceso_empleado",rh_acceso_empleado)
+            pkacceso=dbr.num(db,"select sys_pk from rh_acceso_empleado where sys_guid=@sys_guid",rh_acceso_empleado)
+
+            rh_acceso_empleado<"sys_pk">:pkacceso
+            do validate.accesso(db,rh_acceso_empleado)
+
+            //insertar asistencia
+            if @@(data,"#periodo") > 0
+            {
+                new dt_asistencia
+                {
+                    @"contrato":@@(empleado,"$referencia")
+                    @"turno":@@(turno,"$codigo")
+                    @"entrada":""
+                    @"salida":""
+                }
+                new dt_periodo{@"ref_rh_periodo_asistencia":@@(data,"#periodo")}
+
+                do asistencia.insertar(db,dt_asistencia,dt_periodo,token)
+            }
+            
+        if in_transaction{do dbr.commit(db)}
+
+        exception
+        {
+            if in_transaction && dbr.in_transaction(db){do dbr.rollback(db)}
+
+            do batch.saveLog(token,last_error() )
+        }
+
+        return rh_acceso_empleado
+    }
+    #!
+    validate.accesso::&db,&data
+    {
+        new params
+        {
+            @"empleado":@@(data,"#empleado")
+            @"fecha*":str2dt(@@(data,"$dia")+" "+@@(data,"$hora"))
+            @"zh":@@(data,"#zona_h")
+            @"_entity_id":@@(data,"#sys_pk")
+        }
+
+        ref validate=dbr.rec(db,"select dia,hora, v.salida from rh_acceso_empleado e 
+        inner join rh_acceso_evento v on e.evento=v.sys_pk 
+        where empleado=@empleado and e.sys_pk<>@_entity_id 
+        and date_add(addtime(e.dia,e.hora), INTERVAL e.zona_h HOUR)<date_add(@fecha,INTERVAL @zh HOUR) order by dia desc, hora desc limit 1;",params)
+
+        if not(isnull(validate))
+        {
+            params<"evento">:@@(data,"$evento")
+            ref evento=dbr.rec(db,"select * from rh_acceso_evento where sys_pk=@evento",params)
+           
+            if @@(validate,"#salida")
+            {
+                if @@(evento,"#salida"){do rise_error(500,"Solo se permiten realizar eventos de entradas")}
+            }
+            else
+            {
+               if not(@@(evento,"#salida")){do rise_error(500,"Solo se permiten realizar eventos de salidas")} 
+            }
+        }
+    }
+}

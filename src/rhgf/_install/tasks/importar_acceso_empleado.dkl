@@ -7,7 +7,6 @@ program ""
     #include "webcl.dkh"
     #include "dbr.dkh"
     #include "batch.v12.dkl"
-    #include "rhgf/_install/tasks/lib.dk"
 
     // DECLARACIÓN DE FUNCIONES
     ref lib_csv = _import_library("devkron.serialize.csv.dll")
@@ -15,6 +14,8 @@ program ""
     do _map_function(lib_csv,"devkron.serialize.csv.csvHelper","CsvWrite","CsvWrite","System.String,*System.Object","void")
 
     path_log="rhgf/_static/logs/"
+    name_file_log="ult_accesso_empleado.json"
+
     do @context.begin(@batch_context)
 
     new p
@@ -33,19 +34,11 @@ program ""
 
     file=@@(params,"$file")
 
-    new asistencia
-    {
-        @"ref_rh_periodo_asistencia":@@(params,"#periodo")
-    }
-    
-    ref periodo=dbr.rec(db,"select * from rh_periodo_asistencia p where p.sys_pk=@ref_rh_periodo_asistencia",asistencia)
-    if isnull(periodo){do batch.saveLog(token,"No se encontró el periodo indicado")}
-
     if not(file.exists(file))
     {
         do batch.saveLog(token,"No existe el archivo: "+file)
     }
-    else if not(isnull(periodo))
+    else 
     {
         do batch.saveLog(token,"Obteniendo datos del archivo: "+file)
 
@@ -56,11 +49,12 @@ program ""
         for i = 0; i < @count(CsvData)
         {
             ref data=record.caseinsensitive(@item(CsvData,i))
-            do asistencia.insertar(db,data,asistencia,token)
+
         }
+
         if @rows_inserted > 0
         {
-            do batch.saveLog(token,"Se insertaron "+str(@rows_inserted)+" filas" )
+            do batch.saveLog(token,"Se insertarón "+str(@rows_inserted)+" filas" )
         }
         if file.exists(file)
         {
@@ -68,18 +62,15 @@ program ""
             exception{do batch.saveLog(token,last_error() )}
         }
     }
-    
-    do dir.ensure(path_log)
-    if @@(periodo,"$sys_guid")!=""
-    {
-        log=path.concat(path_log,@@(periodo,"$sys_guid")+".json")
-        
-        p<"job_token">:token
-        ref jobs_logs=batch.getStatusJobLog(db,p)
 
-        do file.wtext(log,to.json(jobs_logs))
-    }
-    
+    do dir.ensure(path_log)
+    log=path.concat(path_log,name_file_log)
+        
+    p<"job_token">:token
+    ref jobs_logs=batch.getStatusJobLog(db,p)
+
+    do file.wtext(log,to.json(jobs_logs))
+
     exception
     {
         error=last_error()
