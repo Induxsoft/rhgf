@@ -32,7 +32,7 @@ module "config"
 
     //#region empleados
     @JS_EMPLEADOS = "/$/rhgf/js/empleados.js"
-
+    @JS_ACCESO_EMPLEADO="/$/rhgf/js/acceso_empleado.js"
     @URL_BUSCAR_EMPLEADO = "/!/rhgf/empleados/?_view=buscar-empleado&search=@search"
     
     @RH_EMPLEADOS = "/!/rhgf/empleados/"
@@ -62,7 +62,10 @@ module "config"
     @SAT_REGIMEN_FISCAL = "./rhgf/_static/json/sat.c_TipoRegimen.json"
     @SAT_TIPO_JORNADA = "./rhgf/_static/json/sat.c_TipoJornada.json"
     @SAT_RIESGO_PUESTO = "./rhgf/_static/json/sat.c_RiesgoPuesto.json"
+    @file_json_importar_acceso="./rhgf/_install/tasks/importar_acceso_empleado.json"
 
+    @FILE_LOG_ACCESO_EMPLEADO="/$/rhgf/logs/ult_accesso_empleado.json"
+    @PATH_FILE_LOG_ACCESO_EMEPLADO="./rhgf/_static/logs/ult_accesso_empleado.json"
     //path static
     @PATH_STATIC="rhgf/_static/"
     @PATH_FILES_REEG=@PATH_STATIC + "reeg/"
@@ -150,6 +153,7 @@ module "config"
     //Grupo batch importar asistencia
     @jobgroup_importar_asiatencia="rhgf"
     @program_importar_asistencia="importar_asistencias.dkl"
+    @program_importar_acceso_empleado="importar_acceso_empleado.dkl"
 
     new @icons
     {

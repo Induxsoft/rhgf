@@ -4,15 +4,54 @@ module "list"
 {
     #include "functions.dkh"
     #include "serialize.dkh"
+    #include "dbr.dkh"
+    #include "uielements.dkl"
     #include "../config.dk"
+    #include "dbr.controls.dkl"
+    #include "batch.v12.dkl"
 
     do @context.begin(@crud_context)
 
     ref data = @("&./")
-    
+    ref db=@("&database")
+    new p
+    {
+        @"jobgroup": @jobgroup_importar_asiatencia
+        @"program": @program_importar_acceso_empleado
+    }
+
+    ref dtProgram = batch.return_job(db,p)
+    reset=@false
+    if isnull(dtProgram)
+    {
+        reset=@true
+        ref dtProgram=dbr.rec(db,"SELECT sys_pk,jg.sys_pk jp_ref FROM jobsgroup jg WHERE jg.sys_guid=@jobgroup OR jg.name=@jobgroup ",p)
+    }
+       
+    do batch.getConfig(db)
+
+    interval_time = @batch_interval_time
+    progress_type = @batch_progress_type
+    steps = @batch_steps
+
+    program_token = @@(dtProgram,"$sys_guid")
+    program_status = @@(dtProgram,"#status")
+    program_st_text = @@(dtProgram,"$status_text")
+
+    show_spinner = (program_status < 3)
+    show_st_text = (program_status < 3)
+
+    if reset
+    {
+        show_spinner=@false
+        show_st_text=@false
+    }
     #$
     div(class="container p-0")
     {
+        script(src="#<@JS_ACCESO_EMPLEADO>"){""}
+        link(href="#<@CSS_NOMINA>" rel="stylesheet"){""}
+
         div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
         {
             div(class="col-4 d-flex align-items-center p-0")
@@ -21,14 +60,25 @@ module "list"
             }
             div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
             {
+                div(class="spinner-border text-secondary #<ifstr(show_spinner,'','d-none')>" role="status" id="spinner"){span(class="visually-hidden"){$"En ejecucion..."}}
+                button(onclick="ae.showmodal()" id="btn_run_program" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Importar"}
+
                 a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
                 a(href="#<replace(@ACCESO_EMPLEADO_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
+                
                 button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Imprimir" onclick="window.print()"){$"#<@@(@icons,'PRINTER')>"}
                 a(href="/" target="_top" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Salir"){$"#<@@(@icons,'X')>"}
             }
         }
         div(id="work_area" class="container-section pt-2")
         {
+            #!
+            if file.exists(@PATH_FILE_LOG_ACCESO_EMEPLADO)
+            {
+                #$
+                a(href="#<@FILE_LOG_ACCESO_EMPLEADO>" target="_blank"){"Descargar ult. log"}
+            }
+            #$
             form(action="./" method="GET" id="form_search" class="d-flex mb-2 no-print")
             {
                 input(class="induxsoft-form-control flex-grow-1" type="search" name="s" placeholder="Buscar" id="input_search" value='#<@@(@crud_context,"$parameters/s")>')
@@ -100,6 +150,24 @@ module "list"
                     }
                 }
             }
+            #!
+            #include "modals.dkl"
+        }
+        #$
+        script
+        {
+            $'
+            asistencia.url_taskman="#<replace(@BATCH_DETAIL_PROG_TASKMAN,"{taskname}",@@(p,"$program"))>";
+            asistencia.id_jog=#<@@(dtProgram,"#jp_ref")>;
+            asistencia.program_token = "#<program_token>";
+            asistencia.program_status = #<program_status>;
+            asistencia.interval_time = #<interval_time>;
+            asistencia.progress_type = #<progress_type>;
+            asistencia.steps = #<steps>;
+            asistencia.job = "#<@@(dtProgram,"sys_guid")>";
+            asistencia.iniciar_job=false;
+            asistencia.show_spinner=#<show_spinner>;
+            '
         }
     }
 }

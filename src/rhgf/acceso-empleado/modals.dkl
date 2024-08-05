@@ -1,0 +1,43 @@
+#include "dkli.dkh"
+#!
+module "modals"
+{
+    #$
+	 //modal para la asignación de bancos
+	div(class="modal fade" id="modal_acceso" "data-keyboard"="false" "data-backdrop"="static" tabindex="-1" role="dialog" "aria-labelledby"="modalforms" "aria-hidden"="true")
+    {
+        div(class= "modal-dialog modal-md modal-dialog-centered" role ="document")
+        {
+            div(class="modal-content")
+            {
+                div(class="modal-header")
+                {
+                    h5(class="modal-title" id="textomdl"){"Importar acceso"}
+                    button(type="button" onlyform="true" class="close" "data-bs-dismiss"="modal" "aria-label"="Close" style="border: 1px solid #F0F0F0;")
+                    {
+                        span ("aria-hidden"="true") {$"&times;"}
+                    }
+                }
+                div(class="modal-body pt-0" id="bdy")
+                {
+                    label(style="color:red" id="error_acceso"){""}
+                    div(class="d-flex")
+                    {
+                        label{input(type="checkbox" id="check_importar" name="check_importar" )" Afectar asistencias."}
+                    }
+                    #!
+                    if file.exists(@file_json_importar_acceso)
+                    {
+                        ref definitions=from.json(file.rtext(@file_json_importar_acceso))
+                        do dbr.control.GenerateHtml(@("&database"),definitions)
+                    }
+                    #$
+                }
+                div(class="modal-footer" id="ftrAddClt")
+                {
+                    button(type="button" id="btn_iniciar_job" class="btn btn-outline-primary induxsoft-corners" "data-dismiss"="modal" onclick="ae.iniciarJob();") { "Importar"}
+                }
+            }
+        }		
+    }
+}

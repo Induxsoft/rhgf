@@ -7,6 +7,7 @@ program ""
     #include "webcl.dkh"
     #include "dbr.dkh"
     #include "batch.v12.dkl"
+    #include "rhgf/_install/tasks/lib.dk"
 
     // DECLARACIÓN DE FUNCIONES
     ref lib_csv = _import_library("devkron.serialize.csv.dll")
@@ -33,6 +34,7 @@ program ""
     p<"token">:token
 
     file=@@(params,"$file")
+    periodo=@@(params,"#periodo")
 
     if not(file.exists(file))
     {
@@ -49,7 +51,8 @@ program ""
         for i = 0; i < @count(CsvData)
         {
             ref data=record.caseinsensitive(@item(CsvData,i))
-
+            data<"periodo">:periodo
+            do asistencia.accesso(db,data,token)
         }
 
         if @rows_inserted > 0

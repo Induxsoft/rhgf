@@ -114,8 +114,8 @@ module ":asistencia"
             in_transaction=@true
         }
             do dbr.execute(db,"insert into rh_acceso_empleado 
-            (sys_guid,sys_dtcreated,sys_timestamp,empleado,evento,ref_turno,hora,dia,zona_h)
-            values(@sys_guid,@sys_dtcreated,@sys_timestamp,@empleado,@evento,@ref_turno,@hora,@dia,@zona_h)
+            (sys_guid,sys_dtcreated,sys_timestamp,sys_recver,empleado,evento,ref_turno,hora,dia,zona_h)
+            values(@sys_guid,@sys_dtcreated,@sys_timestamp,ifnull(sys_recver,0),@empleado,@evento,@ref_turno,@hora,@dia,@zona_h)
             on DUPLICATE key update empleado=empleado,evento=evento,ref_turno=ref_turno,hora=hora,dia=dia,zona_h=zona_h",rh_acceso_empleado)
             // do dbr.insert(db,"rh_acceso_empleado",rh_acceso_empleado)
             pkacceso=dbr.num(db,"select sys_pk from rh_acceso_empleado where sys_guid=@sys_guid",rh_acceso_empleado)
@@ -126,15 +126,28 @@ module ":asistencia"
             //insertar asistencia
             if @@(data,"#periodo") > 0
             {
+                fecha_entrada=dbr.str(db,"SELECT concat_ws(' ',ae.dia,ae.hora)fecha_entrada FROM rh_acceso_empleado ae
+                                WHERE ae.empleado=@empleado
+                                AND ae.dia=DATE(@dia)
+                                ORDER BY ae.hora asc LIMIT 1",rh_acceso_empleado)
+
+                fecha_salida=dbr.str(db,"SELECT concat_ws(' ',ae.dia,ae.hora)fecha_salida FROM rh_acceso_empleado ae
+                                WHERE ae.empleado=@empleado
+                                AND ae.dia=DATE(@dia)
+                                ORDER BY ae.hora desc LIMIT 1",rh_acceso_empleado)
+
                 new dt_asistencia
                 {
                     @"contrato":@@(empleado,"$referencia")
                     @"turno":@@(turno,"$codigo")
-                    @"entrada":""
-                    @"salida":""
+                    @"entrada":fecha_entrada
+                    @"salida":fecha_salida
+                    @"notas":"Asistencia automático"
                 }
                 new dt_periodo{@"ref_rh_periodo_asistencia":@@(data,"#periodo")}
 
+                do batch.saveLog(token,"Insertar/Actualizar asistencia del empleado: "+@@(data,"$empleado")+" del día: "+@@(data,"$dia"))                
+                
                 do asistencia.insertar(db,dt_asistencia,dt_periodo,token)
             }
             

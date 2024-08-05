@@ -857,7 +857,7 @@ var dia_inhabil=
 
 var asistencia=
 {
-    url_taskman:"",id_jog:0,
+    url_taskman:"",id_jog:0,iniciar_job:true,
     init()
     {
         this.file=document.getElementById("file");
@@ -866,7 +866,7 @@ var asistencia=
         ()=>
         {
             if(asistencia.file.value.trim()=="")return;
-            asistencia.ProgramFile();
+            if(asistencia.iniciar_job)asistencia.ProgramFile();
         });
 
         asistencia.url1 = asistencia.url_taskman.replace("{id}",asistencia.id_jog)+"?_act=get-program-status";
@@ -874,14 +874,14 @@ var asistencia=
         asistencia.btn_run_program = document.getElementById("btn_run_program");
         asistencia.spinner = document.getElementById("spinner");
 
-        if (this.spinner && btn_run_program) 
+        if (this.spinner && this.btn_run_program) 
         {
             if(asistencia.show_spinner)
                 if(asistencia.btn_run_program)asistencia.btn_run_program.classList.add("event-none");
             else if(asistencia.btn_run_program)asistencia.btn_run_program.classList.remove("event-none");
             
             if(asistencia.job.trim()!="")
-                setInterval(()=>{this.checkProgramStatus(this.spinner, btn_run_program)}, this.interval_time);
+                setInterval(()=>{this.checkProgramStatus(this.spinner, this.btn_run_program)}, this.interval_time);
         }
     },
     ProgramFile()
