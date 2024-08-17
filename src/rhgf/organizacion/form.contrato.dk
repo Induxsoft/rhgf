@@ -109,10 +109,11 @@ module "form.contrato.dk"
                 {
                     button(class="nav-link active" id="nav-general-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-general" type="button" role="tab" "aria-controls"="nav-general" "aria-selected"="true"){$"General"}
                     button(class="nav-link" id="nav-sueldo-jornada-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-sueldo-jornada" type="button" role="tab" "aria-controls"="nav-sueldo-jornada" "aria-selected"="false"){$"Sueldo y jornada"}
+                    button(class="nav-link" id="nav-admin-adjuntos-tab" "data-bs-toggle"="tab" "data-bs-target"="#nav-admin-adjuntos" type="button" role="tab" "aria-controls"="nav-admin-adjuntos" "aria-selected"="false"){$"Archivos digitalizados "}
                 }
             }
 
-            form(class="" action="./" method="POST" id="form_contrato")
+            form(class="" action="./" method="POST" id="form_contrato" enctype="multipart/form-data")
             {
                 input(type="hidden" name="sys_pk" value="#<@@(dtcontrato,'#sys_pk')>")
                 input(type="hidden" name="sys_recver" value="#<@@(dtcontrato,'#sys_recver')>")
@@ -126,6 +127,8 @@ module "form.contrato.dk"
                     {#! #include "./includes/form.nav.general.dk" #$}
                     div(class="tab-pane fade" id="nav-sueldo-jornada" role="tabpanel" "aria-labelledby"="nav-sueldo-jornada-tab")
                     {#! #include "./includes/form.nav.sueldo.jornada.dk" #$}
+                    div(class="tab-pane fade" id="nav-admin-adjuntos" role="tabpanel" "aria-labelledby"="nav-admin-adjuntos")
+                    {#! #include "./includes/view.admin_adjuntos.dk" #$}
                 }
             }
         }

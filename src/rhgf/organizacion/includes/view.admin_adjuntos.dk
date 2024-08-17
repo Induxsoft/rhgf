@@ -1,0 +1,55 @@
+#include "dkli.dkh"
+#!
+module ""
+{
+    sys_guid=@@(dtcontrato,"$sys_guid")
+    ref adjuntos=getFiles(path.concat(@PATH_ADJUNTOS,sys_guid ),replace(@URL_ADJUNTOS,"@id",sys_guid ))
+
+    #$
+    script(src="#<@JS_MEDIA_LIST>"){""}
+    section(class="" id="")
+    {
+        #$
+        div(class="row mt-2")
+        {
+            div(class="col-md-12")
+            {
+                div(class="card")
+                {
+                    div(class="card-body")
+                    {
+                        input(type="file" name="file" id="file" class="d-none" accept="#<@ACCEPT_FILE_UPLOAD>")
+                        label("for"="file" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print mb-1 m-1"){"Subir archivo"}
+                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print mb-1 m-1" onclick="media.preview();"){"Descargar"}
+                        button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print mb-1 m-1" onclick="media.DeleteFile();"){"Eliminar"}
+                        
+                        "media-list"(
+                        id="media-list"
+                        data='#<to.json(adjuntos)>'
+                        "can-arrange"="true"
+                        "can-drag"="true"
+                        "can-drop"="true"
+                        "can-delete"="false"
+                        "highlight-first"="true"
+                        "media-prop"="url"
+                        "miniature-prop"="mini"
+                        "outline-selected"="true"
+                        "label-prop"="name"
+                        ){""}
+                    }
+                }
+            }
+        }
+    }
+    #! if trim(sys_guid)!=""
+    {
+        #$
+        script
+        {
+            $'
+            document.addEventListener("DOMContentLoaded",()=>{media.init();});
+            '
+        }
+    }
+    
+}

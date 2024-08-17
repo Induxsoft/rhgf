@@ -126,7 +126,65 @@ module "lib.dk"
         new h { @"Content-Type": "application/json; charset=utf-8;" }
         return h
     }
+    deleteFile::&data
+    {
+        path=path.concat(@@(data,"$path_root"),@@(data,"$path_base"))
+        file=path.concat(path,@@(data,"$file"))
+        
+        if not(file.exists(file)){do rise_error(500,"No se encontró el archivo indicado")}
+
+        do file.delete(file)
+
+        return data
+    }
+    SaveAdjuntos::&entity,path
+    {
+        ref files=@@(@http_context,"&request/files")
+        if isnull(files) || @count(files)<1 || isnull(entity){return}
+        
+        do dir.ensure(path)
+        allow_exts=trim(@@(entity,"$allow_ext"))
+
+        for i = 0; i < @count(files)
+        {
+            ref file=@item(files,i)
+            if trim(@@(file,"$filename"))!=""
+            {
+                filename=limpiarTexto(@@(file,"$filename"))
+                path_file=path.concat(path,filename)
+                
+                if allow_exts!="" 
+                {
+                    if not(isanyword(file.extension(filename),allow_exts)){do rise_error(500,"Archivo no permitido.")}
+                }
+                if file.exists(@@(file,"$temp_file")){do file.copy(@@(file,"$temp_file"),path_file)}
+            }
+        }
+    }
     
+    getFiles::path_root,url_root
+    {
+        ref l=list.create()
+        if not(dir.exists(path_root)){return l}
+
+        ref files=list.files(path_root,"*")
+        
+        for i = 0; i < @count(files)
+        {
+            file=list.str(files,i)
+            filename=file.name(file)
+
+            url=path.concat(url_root,filename)
+            new obj
+            {
+                @"mini":url
+                @"name":filename
+                @"url":url
+            }
+            do list.add(l,obj)
+        }
+        return l
+    }
     function get_current_year()
     {
         NOW = NDATETIME.NOW()
@@ -134,6 +192,12 @@ module "lib.dk"
     }
     limpiarTexto::texto
 	{
-		return tolower(trim(replace(ranychars(texto,'$,/\n)("\'[]-%+/',' ')," ","_")))
+		texto= tolower(trim(replace(ranychars(texto,'$,/\n)?("\'[]-%+/',' ')," ","_")))
+		texto=replace(texto,"á","a")
+		texto=replace(texto,"é","e")
+		texto=replace(texto,"í","i")
+		texto=replace(texto,"ó","o")
+		texto=replace(texto,"ú","u")
+		return texto
 	}
 }

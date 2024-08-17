@@ -42,6 +42,9 @@ module "config"
     @CSS_ORGANIZACION = "/$/rhgf/css/organizacion.css"
     @JS_ORGANIZACION = "/$/rhgf/js/organizacion.js"
     @JS_REEG="/$/rhgf/js/reeg.js"
+    @JS_MEDIA_LIST="/$/rhgf/js/media_list.js"
+
+    @ACCEPT_FILE_UPLOAD=".png,.jpg,.jpeg,.pdf"
 
     @URL_BUSCAR_PUESTO = "/!/rhgf/organizacion/?_view=buscar-puesto&search=@search"
 
@@ -68,9 +71,11 @@ module "config"
     @PATH_FILE_LOG_ACCESO_EMEPLADO="./rhgf/_static/logs/ult_accesso_empleado.json"
     //path static
     @PATH_STATIC="rhgf/_static/"
+    @PATH_ADJUNTOS=@PATH_STATIC+"_adjuntos/"
     @PATH_FILES_REEG=@PATH_STATIC + "reeg/"
 
     //URLS FILES
+    @URL_ADJUNTOS="/$/rhgf/_adjuntos/@id/"
     @URL_FILES_REEG="/$/rhgf/reeg/"
 
     //url categoria empleado

@@ -2,6 +2,7 @@
 #!
 module ""
 {
+    #include "../_lib/lib.dk"
     @table_name = "rh_contrato_empleado"
 
     @create_exclude_fields = "shortcut"
@@ -268,9 +269,31 @@ module ""
         do org.prepareView(db,params,data)
         return data
     }
+    org.adjuntos::&db,&params,&data
+    {
+        ref contrato=dbr.rec(db,"select sys_pk,sys_guid from rh_contrato_empleado where sys_pk=@_entity_id",params)
+        if isnull(contrato){do rise_error(500,"No se encontró datos del contrato")}
+        
+        if parse.bool(@@(data,"$onlyfile"))
+        {
+            contrato<"allow_ext">:@ACCEPT_FILE_UPLOAD
 
+            do SaveAdjuntos(contrato,path.concat(@PATH_ADJUNTOS,@@(contrato,"$sys_guid")))
+        }
+        else if @@(data,"$action")=="delete_file"
+        {
+            using data
+            {
+                @"path_root":path.concat(@PATH_ADJUNTOS,@@(contrato,"$sys_guid"))
+            }
+            do deleteFile(data)
+        }
+        return contrato
+    }
     org.saveContrato::&db,&params,&data
     {
+        if parse.bool(@@(data,"$onlyfile")) ||  @@(data,"$action")=="delete_file"{return org.adjuntos(db,params,data)}
+
         if @@(data,"#ref_empleado") <= 0 { do rise_error(99,"No se ha indicado un empleado.") }
         if @@(data,"#ref_puesto") <= 0 { do rise_error(99,"Es necesario indicar el puesto.") }
         if @@(data,"#tipo") <= 0 { do rise_error(99,"Es necesario indicar el tipo de contrato.") }
@@ -299,14 +322,18 @@ module ""
         }
         if field.exist(data,"ref_turno") && @@(data,"$ref_turno")==""{data<"ref_turno*">:@null}
         
-        if @@(params,"$_entity_id") == "_new" {
+        if @@(params,"$_entity_id") == "_new" 
+        {
             ref entity = @@(entity.create(db,params,data),"&dtcontrato")
-            return entity
         }
-        else {
+        else 
+        {
             ref entity = @@(entity.update(db,params,data),"&dtcontrato")
-            return entity
         }
+        entity<"allow_ext">:@ACCEPT_FILE_UPLOAD
+        do SaveAdjuntos(entity,path.concat(@PATH_ADJUNTOS,@@(entity,"$sys_guid")))
+
+        return entity
     }
 
     org.saveUnidad::&db,&params,&data
