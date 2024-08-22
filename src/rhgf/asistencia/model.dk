@@ -9,6 +9,8 @@ module ""
     do _map_function(-1, "System.DateTime", "ToString", "toStr","System.String","$")
     do _map_function(-1, "System.DateTime", "AddSeconds", "addsec","System.Double","*")
 
+    #include "rhgf/_lib/lib.dk"
+
     toString::&datetime
     {
         nf=_invoke(datetime,"toStr","")
@@ -278,30 +280,8 @@ module ""
             @"retardo":@@(data,"r")
             @"pkturno":@@(data,"#pkturno")
         }
-        // @"et_l":@@(data,"et_l")
-        // @"et_m":@@(data,"et_m")
-        // @"et_mi":@@(data,"et_mi")
-        // @"et_j":@@(data,"et_j")
-        // @"et_v":@@(data,"et_v")
-        // @"et_s":@@(data,"et_s")
-        // @"et_d":@@(data,"et_d")
-
-        // @"sa_l":@@(data,"sa_l")
-        // @"sa_m":@@(data,"sa_m")
-        // @"sa_mi":@@(data,"sa_mi")
-        // @"sa_j":@@(data,"sa_j")
-        // @"sa_v":@@(data,"sa_v")
-        // @"sa_s":@@(data,"sa_s")
-        // @"sa_d":@@(data,"sa_d")
-
-        // @"he_l":@@(data,"he_l")
-        // @"he_m":@@(data,"he_m")
-        // @"he_mi":@@(data,"he_mi")
-        // @"he_j":@@(data,"he_j")
-        // @"he_v":@@(data,"he_v")
-        // @"he_s":@@(data,"he_s")
-        // @"he_d":@@(data,"he_d")
-        switch tolower(fday)
+       
+        switch replaceAcento(tolower(fday))
         {
             case "lunes"
             {

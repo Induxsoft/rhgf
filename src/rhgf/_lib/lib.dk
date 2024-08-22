@@ -190,6 +190,16 @@ module "lib.dk"
         NOW = NDATETIME.NOW()
         return NDATETIME.YEAR(NOW)
     }
+    replaceAcento::texto
+    {
+        texto=replace(texto,"á","a")
+		texto=replace(texto,"é","e")
+		texto=replace(texto,"í","i")
+		texto=replace(texto,"ó","o")
+		texto=replace(texto,"ú","u")
+		return texto
+    }
+
     limpiarTexto::texto
 	{
 		texto= tolower(trim(replace(ranychars(texto,'$,/\n)?("\'[]-%+/',' ')," ","_")))
