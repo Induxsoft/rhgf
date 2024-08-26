@@ -69,14 +69,17 @@ module "config"
 
     @FILE_LOG_ACCESO_EMPLEADO="/$/rhgf/logs/ult_accesso_empleado.json"
     @PATH_FILE_LOG_ACCESO_EMEPLADO="./rhgf/_static/logs/ult_accesso_empleado.json"
+
     //path static
     @PATH_STATIC="rhgf/_static/"
     @PATH_ADJUNTOS=@PATH_STATIC+"_adjuntos/"
     @PATH_FILES_REEG=@PATH_STATIC + "reeg/"
+    @PATH_LOGS=@PATH_STATIC + "logs/"
 
     //URLS FILES
     @URL_ADJUNTOS="/$/rhgf/_adjuntos/@id/"
     @URL_FILES_REEG="/$/rhgf/reeg/"
+    @URL_LOGS="/$/rhgf/logs/"
 
     //url categoria empleado
     @CATEGORIA_EMPLEADO="/!/rhgf/categoria-empleado/"

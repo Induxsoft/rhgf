@@ -3,16 +3,33 @@
 module ":asistencia"
 {
     @ZONA_H_DEFAULT= -6
+    ref @UTIL_RECORD=record.create()
+
     insertar::&db,&data,&asistencia,token
     {
         if not(isset("@rows_inserted")){@rows_inserted= 0}
-        
+
         pkcontrato=dbr.num(db,"SELECT ifnull(c.sys_pk,0) FROM rh_contrato_empleado c WHERE c.referencia=@contrato and status=1 ",data)
         if pkcontrato > 0
         {
             pkturno=dbr.num(db,"SELECT ifnull(t.sys_pk,0) FROM rh_turno t where t.codigo=@turno",data)
             if pkturno < 1{do rise_error(99,"No existe un turno con código: "+@@(data,"$turno") )}
-
+            //contar dias del periodo
+            key_day_period="count_day_period_"+@@(asistencia,"$ref_rh_periodo_asistencia")
+            
+            if @@(asistencia,"#ref_rh_periodo_asistencia")> 0
+            {
+                if @@(@UTIL_RECORD,"#"+key_day_period) < 1
+                {
+                    count_day_period=dbr.num(db,"SELECT 
+                                                    DATEDIFF(pa.cierre,pa.apertura) 
+                                                    FROM rh_periodo_asistencia pa
+                                                WHERE pa.sys_pk=@ref_rh_periodo_asistencia;",asistencia)
+                    //mas 1, porque la función DATEDIFF no toma en cuenta el primer dia
+                    if count_day_period > 0{@UTIL_RECORD<key_day_period>:count_day_period + 1}
+                }
+            }
+            
             using asistencia
             {
                 @"sys_guid":uuid()
@@ -26,6 +43,16 @@ module ":asistencia"
                 @"inasistencia":@@(data,"#inasistencia")
                 @"notas":@@(data,"$notas")
             }
+
+            if @@(@UTIL_RECORD,"#"+key_day_period) > 0
+            {
+                count_empleado=dbr.num(db,"SELECT COUNT(*) FROM rh_asistencia a
+                                WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
+                                AND a.ref_turno=@ref_turno
+                                AND a.ref_contrato=@ref_contrato",asistencia)
+
+                if count_empleado >= @@(@UTIL_RECORD,"#"+key_day_period){do rise_error(99,"No puede agregar mas asistencias del contrato "+@@(data,"$contrato")+", Las asistencias ya alcanzó la cantidad de días del periodo.")}
+            }
             ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
             WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
             AND a.ref_contrato=@ref_contrato
@@ -38,7 +65,10 @@ module ":asistencia"
                 pkjustificacion=dbr.num(db,"select ifnull(sys_pk,0) from rh_justificacion where sys_pk=@justificacion",data)
                 if pkjustificacion< 1
                 {
-                    do batch.saveLog(token,"No se encontro la justificación indicada: "+@@(data,"$justificacion") )
+                    msg="No se encontro la justificación indicada: "+@@(data,"$justificacion")
+                    if isset("@LOG_ASISTENCIAS"){do text.say(@LOG_ASISTENCIAS,msg)}
+                    else{do batch.saveLog(token, msg)}
+                    
                 }else{asistencia<"justificacion">:pkjustificacion}
             }
 
@@ -64,7 +94,8 @@ module ":asistencia"
         }
         exception
         {
-            do batch.saveLog(token,last_error() )
+            if isset("@LOG_ASISTENCIAS"){do text.say(@LOG_ASISTENCIAS,last_error())}
+            else{do batch.saveLog(token, last_error())}
         }
 
         return asistencia

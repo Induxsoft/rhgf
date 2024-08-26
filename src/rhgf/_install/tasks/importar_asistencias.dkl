@@ -33,25 +33,30 @@ program ""
 
     file=@@(params,"$file")
 
+    ref @LOG_ASISTENCIAS=text.create()
+
     new asistencia
     {
         @"ref_rh_periodo_asistencia":@@(params,"#periodo")
     }
     
+    do text.say(@LOG_ASISTENCIAS,"Inicio: "+date_str(now(),"yyyy-MM-dd hh:mm:ss"))
+    do text.say(@LOG_ASISTENCIAS,"Token del trabajo: "+token)
+
     ref periodo=dbr.rec(db,"select * from rh_periodo_asistencia p where p.sys_pk=@ref_rh_periodo_asistencia",asistencia)
-    if isnull(periodo){do batch.saveLog(token,"No se encontró el periodo indicado")}
+    if isnull(periodo){do text.say(@LOG_ASISTENCIAS,"No se encontró el periodo indicado")}
 
     if not(file.exists(file))
     {
-        do batch.saveLog(token,"No existe el archivo: "+file)
+        do text.say(@LOG_ASISTENCIAS,"No existe el archivo: "+file)
     }
     else if not(isnull(periodo))
     {
-        do batch.saveLog(token,"Obteniendo datos del archivo: "+file)
+        do text.say(@LOG_ASISTENCIAS,"Obteniendo datos del archivo: "+file)
 
         ref CsvData = CsvRead(file,"")
 
-        if @count(CsvData)< 1{do batch.saveLog(token,"El archivo no contiene datos...")}
+        if @count(CsvData)< 1{do text.say(@LOG_ASISTENCIAS,"El archivo no contiene datos...")}
         @rows_inserted = 0
         for i = 0; i < @count(CsvData)
         {
@@ -60,24 +65,28 @@ program ""
         }
         if @rows_inserted > 0
         {
-            do batch.saveLog(token,"Se insertaron "+str(@rows_inserted)+" filas" )
+            do text.say(@LOG_ASISTENCIAS,"Se insertaron "+str(@rows_inserted)+" filas" )
         }
         if file.exists(file)
         {
             do file.delete(file)
-            exception{do batch.saveLog(token,last_error() )}
+            exception{do text.say(@LOG_ASISTENCIAS,last_error() )}
         }
     }
     
     do dir.ensure(path_log)
+
+    do batch.saveLog(token,"Proceso de insertar asistencias terminado con éxito")
+
     if @@(periodo,"$sys_guid")!=""
     {
-        log=path.concat(path_log,@@(periodo,"$sys_guid")+".json")
-        
-        p<"job_token">:token
-        ref jobs_logs=batch.getStatusJobLog(db,p)
+        name_log=@@(periodo,"$sys_guid")+".log"
 
-        do file.wtext(log,to.json(jobs_logs))
+        log=path.concat(path_log,name_log)
+
+        do file.wtext(log,text.get(@LOG_ASISTENCIAS))
+
+        do batch.saveLog(token,"Log creado : "+name_log)
     }
     
     exception

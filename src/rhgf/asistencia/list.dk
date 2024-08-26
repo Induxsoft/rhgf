@@ -49,17 +49,20 @@ module "list"
         show_st_text=@false
     }
     #$
-    div(class="container-fuid p-4 pt-0")
+    div(class="v12-list-view container-fluid" id="view")
     {
         link(href="#<@CSS_NOMINA>" rel="stylesheet"){""}
-        div(id="main_bar" class="row container-section my-2 px-0 py-2 border-bottom")
+        div(id="top_area" class="row pt-2 border-bottom")
         {
-            div(class="col-4 d-flex align-items-center p-0")
+            div(class="col-4 d-flex align-items-center border-bottom")
             {
-                h5(class="tex-no-break m-0"){$"Asistencias"}
+                h5(class="tex-no-break m-0")
+                {
+                    $"Asistencias"
+                    label(class="ms-4"){"#<@@(periodo,'$pista')+' ['+@@(periodo,'$fapertura')+' - '+@@(periodo,'$fcierre')>]"}
+                }
             }
-            
-            div(class="col-8 d-flex align-items-center justify-content-end p-0 gap-2")
+            div(class="col-8 d-flex align-items-center justify-content-end gap-2 border-bottom")
             {
                 div(class="spinner-border text-secondary #<ifstr(show_spinner,'','d-none')>" role="status" id="spinner"){span(class="visually-hidden"){$"En ejecucion..."}}
 
@@ -71,11 +74,7 @@ module "list"
                 button(class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Imprimir" onclick="window.print()"){$"#<@@(@icons,'PRINTER')>"}
                 a(href="#<replace(@PERIODO_ASISTENCIA,'@id',per_as)>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Salir"){$"#<@@(@icons,'X')>"}
             }
-        }
-        h6{" #<@@(periodo,'$pista')+' ['+@@(periodo,'$fapertura')+' - '+@@(periodo,'$fcierre')>]"}
-        div(id="work_area" class="container-section pt-2")
-        {
-            form(action="./" method="GET" id="form_search" class="d-flex mb-2 no-print")
+            form(action="./" method="GET" id="form_search" class="d-flex mt-2 no-print")
             {
                 input(class="induxsoft-form-control flex-grow-1" type="search" name="s" placeholder="Buscar" id="input_search" value='#<@@(@crud_context,"$parameters/s")>')
                 input(type="hidden" name="per_as" value="#<per_as>")
@@ -85,7 +84,23 @@ module "list"
                 }
             }
             div
-            {
+            {$""
+                #!
+                name_log=@@(periodo,"$sys_guid")+".log"
+                file_log=path.concat(@PATH_LOGS,name_log)
+
+                if file.exists(file_log)
+                {
+                    url=path.concat(@URL_LOGS,name_log)
+                    #$
+                    a(href="#<url>" target="_blank"){"Último log."}
+                }
+            }
+        }
+        div(id="work_area" class="container-section" )
+        {
+            // div(style="overflow:auto")
+            // {
                 #! lenght = list.count(data)
                 if lenght <= 0 && isnull(periodo)
                 {
@@ -100,41 +115,39 @@ module "list"
                 }
                 #! else 
                 {
-                    #$ div(style="overflow-y:auto;max-height: 75vh;" class="mb-2" id="list_table_container_1")
+                    #$ div(style="overflow:auto" class="h-100" id="list_table_container_1")
                     {
-                        table(class="table")
+                        table(class="table" style="position: sticky !important;z-index: 900 !important;")
                         {
-                            thead
+                            thead(class="sticky-top")
                             {
                                 tr
                                 {
-                                    th(style="border-bottom:1px solid #dee2e6"){""}
-                                    th(style="border-bottom:1px solid #dee2e6"){""}
-                                    th(style="border-bottom:1px solid #dee2e6"){""}
+                                    th(class="fw-bold" colspan="3" style="border-bottom:1px solid #dee2e6"){""}
                                     #!
                                     ref dias=@@(periodo,"&dias")
                                     for i = 0; i <@count(dias)
                                     {
                                         ref d=@item(dias,i)
                                         #$
-                                        th(colspan="5" rowspan="1" class="text-center h6" style="border:1px solid #dee2e6"){"#<@@(d,'$fecha')>"}
+                                        th(colspan="5" rowspan="1" class="text-center h6 fw-bold" style="border:1px solid #dee2e6"){"#<@@(d,'$fecha')>"}
                                     }
                                     #$
                                 }
                                 tr
                                 {
-                                    th(class="h6" style="border:1px solid #dee2e6"){"Contrato"}
-                                    th(class="h6" style="border:1px solid #dee2e6"){"Empleado"}
-                                    th(class="h6" style="border:1px solid #dee2e6"){"Turno"}
+                                    th(class="fw-bold" style="border:1px solid #dee2e6"){"Contrato"}
+                                    th(class="fw-bold" style="border:1px solid #dee2e6"){"Empleado"}
+                                    th(class="fw-bold" style="border:1px solid #dee2e6"){"Turno"}
                                     #!
                                     ref dias=@@(periodo,"&dias")
                                     for i = 0; i <@count(dias)
                                     {
                                         ref d=@item(dias,i)
                                         #$
-                                        th(style="border:1px solid #dee2e6" class="h6" ){"#<@@(d,'$fdia')>"}//
-                                        th(class="h6" style="border:1px solid #dee2e6"){"#<@@(d,'$caption_entrada')>"}
-                                        th(colspan="2" class="h6" style="border:1px solid #dee2e6"){"#<@@(d,'$caption_salida')>"}
+                                        th(style="border:1px solid #dee2e6" class="fw-bold" ){"#<@@(d,'$fdia')>"}//
+                                        th(class="fw-bold" style="border:1px solid #dee2e6"){"#<@@(d,'$caption_entrada')>"}
+                                        th(colspan="2" class="fw-bold" style="border:1px solid #dee2e6"){"#<@@(d,'$caption_salida')>"}
                                         th(style="border:1px solid #dee2e6"){""}
                                     }
                                     
@@ -144,7 +157,9 @@ module "list"
                             tbody
                             {
                                 $""
-                                #! for i = 0; i < list.count(data)
+                                #!
+                                count_data= list.count(data)
+                                for i = 0; i < count_data
                                 {
                                     ref dt = @item(data, i)
                                     ref ldias= @@(dt,"&dias")
@@ -154,7 +169,6 @@ module "list"
                                         td(style="border-left:1px solid #dee2e6"){"#<@@(dt,'$empleado')>"}
                                         td(style="border-left:1px solid #dee2e6"){"#<@@(dt,'$turno')>"}
                                         #!
-                                        // do rise_error(0,to.json(ldias))
                                         for j = 0; j < @count(ldias)
                                         {
                                             ref dia=@item(ldias,j)
@@ -171,7 +185,7 @@ module "list"
                                             td{"#<@@(dia,'$hora_entrada')>"}
                                             td{"#<@@(dia,'$hora_salida')>"}
                                             td{"#<sa>"}
-                                           
+                                            
                                             #$
                                             td(class="no-print" style="border-right:1px solid #dee2e6")
                                             {$""
@@ -199,8 +213,30 @@ module "list"
                                 } 
                             }
                         }
+                        
+                    }
+                    #$
+                    div
+                    {
+                        small(class="text-secondary" id="legend_table"){"Mostrando las primeras #<count_data> filas"}
                     }
                 }
+            // }
+            
+            style
+            {
+                $'
+                thead tr th 
+                {
+                    padding: 4px 8px !important;
+                    outline: 1px solid #DDD !important;
+                    font-weight: normal !important;
+                }
+                thead 
+                {
+                    background-color: #F5F5F5 !important;
+                }
+                '   
             }
             script
             {

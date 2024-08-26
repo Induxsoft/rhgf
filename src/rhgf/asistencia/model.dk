@@ -182,7 +182,26 @@ module ""
             }
             
             if @@(params,"$_entity_id")!="_new"{ref entity= entity.update(db,params,data)} 
-            else{ref entity=entity.create(db,params,data)}
+            else
+            {
+                using params
+                {
+                    @"ref_turno":@@(data,"#ref_turno")
+                    @"ref_contrato":@@(data,"#ref_contrato")
+                }
+                count_day_period=dbr.num(db,"SELECT 
+                                                    DATEDIFF(pa.cierre,pa.apertura) 
+                                                    FROM rh_periodo_asistencia pa
+                                                WHERE pa.sys_pk=@per_as;",params)
+
+                count_empleado=dbr.num(db,"SELECT COUNT(*) FROM rh_asistencia a
+                                WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
+                                AND a.ref_turno=@ref_turno
+                                AND a.ref_contrato=@ref_contrato",params)
+
+                if count_empleado >= (count_day_period + 1 ){ref entity=record.create()}
+                else{ref entity=entity.create(db,params,data)}
+            }
 
             pk_asistencia=field.num(entity,"sys_pk",0)
             params<"asistencia">:pk_asistencia
@@ -481,6 +500,8 @@ module ""
     {
         ref dataperiodo= dbr.rec(db,"select
                     sys_pk,
+                    sys_guid,
+                    pista,
                     date(apertura) apertura,
                     date(cierre) cierre,
                     DAYOFWEEK(apertura) dia,
