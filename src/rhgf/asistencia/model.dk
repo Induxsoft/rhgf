@@ -131,6 +131,10 @@ module ""
 
         if @@(params,"$periodo")==""{return}
 
+        
+    }
+    getJustificaciones::&db,&params,&entity
+    {
         ref turno=dbr.rec(db,"select * from rh_turno where sys_pk=@pkturno",params)
         if not(isnull(turno))
         {
@@ -143,15 +147,27 @@ module ""
 
         params<"pinicio">:@@(periodo,"$finicio")
         params<"pfin">:@@(periodo,"$ffin")
-        // do rise_error(0,to.json(params))
-        rec<"justificaciones*">:dbr.list(db,"SELECT j.sys_pk,t.descripcion,t.codigo,date_format(j.inicio,'%Y-%m-%d')finicio,date_format(j.fin,'%Y-%m-%d')ffin 
-        FROM rh_justificacion j
-        INNER JOIN rh_contrato_empleado c ON j.ref_contrato=c.sys_pk
-        INNER JOIN rh_tipo_justificacion t ON j.ref_rh_tipo_justificacion=t.sys_pk
-        WHERE IFNULL(j.sys_deleted,0)=0 and if(ifnull(@pkcontrato,0)=0,true,c.sys_pk=@pkcontrato)
-        and date(j.inicio)>=date(@pinicio) and date(j.fin)<=date(@pfin)
-        and if(ifnull(@entrada,0)=0,true,date(@entrada) BETWEEN date(j.inicio) and date(j.fin) )",params)
-        //and if(ifnull(@tentrada,0)=0,true,time(j.inicio)>= time(@tentrada) and time(j.fin)<=time(@tsalida) )
+        
+        ref justificaciones=dbr.list(db,"SELECT
+                    j.sys_pk,
+                    t.descripcion,
+                    t.codigo,
+                    DATE_FORMAT(j.inicio, '%Y-%m-%d') finicio,
+                    DATE_FORMAT(j.fin, '%Y-%m-%d') ffin
+                FROM
+                    rh_justificacion j
+                    INNER JOIN rh_tipo_justificacion t ON j.ref_rh_tipo_justificacion=t.sys_pk
+                WHERE
+                    IFNULL(j.sys_deleted, 0) = 0
+                    AND j.ref_contrato= @pkcontrato
+                    AND DATE(j.inicio) >= DATE(@entrada)
+                    AND DATE(j.fin)<=DATE(@salida)",params)
+        
+
+        using entity
+        {
+            @"justificaciones*":justificaciones
+        }
     }
     save::&db,&params,&data
     {
@@ -245,12 +261,18 @@ module ""
 
     blank::&db,&params
     {
-       new entity{}
+        new entity{}
+        if @@(params,"#justificacion")
+        {
+            do getJustificaciones(db,params,entity)
+            return entity
+        }
        do prepareView(db,params,entity)
        return entity
     }
     read::&db,&params
     {
+        
         ref entity= entity.read(db,params)
         do prepareView(db,params,entity)
         return entity

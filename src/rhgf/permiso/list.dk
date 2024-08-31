@@ -65,6 +65,7 @@ module "list"
                                     th(class="h6"){"Empleado"}
                                     th(class="h6"){$"Inicio"}
                                     th(class="h6"){$"Fin"}
+                                    th(class="h6"){$"Tipo justificación"}
                                     th(class="h6"){$"Nota"}
                                     th(class="h6"){$""}
                                 }
@@ -82,6 +83,7 @@ module "list"
                                         td{"#<@@(dt,'$empleado')>"}
                                         td{$"#<@@(dt,'$finicio')>"}
                                         td{$"#<@@(dt,'$ffin')>"}
+                                        td{$"#<@@(dt,'$tipo_justificacion')>"}
                                         td{$"#<@@(dt,'$notas')>"}
                                         td(class="no-print")
                                         {

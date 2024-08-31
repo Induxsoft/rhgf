@@ -58,7 +58,7 @@ module "form.dk"
                                 name="ref_contrato"
                                 "data-key"="sys_pk"
                                 "data-search"="referencia"
-                                "data-text"="referencia"
+                                "data-text"="nombre_empleado"
                                 "data-value"='#<to.json(ifnull(@("&./contrato"),record.create()))>'
                                 "data-source"="#<@CONTRATO_EMPLEADO>?p_activo=1&p_text=@search"
                                 "box-title-text"="Seleccione un contrato"
@@ -103,7 +103,7 @@ module "form.dk"
                         salida=ifstr(@("$./fsalida")!="",@("$./fsalida"),date_str(now(),"yyyy-MM-dd HH:mm"))
                         #$
                         label{"Salida:"}
-                        input(type="datetime-local" name="salida" class="induxsoft-form-control" value="#<salida>")
+                        input(type="datetime-local" name="salida" id="salida" class="induxsoft-form-control" value="#<salida>")
                     }
                     div(class="col-sm-2 d-flex align-items-center")
                     {

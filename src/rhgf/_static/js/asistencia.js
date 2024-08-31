@@ -13,6 +13,7 @@ var asis=
         asis.ref_contrato=document.getElementById("ref_contrato");
         asis.ref_turno=document.getElementById("ref_turno");
         asis.entrada=document.getElementById("entrada");
+        asis.salida=document.getElementById("salida");
 
         if(asis.ref_contrato)asis.ref_contrato.addEventListener("change",()=>
         {
@@ -35,14 +36,16 @@ var asis=
                 
                 var c=asis.ref_contrato.getValue();
                 var t=asis.ref_turno.getValue();
+                if(!c || !t)return;
 
-                var url=`../_new/?pkcontrato=${c?.sys_pk??""}&entrada=${asis.entrada?.value??""}&pkturno=${t?.sys_pk??""}&periodo=${asis.ref_rh_periodo_asistencia?.value??""}`;
+                var url=`../_new/?pkcontrato=${c?.sys_pk??""}&entrada=${asis.entrada?.value??""}&salida=${asis.salida?.value??""}&pkturno=${t?.sys_pk??""}&periodo=${asis.ref_rh_periodo_asistencia?.value??""}&justificacion=1`;
 
                 InduxsoftCrudlModel.InvokeService(url,null,
                 (data)=>
                 {
                     var html="";
-                    for (let i = 0; i < data.justificaciones.length; i++) {
+                    for (let i = 0; i < data.justificaciones.length; i++) 
+                    {
                         var j = data.justificaciones[i];
                         var selected=j.sys_pk==asis.pkjustificacion?"selected='true'":"";
                         html+=`<option value="${j.sys_pk}" ${selected}>${j.codigo+" - "+j.descripcion+" "+j.finicio+" - "+j.ffin}</option>`;

@@ -13,7 +13,7 @@ module "form.dk"
     error = @("$error/message")
     isNew = (entity_id == "_new")
     action = replace(@PERMISOS_ADD_EDIT, "@id", entity_id)
-
+    
     #$
     div(class="container")
     {   
@@ -86,7 +86,7 @@ module "form.dk"
                             for i = 0; i < @count(@("&./tipo"))
                             {
                                 ref t=@item(@("&./tipo"),i)
-                                #$ option(value="#<@@(t,'sys_pk')>"){"#<@@(t,'$codigo')+' - '+@@(t,'$descripcion')>"}
+                                #$ option("#<ifstr(@@(t,'#sys_pk')==@('#./ref_rh_tipo_justificacion'),'selected','')>"="true" value="#<@@(t,'sys_pk')>"){"#<@@(t,'$codigo')+' - '+@@(t,'$descripcion')>"}
                             }
                             #$
                         }

@@ -5,10 +5,12 @@ module ""
     @table_name="rh_justificacion"
     like=" having if(ifnull(@s,'')='',true,concat_ws('',contrato,empleado,inicio,fin,notas) like concat('%',@s,'%')  )"
     @list_query="SELECT t.*,c.referencia contrato,CONCAT(e.apellido1,' ',e.apellido2,' ',e.nombre)empleado,
-    date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin
+    date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin,
+    tj.descripcion tipo_justificacion
     FROM #<@table_name> t 
     INNER JOIN rh_contrato_empleado c ON t.ref_contrato=c.sys_pk
     INNER JOIN rh_empleado_org e ON c.ref_empleado=e.sys_pk
+    LEFT JOIN rh_tipo_justificacion tj on t.ref_rh_tipo_justificacion=tj.sys_pk
     where ifnull(t.sys_deleted,0)=0 "+ like +" ORDER BY t.sys_pk desc "
 
     @read_query="select *,date_format(t.inicio,'%Y-%m-%d')finicio,date_format(t.fin,'%Y-%m-%d')ffin from #<@table_name> t where #<@keyfield>=@_entity_id limit 1"
