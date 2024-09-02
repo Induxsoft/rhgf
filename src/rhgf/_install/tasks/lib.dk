@@ -43,6 +43,12 @@ module ":asistencia"
                 @"inasistencia":@@(data,"#inasistencia")
                 @"notas":@@(data,"$notas")
             }
+            new parameters
+            {
+                @"per_as":@@(asistencia,"#ref_rh_periodo_asistencia")
+                @"fecha_entrada":@@(asistencia,"$entrada")
+            }
+            do validate.periodo(db,parameters)
 
             if @@(@UTIL_RECORD,"#"+key_day_period) > 0
             {
@@ -101,6 +107,18 @@ module ":asistencia"
         return asistencia
     }
 
+    #!
+    validate.periodo::&db,&p
+    {
+        sql="SELECT IFNULL(pa.sys_pk,0) FROM rh_periodo_asistencia pa
+        WHERE
+        pa.sys_pk=@per_as 
+        AND DATE(@fecha_entrada)
+        BETWEEN date(pa.apertura) AND DATE(pa.cierre)"
+
+        periodo=dbr.num(db,sql,p)
+        if periodo< 1{do rise_error(500,"La fecha de entrada o salida esta fuera del rango del periodo")}
+    }
     #!
     accesso::&db,&data,token
     {

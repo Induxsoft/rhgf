@@ -160,8 +160,9 @@ module ""
                 WHERE
                     IFNULL(j.sys_deleted, 0) = 0
                     AND j.ref_contrato= @pkcontrato
-                    AND DATE(j.inicio) >= DATE(@entrada)
-                    AND DATE(j.fin)<=DATE(@salida)",params)
+                    AND DATE(@entrada) 
+                    BETWEEN DATE(j.inicio) AND DATE(j.fin)
+                ",params)
         
 
         using entity
@@ -171,16 +172,22 @@ module ""
     }
     save::&db,&params,&data
     {
-        params<"per_as">:@@(data,"$ref_rh_periodo_asistencia")
+        using params
+        {
+            @"per_as":@@(data,"$ref_rh_periodo_asistencia")
+            @"fecha_entrada":@@(data,"$entrada")
+        }
 
-        if parse.bool(@@(data,"inasistencia")){data<"inasistencia">:1}
-        else{data<"inasistencia">:0}
+        if parse.bool(@@(data,"inasistencia")){data<"inasistencia">: 1}
+        else{data<"inasistencia">: 0}
         
         if trim(@@(data,"$justificacion")){data<"justificacion*">:@null}
         ref entity=@null
 
         @use_transaction = @false
         do dbr.begin(db)
+            do validate.periodo(db,params)
+            
             if @@(params,"$_entity_id")=="_new"
             {
                 ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
@@ -254,11 +261,25 @@ module ""
         {
             error=last_error()
             if dbr.in_transaction(db){do dbr.rollback(db)}
+            
+            if @@(params,"$_entity_id")!="_new"{ref data:read(db,params)}
+
             do prepareView(db,params,data)
             do rise_error(500,error)
         }
     }
 
+    validate.periodo::&db,&p
+    {
+        sql="SELECT IFNULL(pa.sys_pk,0) FROM rh_periodo_asistencia pa
+        WHERE
+        pa.sys_pk=@per_as 
+        AND DATE(@fecha_entrada)
+        BETWEEN date(pa.apertura) AND DATE(pa.cierre)"
+
+        periodo=dbr.num(db,sql,p)
+        if periodo< 1{do rise_error(500,"La fecha de entrada o salida esta fuera del rango del periodo")}
+    }
     blank::&db,&params
     {
         new entity{}
@@ -272,7 +293,6 @@ module ""
     }
     read::&db,&params
     {
-        
         ref entity= entity.read(db,params)
         do prepareView(db,params,entity)
         return entity

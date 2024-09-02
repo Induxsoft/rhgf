@@ -66,7 +66,7 @@ module "list"
             {
                 div(class="spinner-border text-secondary #<ifstr(show_spinner,'','d-none')>" role="status" id="spinner"){span(class="visually-hidden"){$"En ejecucion..."}}
 
-                input(type="file" class="induxsoft-form-control d-none" id="file" name="file" value="")
+                input(type="file" class="induxsoft-form-control d-none" id="file" name="file" value="" accept=".csv")
                 label("for"="file" id="btn_run_program" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Importar"}
 
                 a(href="./?per_as=#<per_as>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}

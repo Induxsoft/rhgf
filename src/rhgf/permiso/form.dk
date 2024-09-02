@@ -67,7 +67,7 @@ module "form.dk"
                                 name="ref_contrato"
                                 "data-key"="sys_pk"
                                 "data-search"="referencia"
-                                "data-text"="referencia"
+                                "data-text"="nombre_empleado"
                                 "data-value"='#<to.json(@("&./contrato"))>'
                                 "data-source"="#<@CONTRATO_EMPLEADO>?p_activo=1&s=@search"
                                 "box-title-text"="Seleccione un contrato"
