@@ -9,7 +9,11 @@ module ""
     inner join rh_empleado_org e on t.empleado=e.sys_pk
     inner join rh_acceso_evento v on t.evento=v.sys_pk
     inner join rh_turno rt on t.ref_turno=rt.sys_pk
-    where ifnull(t.sys_deleted,0)=0 "+ like +" ORDER BY t.sys_pk desc"
+    where 
+        ifnull(t.sys_deleted,0)=0 
+        AND if(ifnull(@tn,'*')='*',true,rt.sys_pk=@tn)
+        AND if(ifnull(@fstart,'')='' or ifnull(@fend,'')='',true,t.dia between date(@fstart) and date(@fend) )
+        "+ like +" ORDER BY t.sys_pk desc"
 
     @read_query="select t.*,date_format(t.dia,'%Y-%m-%d')fdia,DATE_FORMAT(t.hora,'%h:%i:%s')fhora,concat(e.apellido1,' ',e.apellido2,' ',e.nombre)fempleado,v.descripcion fevento,rt.descripcion turno 
     from #<@table_name> t
@@ -84,7 +88,21 @@ module ""
         do prepareView(db,params,entity)
         return entity
     }
+    list::&db,&params
+    {
+        if trim(@@(params,"$fstart"))==""{params<"fstart">:date_str(now(),"yyyy-MM-dd")}
+        if trim(@@(params,"$fend"))==""{params<"fend">:date_str(now(),"yyyy-MM-dd")}
+
+       ref entity= entity.list(db,params)
+       new data
+       {
+            @"data*":entity
+            @"turnos*":dbr.list(db,"SELECT sys_pk,CONCAT_WS(' - ',codigo,descripcion)descripcion FROM rh_turno ",@null)
+       }
+       return data
+    }
     
+    point @list to list
     point @read to read
     point @blank to blank
     point @create to save

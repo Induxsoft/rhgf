@@ -9,10 +9,13 @@ module "list"
     #include "../config.dk"
     #include "dbr.controls.dkl"
     #include "batch.v12.dkl"
+    #include "uielements.dkl"
 
     do @context.begin(@crud_context)
 
-    ref data = @("&./")
+    ref data = @("&./data")
+    ref data_turnos=@("&./turnos")
+
     ref db=@("&database")
     new p
     {
@@ -46,6 +49,26 @@ module "list"
         show_spinner=@false
         show_st_text=@false
     }
+
+    new turnos
+	{
+		@"datatable*":data_turnos
+		@"id":"tn"
+        member "attributes"
+        {
+            @"class":"induxsoft-form-select"
+            @"name":"tn"
+        }
+        @"value_field":"sys_pk"
+        @"text_field":"descripcion"
+        @"selected":@('parameters/tn')
+        @"first_value":"*"
+        @"first_text":"Todos(*)"
+	}
+
+    fstart=@("$parameters/fstart")
+    fend=@("$parameters/fend")
+
     #$
     div(class="container p-0")
     {
@@ -63,6 +86,9 @@ module "list"
                 div(class="spinner-border text-secondary #<ifstr(show_spinner,'','d-none')>" role="status" id="spinner"){span(class="visually-hidden"){$"En ejecucion..."}}
                 button(onclick="ae.showmodal()" id="btn_run_program" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Importar"}
 
+                // div(class="spinner-border text-secondary #<ifstr(show_spinner,'','d-none')>" role="status" id="spinner"){span(class="visually-hidden"){$"En ejecucion..."}}
+                //button(onclick="ae.showmodal()" id="btn_run_program" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Importar"}
+
                 a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print" title="Refrescar"){$"#<@@(@icons,'ARROW_CLOCKWISE')>"}
                 a(href="#<replace(@ACCESO_EMPLEADO_ADD_EDIT, '@id', '_new')>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action no-print"){$"Agregar"}
                 
@@ -79,13 +105,46 @@ module "list"
                 a(href="#<@FILE_LOG_ACCESO_EMPLEADO>" target="_blank"){"Descargar ult. log"}
             }
             #$
-            form(action="./" method="GET" id="form_search" class="d-flex mb-2 no-print")
+            form(action="./" method="GET" id="form_search" class="mb-2 no-print")
             {
-                input(class="induxsoft-form-control flex-grow-1" type="search" name="s" placeholder="Buscar" id="input_search" value='#<@@(@crud_context,"$parameters/s")>')
-                button(class="btn btn-sm btn-primary induxsoft-corners d-flex gap-2 align-items-center") {
-                    $"Buscar"
-                    $"#<@@(@icons,'SEARCH')>"
+                div(class="row")
+                {
+                    div(class="col-md-12 col-lg-6 col-sm-12")
+                    {
+                        small{"Filtro por fechas:"}
+                        "date-range"(id="filter_date"
+                                "hidden-input-name-start"="fstart"
+                                "hidden-input-name-end"="fend"
+                                start="#<fstart>"
+                                "start-label"="Desde:"
+                                end="#<fend>"
+                                "end-label"="Hasta:"){""}
+                    }
+                    div(class="col-md-12 col-lg-4 col-sm-12")
+                    {
+                        small{"Turno:"}
+                        #!
+                        do uie.dbSelect(turnos)
+                        #$
+                    }
+                    div(class="col-md-2 col-lg-2 col-sm-12")
+                    {
+                        div(class="mt-4 control-sm-w-100")
+                        {
+                            button(class="btn btn-primary induxsoft-corners control-sm-w-100"){"Filtrar"}
+                        }
+                    }
                 }
+                div(class="d-flex mt-2")
+                {
+                    input(class="induxsoft-form-control flex-grow-1" type="search" name="s" placeholder="Buscar" id="input_search" value='#<@@(@crud_context,"$parameters/s")>')
+                    button(class="btn btn-sm btn-primary induxsoft-corners d-flex gap-2 align-items-center") 
+                    {
+                        $"Buscar"
+                        $"#<@@(@icons,'SEARCH')>"
+                    }
+                }
+                
             }
             div
             {
