@@ -1,0 +1,151 @@
+#include "dkli.dkh"
+#!
+program ""
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "webcl.dkh"
+    #include "dbr.dkh"
+    #include "batch.v12.dkl"
+    #include "rhgf/_install/tasks/lib.dk"
+
+    // DECLARACIÓN DE FUNCIONES
+    ref lib_csv = _import_library("devkron.serialize.csv.dll")
+    do _map_function(lib_csv,"devkron.serialize.csv.csvHelper","CsvRead","CsvRead","System.String,System.String","*")
+    do _map_function(lib_csv,"devkron.serialize.csv.csvHelper","CsvWrite","CsvWrite","System.String,*System.Object","void")
+
+    
+    do @context.begin(@batch_context)
+    qname=@("$qname")
+    path_log=path.concat("data",qname)
+    path_log=path.concat(path_log,"rhgf")
+
+    new p
+    {
+        @"status_con_error":4
+        @"status_terminado":3
+    }
+
+    ref db = @("&database")
+    ref @batchDB = db
+    ref params=@("&params")
+    ref job=@("&job")
+
+    token=@@(job,"$id")
+    p<"token">:token
+
+    ref @LOGS=text.create()
+
+    new asistencia
+    {
+        @"ref_rh_periodo_asistencia":@@(params,"#periodo")
+    }
+
+     do text.say(@LOGS,"Inicio: "+date_str(now(),"yyyy-MM-dd hh:mm:ss"))
+    do text.say(@LOGS,"Token del trabajo: "+token)
+
+    @rows_inserted = 0
+    ref periodo=dbr.rec(db,"select 
+        sys_pk, 
+        sys_guid,
+        trim(apertura)apertura,
+        trim(cierre)cierre,
+        trim(inicio)inicio,
+        trim(fin)fin
+        from rh_periodo_asistencia where sys_pk=@periodo",params)
+
+    using params
+    {
+        @"apertura":@@(periodo,"$apertura")
+        @"cierre":@@(periodo,"$cierre")
+    }
+    ref accesos=dbr.list(db,"SELECT 
+                    a.sys_pk,
+                    a.empleado,
+                    a.evento,
+                    a.ref_turno,
+                    TRIM(a.dia)dia,
+                    TRIM(a.hora)hora 
+                from rh_acceso_empleado a 
+                where a.dia between date(@apertura) and date(@cierre) ",params)
+
+    do text.say(@LOGS,"Se encontrarón "+str(@count(accesos))+" filas" )
+
+    for i = 0; i < @count(accesos)
+    {
+        ref data=record.caseinsensitive(@item(accesos,i))
+
+        do asistencia.validate.accesso(db,data)
+
+        ref empleado=dbr.rec(db,"SELECT e.sys_pk,c.referencia FROM rh_empleado_org e
+                LEFT JOIN rh_contrato_empleado c ON e.sys_pk=c.ref_empleado
+                where codigo=@empleado ",data)
+        if @@(empleado,"#sys_pk")< 1{do rise_error(99,"No se encontró el empleado indicado: "+@@(data,"$empleado"))}
+
+        ref dt_evnto=dbr.rec(db,"select sys_pk,codigo,descripcion from rh_acceso_evento where sys_pk=@evento",data)
+        pkevento=@@(dt_evnto,"#sys_pk")
+        if pkevento< 1{do rise_error(99,"No se encontró el evento indicado: "+@@(data,"$evento"))}
+
+        ref turno=dbr.rec(db,"select sys_pk,codigo from rh_turno where sys_pk=@ref_turno",data)
+        pkturno=@@(turno,"#sys_pk")
+        if pkturno< 1{do rise_error(99,"No se encontró el turno indicado: "+@@(data,"$ref_turno"))}
+        
+        if trim(@@(data,"$dia"))==""{do rise_error(99,"Debe indicar la fecha del dia.")}
+        if trim(@@(data,"$hora"))==""{data<"hora">:"12:00:00"}
+
+        if trim(@@(data,"$zona_horaria"))==""{data<"zona_horaria">:@ZONA_H_DEFAULT}
+
+        fecha_entrada=dbr.str(db,"SELECT concat_ws(' ',ae.dia,ae.hora)fecha_entrada FROM rh_acceso_empleado ae
+                                WHERE ae.empleado=@empleado
+                                AND ae.dia=DATE(@dia)
+                                ORDER BY ae.hora asc LIMIT 1",data)
+
+        fecha_salida=dbr.str(db,"SELECT concat_ws(' ',ae.dia,ae.hora)fecha_salida FROM rh_acceso_empleado ae
+                        WHERE ae.empleado=@empleado
+                        AND ae.dia=DATE(@dia)
+                        ORDER BY ae.hora desc LIMIT 1",data)
+        new dt_asistencia
+        {
+            @"contrato":@@(empleado,"$referencia")
+            @"turno":@@(turno,"$codigo")
+            @"entrada":fecha_entrada
+            @"salida":fecha_salida
+            @"notas":"Asistencia automático"
+        }
+        new dt_periodo{@"ref_rh_periodo_asistencia":@@(params,"#periodo")}
+
+         do text.say(@LOGS,"Evento "+@@(dt_evnto,"$descripcion")+" del empleado: "+@@(data,"$empleado")+" del día: "+@@(data,"$dia"))                
+        
+        do asistencia.insertar(db,dt_asistencia,dt_periodo,token)
+
+        exception
+        {
+             do text.say(@LOGS,last_error() )
+        }
+    }
+    if @rows_inserted > 0
+    {
+        do text.say(@LOGS,"Se insertaron "+str(@rows_inserted)+" filas" )
+    }
+    do dir.ensure(path_log)
+
+    do text.say(@LOGS,"Proceso de generar asistencias terminado con éxito")
+    do batch.saveLog(token,"Proceso de generar asistencias terminado con éxito")
+
+    name_log=ifstr(@@(periodo,"$sys_guid")!="",@@(periodo,"$sys_guid"),uuid())+".log"
+    log=path.concat(path_log,name_log)
+
+    do file.wtext(log,text.get(@LOGS))
+    do batch.saveLog(token,"Log creado : "+name_log)
+    
+    exception
+    {
+        error=last_error()
+        if isset("p")
+        {
+            do batch.saveLog(token,error)
+            do dbr.execute(db,"update job set jstatus=@status_con_error where sys_guid=@token",p)
+        }
+        do rise_error(500,error)
+    }
+}

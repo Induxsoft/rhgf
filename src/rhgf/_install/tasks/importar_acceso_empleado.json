@@ -3,7 +3,11 @@
     {
         "control": "file",
         "required": "true",
-        "caption": "Importar desde (.csv)"
+        "caption": "Importar desde (.csv)",
+        "wrp_attr":
+        {
+            "id":"div_importar"
+        }
     },
     "periodo": 
     {

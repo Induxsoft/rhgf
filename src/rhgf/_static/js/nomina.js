@@ -873,6 +873,7 @@ var asistencia=
         asistencia.url2 = asistencia.url_taskman.replace("{id}",asistencia.id_jog)+"?_act=get-program-log&job_token="+asistencia.job;
         asistencia.btn_run_program = document.getElementById("btn_run_program");
         asistencia.spinner = document.getElementById("spinner");
+        asistencia.omit_file=false;
 
         if (this.spinner && this.btn_run_program) 
         {
@@ -890,7 +891,8 @@ var asistencia=
         if(!asistencia.file)return;
         var lng=asistencia.file.files.length;
 
-        if(lng<1)return;
+        if(lng<1 && !asistencia.omit_file)return;
+        
         if(asistencia.id_jog<1)return;
 
         for (let i = 0; i <lng ; i++) 

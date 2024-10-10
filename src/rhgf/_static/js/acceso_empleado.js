@@ -7,6 +7,8 @@ var ae=
         this.txt_file=document.getElementById("txt_file");
         this.check_importar=document.getElementById("check_importar");
         this.sel_periodo=document.getElementById("sel_periodo");
+        this.div_check=document.getElementById("div_check");
+        this.div_importar=document.getElementById("div_importar");
 
         if(this.check_importar)this.check_importar.addEventListener("change",
         ()=>
@@ -17,11 +19,27 @@ var ae=
 
         if(!asistencia.file)asistencia.file=this.txt_file;
     },
-    showmodal()
+    showmodal(idact="")
     {
         if(this.txt_file)this.txt_file.value="";
         if(this.check_importar)this.check_importar.checked=true;
         tools.trigger(this.check_importar,"change");
+
+        if(idact=="01")
+        {
+            if(this.div_check)this.div_check.classList.add("d-none");
+            if(this.div_importar)this.div_importar.classList.add("d-none");
+            this.check_importar.checked=true;
+            asistencia.url_taskman=ae.url_taskman.replace("{taskname}",ae.program_gen_asist);
+            asistencia.omit_file=true;
+        }
+        else
+        {
+            if(this.div_check)this.div_check.classList.remove("d-none");
+            if(this.div_importar)this.div_importar.classList.remove("d-none");
+            asistencia.url_taskman=ae.url_taskman.replace("{taskname}",ae.program_acceso);
+            asistencia.omit_file=false;
+        }
         nomina.openModal("modal_acceso");
     },
     iniciarJob()

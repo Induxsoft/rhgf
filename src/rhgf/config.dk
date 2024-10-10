@@ -162,6 +162,7 @@ module "config"
     @jobgroup_importar_asiatencia="rhgf"
     @program_importar_asistencia="importar_asistencias.dkl"
     @program_importar_acceso_empleado="importar_acceso_empleado.dkl"
+    @program_importar_generar_asistencia="generar_asistencia.dkl"
 
     new @icons
     {

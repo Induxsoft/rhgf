@@ -21,7 +21,7 @@ module "modals"
                 div(class="modal-body pt-0" id="bdy")
                 {
                     label(style="color:red" id="error_acceso"){""}
-                    div(class="d-flex")
+                    div(class="d-flex" id="div_check")
                     {
                         label{input(type="checkbox" id="check_importar" name="check_importar" )" Afectar asistencias."}
                     }

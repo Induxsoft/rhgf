@@ -143,7 +143,7 @@ module ":asistencia"
         if pkturno< 1{do rise_error(99,"No se encontró el turno indicado: "+@@(data,"$turno"))}
         
         if trim(@@(data,"$dia"))==""{do rise_error(99,"Debe indicar la fecha del dia.")}
-        if trim(@@(data,"$hora")){data<"hora">:"12:00:00"}
+        if trim(@@(data,"$hora"))==""{data<"hora">:"12:00:00"}
 
         if trim(@@(data,"$zona_horaria"))==""{data<"zona_horaria">:@ZONA_H_DEFAULT}
 
