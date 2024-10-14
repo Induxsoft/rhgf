@@ -193,6 +193,9 @@ module ":asistencia"
                     @"salida":fecha_salida
                     @"notas":"Asistencia automático"
                 }
+
+                if field.exist(data,"inasistencia"){dt_asistencia<"inasistencia">:@@(data,"#inasistencia")}
+
                 new dt_periodo{@"ref_rh_periodo_asistencia":@@(data,"#periodo")}
 
                 do batch.saveLog(token,"Insertar/Actualizar asistencia del empleado: "+@@(data,"$empleado")+" del día: "+@@(data,"$dia"))                
@@ -214,10 +217,21 @@ module ":asistencia"
     #!
     validate.accesso::&db,&data
     {
+        fecha=""
+        if trim(@@(data,"$dia"))!="" 
+        {
+            if trim(replace(@@(data,"$hora"),"-",""))!=""{fecha=@@(data,"$dia")+" "+@@(data,"$hora")}
+            else{fecha=@@(data,"$dia")}
+        }
+        else 
+        {
+            do rise_error(500,"No se indicó una fecha")    
+        }
+        
         new params
         {
             @"empleado":@@(data,"#empleado")
-            @"fecha*":str2dt(@@(data,"$dia")+" "+@@(data,"$hora"))
+            @"fecha*":str2dt(fecha)
             @"zh":@@(data,"#zona_h")
             @"_entity_id":@@(data,"#sys_pk")
         }
@@ -229,17 +243,17 @@ module ":asistencia"
 
         if not(isnull(validate))
         {
-            params<"evento">:@@(data,"$evento")
-            ref evento=dbr.rec(db,"select * from rh_acceso_evento where sys_pk=@evento",params)
+            // params<"evento">:@@(data,"$evento")
+            // ref evento=dbr.rec(db,"select * from rh_acceso_evento where sys_pk=@evento",params)
            
-            if @@(validate,"#salida")
-            {
-                if @@(evento,"#salida"){do rise_error(500,"Solo se permiten realizar eventos de entradas")}
-            }
-            else
-            {
-               if not(@@(evento,"#salida")){do rise_error(500,"Solo se permiten realizar eventos de salidas")} 
-            }
+            // if @@(validate,"#salida")
+            // {
+            //     if @@(evento,"#salida"){do rise_error(500,"Solo se permiten realizar eventos de entradas")}
+            // }
+            // else
+            // {
+            //    if not(@@(evento,"#salida")){do rise_error(500,"Solo se permiten realizar eventos de salidas")} 
+            // }
         }
     }
 }
