@@ -57,7 +57,7 @@ module ":asistencia"
                                 AND a.ref_turno=@ref_turno
                                 AND a.ref_contrato=@ref_contrato",asistencia)
 
-                if count_empleado >= @@(@UTIL_RECORD,"#"+key_day_period){do rise_error(99,"No puede agregar mas asistencias del contrato "+@@(data,"$contrato")+", Las asistencias ya alcanzó la cantidad de días del periodo.")}
+                if count_empleado > @@(@UTIL_RECORD,"#"+key_day_period){do rise_error(99,"No puede agregar mas asistencias del contrato "+@@(data,"$contrato")+", Las asistencias ya alcanzó la cantidad de días del periodo.")}
             }
             ref exist_asistencia=dbr.rec(db,"SELECT sys_pk,sys_recver FROM rh_asistencia a
             WHERE a.ref_rh_periodo_asistencia=@ref_rh_periodo_asistencia
