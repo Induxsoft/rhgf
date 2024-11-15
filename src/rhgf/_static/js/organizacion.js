@@ -1,20 +1,13 @@
-function round(num,dec=2) {
-    var signo = (num >= 0 ? 1 : -1);
-    num = num * signo;
-    if (dec === 0) return signo * Math.round(num);
-    num = num.toString().split('e');
-    num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] + dec) : dec)));
-    num = num.toString().split('e');
-    return signo * (num[0] + 'e' + (num[1] ? (+num[1] - dec) : -dec));
-}
-document.addEventListener("DOMContentLoaded",
-()=>
-{
+document.addEventListener("DOMContentLoaded", () => {
     org.inicialize();
 });
+
 var org =
 {
-    path: "",contratos_indeterminados:"",
+    path:"", contratos_indeterminados:"",
+    GET:{},
+    tOrganigrama:null, itemSelected:null,
+
     inicialize()
     {
         org.ref_turno=document.getElementById("ref_turno");
@@ -74,95 +67,85 @@ var org =
 
         tools.trigger(this.sel_tipo_contrato,"change");
     },
+
     init()
     {
-        
+        this.tOrganigrama = document.getElementById("tbl_organigrama");
 
         this.setAjustPanelUnidadEvent();
         this.setEvents();
+        this.setTableEvents();
 
-        contrato.list.init();
         unidad.list.init();
         puesto.list.init();
-        
+        contrato.list.init();
+
+        if ((this.GET?.s??'')) {
+            let index = this.tOrganigrama.DataArray.findIndex(obj => obj.sys_guid === this.GET.s);
+            let tr = this.tOrganigrama.GetTrByIndex(index);
+            
+            const tbody = this.tOrganigrama.GetTBody();
+            const expandParent = (row) => {
+                if (!row) return;
+                let parent = tbody.querySelector(`tr[id="${row.getAttribute("parent")}"]`);
+                if (parent) {
+                    this.tOrganigrama.ExpandRow(parent);
+                    expandParent(parent);
+                }
+            }
+            
+            this.tOrganigrama.NavTo(index,0);
+            expandParent(tr);
+        }
     },
 
     setEvents()
     {
-        document.getElementById("chq_unidad_puesto").addEventListener("change", (event) => {
-            let label = document.getElementById("lbl_unidad_puesto")
-            let unidad_controls = document.getElementById("unidad_controls");
-            let puesto_controls = document.getElementById("puesto_controls");
-            let list_unidad = document.getElementById("div_list_unidades");
-            let list_puesto = document.getElementById("div_list_puestos");
-            
-            if (event.target.checked)
-            {
-                unidad_controls.classList.add("d-none");
-                list_unidad.classList.add("d-none");
-                puesto_controls.classList.remove("d-none");
-                list_puesto.classList.remove("d-none");
-
-                label.textContent = "Unidad";
+        document.getElementById("btn_edt").addEventListener("click", () => {
+            if (Object.keys(this.itemSelected??{}).length == 0) {
+                alert("Debe seleccionar un elemento del organigrama.");
+                return
             }
-            else
-            {
-                unidad_controls.classList.remove("d-none");
-                list_unidad.classList.remove("d-none");
-                puesto_controls.classList.add("d-none");
-                list_puesto.classList.add("d-none");
 
-                label.textContent = "Puesto";
-            }
+            this.edt(this.itemSelected.sys_pk, this.itemSelected.tipo);
         });
-        
+
+        document.getElementById("btn_del").addEventListener("click", () => {
+            if (Object.keys(this.itemSelected??{}).length == 0) {
+                alert("Debe seleccionar un elemento del organigrama.");
+                return
+            }
+
+            this.del(this.itemSelected.sys_pk, this.itemSelected.tipo, () => {
+                this.tOrganigrama.DeleteRow(this.tOrganigrama.CurrentRowIndex());
+                // this.recursiveDeletion(this.tOrganigrama,this.itemSelected);
+                this.itemSelected = null;
+            });
+        });
     },
 
-    add(_view="")
+    setTableEvents()
     {
-        let url_redir = (this.path) ? this.path + "_new/" : "./_new/";
-        if (_view.trim() != "") url_redir += _view + "/";
+        if (!this.tOrganigrama) return;
+
+        const events = this.tOrganigrama.EdiTable.Const.Events;
         
-        window.location.href = url_redir;
-    },
-    edt(id,_view="")
-    {
-        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
-            console.error("Debe indicar un identificador válido");
-            return;
+        this.tOrganigrama.hiddeSelector = true;
+        this.tOrganigrama.AutoAddRow = false;
+        this.tOrganigrama.AutoDelRow = false;
+        this.tOrganigrama.ShowAsTree = true;
+
+        this.tOrganigrama.Events[events.EnterCell] = (e) => {
+            this.itemSelected = this.tOrganigrama.DataArray[e.sender.CurrentRowIndex()];
+            this.getContratos();
         }
-
-        let url_redir = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
-        if (_view.trim() != "") url_redir += _view + "/";
-
-        window.location.href = url_redir;
-    },
-    del(id,_view="",callback=null)
-    {
-        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
-            console.error("Debe indicar un identificador válido");
-            return;
-        }
-        if (!confirm("¿Esta seguro que desea eliminar el registro seleccionado?")) return;
-        
-        let url = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
-        if (_view.trim() != "") url += _view + "/";
-
-        InduxsoftCrudlModel.InvokeService(url,null,
-            function(data){
-                if (callback) callback(); else window.location.reload();
-            },
-            function(error){ console.error(error); },
-            "DELETE",false,false
-        );
     },
 
     toggleLeftPanel()
     {
-        const tabUnidades = document.querySelector('#unidades_container');
+        const tabUnidades = document.querySelector('#organigrama_container');
         if (tabUnidades) tabUnidades.classList.toggle('hidde-unidad');
     },
-
     setAjustPanelUnidadEvent()
     {
         const line = document.querySelector('#ajust_panel_unidad');
@@ -200,12 +183,95 @@ var org =
             }
         }
     },
+
+    add(_view="")
+    {
+        let url_redir = (this.path) ? this.path + "_new/" : "./_new/";
+        if (_view.trim() != "") url_redir += _view + "/";
+        url_redir += "?s="+this.itemSelected?.sys_guid;
+
+        if (_view=="unidad" && Object.keys(this.itemSelected??{}).length > 0 && this.itemSelected.tipo=="unidad") url_redir += "&superior="+this.itemSelected.sys_pk;
+        if (_view=="puesto" && Object.keys(this.itemSelected??{}).length > 0) url_redir += "&"+this.itemSelected.tipo+"="+this.itemSelected.sys_pk
+        
+        window.location.href = url_redir;
+    },
+    edt(id,_view="")
+    {
+        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
+            console.error("Debe indicar un identificador válido");
+            return;
+        }
+
+        let url_redir = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
+        if (_view.trim() != "") url_redir += _view + "/";
+        url_redir += "?s="+this.itemSelected?.sys_guid;
+
+        window.location.href = url_redir;
+    },
+    del(id,_view="",callback=null)
+    {
+        if ((typeof id === "number" && id <= 0) || (typeof id === "string" && id.trim() == "")) {
+            console.error("Debe indicar un identificador válido");
+            return;
+        }
+        if (!confirm("¿Esta seguro que desea eliminar el registro seleccionado?")) return;
+        
+        let url = (this.path) ? this.path + id.toString() + "/" : "./" + id.toString() + "/";
+        if (_view.trim() != "") url += _view + "/";
+
+        InduxsoftCrudlModel.InvokeService(url,null,
+            function(data){
+                if (callback) callback();
+                else window.location.reload();
+            },
+            function(error){ alert(error.message) },
+            "DELETE",false,false
+        );
+    },
+
+    recursiveDeletion(table,node)
+    {
+        const op = table._getTreeOptions();
+        let nodeId = node[op.key];
+        
+        let childs = table.DataArray.filter(row => row[op.parentkey] == nodeId);
+        for (let i = 0; i < childs.length; i++) {
+            this.recursiveDeletion(table,childs[i]);
+        }
+
+        const index = table.DataArray.findIndex(obj => obj[op.key] == nodeId);
+        if (index != -1) table.DeleteRow(index);
+    },
+
+    getContratos()
+    {
+        if (Object.keys(this.itemSelected??{}).length == 0) return;
+
+        let pk = this.itemSelected.sys_pk;
+        let url = this.path + "?_view=obtener-contratos";
+        url += (this.itemSelected.tipo=="unidad") ? "&u="+pk : "&p="+pk;
+
+        fetch(url).then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                return
+            }
+
+            contrato.list.tContratos.DataArray = data;
+            contrato.list.tContratos._printRows();
+        })
+        .catch(error => {
+            alert(error.message ?? "No fue posible obtener los datos.");
+            console.log(error);
+        })
+    }
 }
 
 var contrato =
 {
     list: {
-        tContratos: null, tEvents: {}, tData: {},
+        tContratos:null,
 
         init()
         {
@@ -215,29 +281,25 @@ var contrato =
             this.tContratos.AutoAddRow = false;
             this.tContratos.AutoDelRow = false;
 
-            this.tEvents = this.tContratos.EdiTable.Const.Events;
-            this.tData = this.tContratos.DataArray;
-
             this.setEvents();
         },
 
         setEvents()
         {
-            document.getElementById("btn_add").addEventListener("click", (event) => { org.add(); });
-            document.getElementById("btn_edt").addEventListener("click", (event) => {
-                let dt = this.tData[this.tContratos.CurrentRowIndex()];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
+            document.getElementById("btn_add_contrato").addEventListener("click", () => { org.add(); });
+            document.getElementById("btn_edt_contrato").addEventListener("click", () => {
+                let data = this.tContratos.DataArray[this.tContratos.CurrentRowIndex()];
+                if (Object.keys(data??{}).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
                 
-                org.edt(dt.sys_pk);
+                org.edt(data.sys_pk);
             });
-            document.getElementById("btn_del").addEventListener("click", (event) => {
-                let currRow = this.tContratos.CurrentRowIndex();
-                let dt = this.tData[currRow];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
+            document.getElementById("btn_del_contrato").addEventListener("click", () => {
+                let index = this.tContratos.CurrentRowIndex();
+                let data = this.tContratos.DataArray[index];
+                if (Object.keys(data??{}).length == 0) { alert("Debe seleccionar una fila de la tabla."); return; }
                 
-                org.del(dt.sys_pk,"",() => {
-                    this.tContratos.DeleteRow(currRow);
-                    this.tContratos._printRows();
+                org.del(data.sys_pk, "", () => {
+                    this.tContratos.DeleteRow(index);
                 });
             });
         },
@@ -276,12 +338,12 @@ var contrato =
                 this.elements["txt_sueldo_mensual"].addEventListener("input", (event) => {
                     let sMes = Number(event.target.value);
                     let sDia = Math.div(sMes,dMes);
-                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
+                    this.elements["txt_sueldo_diario"].value = Math.RoundTo(sDia,6);
                 });
                 this.elements["txt_sueldo_diario"].addEventListener("input", (event) => {
                     let sDia = Number(event.target.value);
                     let sMes = Math.mul(sDia,dMes);
-                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
+                    this.elements["txt_sueldo_mensual"].value = Math.RoundTo(sMes,4);
                 });
                 this.elements["txt_sueldo_hora"].addEventListener("input", (event) => {
                     let sHora = Number(event.target.value);
@@ -289,8 +351,8 @@ var contrato =
                     let sDia = Math.mul(sHora,hxDia);
                     let sMes = Math.mul(sDia,dMes);
 
-                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
-                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
+                    this.elements["txt_sueldo_diario"].value = Math.RoundTo(sDia,6);
+                    this.elements["txt_sueldo_mensual"].value = Math.RoundTo(sMes,4);
                 });
                 this.elements["txt_horas_promedio_dia"].addEventListener("input", (event) => {
                     let hxDia = Number(event.target.value);
@@ -298,8 +360,8 @@ var contrato =
                     let sDia = Math.mul(sHora,hxDia);
                     let sMes = Math.mul(sDia,dMes);
 
-                    this.elements["txt_sueldo_diario"].value = round(sDia,6);
-                    this.elements["txt_sueldo_mensual"].value = round(sMes,4);
+                    this.elements["txt_sueldo_diario"].value = Math.RoundTo(sDia,6);
+                    this.elements["txt_sueldo_mensual"].value = Math.RoundTo(sMes,4);
                 });
             }
         },
@@ -349,42 +411,14 @@ var contrato =
 var unidad =
 {
     list: {
-        tUnidades: null, tEvents: {}, tData: {},
-
         init()
         {
-            this.tUnidades = document.getElementById("tbl_unidades");
-
-            this.tUnidades.hiddeSelector = true;
-            this.tUnidades.AutoAddRow = false;
-            this.tUnidades.AutoDelRow = false;
-            this.tUnidades.ShowAsTree = true;
-
-            this.tEvents = this.tUnidades.EdiTable.Const.Events;
-            this.tData = this.tUnidades.DataArray;
-
             this.setEvents();
         },
 
         setEvents()
         {
-            document.getElementById("btn_add_unidad").addEventListener("click", (event) => { org.add("unidad"); });
-            document.getElementById("btn_edt_unidad").addEventListener("click", (event) => {
-                let dt = this.tData[this.tUnidades.CurrentRowIndex()];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
-                
-                org.edt(dt.sys_pk,"unidad");
-            });
-            document.getElementById("btn_del_unidad").addEventListener("click", (event) => {
-                let currRow = this.tUnidades.CurrentRowIndex();
-                let dt = this.tData[currRow];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
-                
-                org.del(dt.sys_pk,"unidad",() => {
-                    this.tUnidades.DeleteRow(currRow);
-                    this.tUnidades._printRows();
-                });
-            });
+            document.getElementById("btn_add_unidad").addEventListener("click", () => org.add("unidad"));
         },
     },
 
@@ -459,42 +493,14 @@ var unidad =
 var puesto =
 {
     list: {
-        tPuestos: null, tEvents: {}, tData: {},
-
         init()
         {
-            this.tPuestos = document.getElementById("tbl_puestos");
-
-            this.tPuestos.hiddeSelector = true;
-            this.tPuestos.AutoAddRow = false;
-            this.tPuestos.AutoDelRow = false;
-            this.tPuestos.ShowAsTree = true;
-
-            this.tEvents = this.tPuestos.EdiTable.Const.Events;
-            this.tData = this.tPuestos.DataArray;
-
             this.setEvents();
         },
 
         setEvents()
         {
-            document.getElementById("btn_add_puesto").addEventListener("click", (event) => { org.add("puesto"); });
-            document.getElementById("btn_edt_puesto").addEventListener("click", (event) => {
-                let dt = this.tData[this.tPuestos.CurrentRowIndex()];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
-                
-                org.edt(dt.sys_pk,"puesto");
-            });
-            document.getElementById("btn_del_puesto").addEventListener("click", (event) => {
-                let currRow = this.tPuestos.CurrentRowIndex();
-                let dt = this.tData[currRow];
-                if (!dt || Object.entries(dt).length == 0) { alert("Debe seleccionar una fila de la lista."); return; }
-                
-                org.del(dt.sys_pk,"puesto",() => {
-                    this.tPuestos.DeleteRow(currRow);
-                    this.tPuestos._printRows();
-                });
-            });
+            document.getElementById("btn_add_puesto").addEventListener("click", () => org.add("puesto"));
         },
     },
 

@@ -4,42 +4,11 @@ module ""
 {
     #include "../_lib/lib.dk"
     @table_name = "rh_contrato_empleado"
+    @keyfield = "sys_pk"
 
     @create_exclude_fields = "shortcut"
     @update_exclude_fields = "shortcut"
 
-    @sql_contrato = "
-    SELECT
-        sys_pk,
-        sys_guid,
-        sys_recver,
-        ref_empleado,
-        ref_puesto,
-        ref_turno,
-        tipo,
-        status,
-        DATE_FORMAT(fechainicio,'%Y-%m-%d') fechainicio,
-        DATE_FORMAT(fechavencimiento,'%Y-%m-%d') fechavencimiento,
-        DATE_FORMAT(ffirma,'%Y-%m-%d') ffirma,
-        referencia,
-        IFNULL(sat_sindicalizado,0) sat_sindicalizado,
-        IFNULL(asimiladosal,0) asimiladosal,
-        IFNULL(notas,'') notas,
-        IFNULL(sat_tipojornada,'') sat_tipojornada,
-        sueldomensualbruto,
-        IFNULL(fdi,0) fdi,
-        IFNULL(sdi,0) sdi,
-        IFNULL(diasxsemana,0) diasxsemana,
-        IFNULL(septimodia,0) septimodia,
-        IFNULL(pagoxhora,0) pagoxhora,
-        IFNULL(sueldoxunidaddepago,0) sueldoxunidaddepago,
-        IFNULL(promediohorasdia,0) promediohorasdia,
-        IFNULL(horasvariables,0) horasvariables,
-        IFNULL(sat_banco,'') sat_banco,
-        IFNULL(clabe,'') clabe
-    FROM rh_contrato_empleado
-    WHERE #<@keyfield> = @_entity_id
-    "
     @sql_unidad = "
     SELECT
         sys_pk,
@@ -74,19 +43,52 @@ module ""
     FROM rh_puesto_org
     WHERE #<@keyfield> = @_entity_id
     "
+    @sql_contrato = "
+    SELECT
+        sys_pk,
+        sys_guid,
+        sys_recver,
+        ref_empleado,
+        ref_puesto,
+        ref_turno,
+        tipo,
+        status,
+        DATE_FORMAT(fechainicio,'%Y-%m-%d') fechainicio,
+        DATE_FORMAT(fechavencimiento,'%Y-%m-%d') fechavencimiento,
+        DATE_FORMAT(ffirma,'%Y-%m-%d') ffirma,
+        referencia,
+        IFNULL(sat_sindicalizado,0) sat_sindicalizado,
+        IFNULL(asimiladosal,0) asimiladosal,
+        IFNULL(notas,'') notas,
+        IFNULL(sat_tipojornada,'') sat_tipojornada,
+        sueldomensualbruto,
+        IFNULL(fdi,0) fdi,
+        IFNULL(sdi,0) sdi,
+        IFNULL(diasxsemana,0) diasxsemana,
+        IFNULL(septimodia,0) septimodia,
+        IFNULL(pagoxhora,0) pagoxhora,
+        IFNULL(sueldoxunidaddepago,0) sueldoxunidaddepago,
+        IFNULL(promediohorasdia,0) promediohorasdia,
+        IFNULL(horasvariables,0) horasvariables,
+        IFNULL(sat_banco,'') sat_banco,
+        IFNULL(clabe,'') clabe
+    FROM rh_contrato_empleado
+    WHERE #<@keyfield> = @_entity_id
+    "
+
     @list_query = "
     SELECT
         c.sys_pk,
         c.sys_guid,
         e.codigo,
         e.nombre,
-        e.apellido1,
-        e.apellido2,
-        e.rfc,
-        e.curp,
-        e.nss,
-        DATE_FORMAT(c.fechainicio,'%Y-%m-%d') fechainicio,
-        DATE_FORMAT(c.fechavencimiento,'%Y-%m-%d') fechavencimiento,
+        IFNULL(e.apellido1,'') apellido1,
+        IFNULL(e.apellido2,'') apellido2,
+        UPPER(e.rfc) rfc,
+        UPPER(e.curp) curp,
+        UPPER(IFNULL(e.nss,'')) nss,
+        IFNULL(DATE_FORMAT(c.fechainicio,'%Y-%m-%d'),'') fechainicio,
+        IFNULL(DATE_FORMAT(c.fechavencimiento,'%Y-%m-%d'),'') fechavencimiento,
         c.referencia,
         p.descripcion AS puesto,
         t.nombre AS tipo_contrato,
@@ -96,6 +98,7 @@ module ""
         INNER JOIN rh_puesto_org AS p ON c.ref_puesto = p.sys_pk
         INNER JOIN rh_tipo_contrato AS t on c.tipo = t.sys_pk
     WHERE NOT IFNULL(c.sys_deleted,0)
+        #<conditions>
     "
 
     org.buscarEmpleado::&db,&params
@@ -242,18 +245,50 @@ module ""
         }
     }
 
+    org.obtenerContratos::&db,&params
+    {
+        conditions = "AND (p.ref_unidad_org = @u OR c.ref_puesto = @p)"
+        
+        @list_query = ftext(@list_query)
+        return entity.list(db,params)
+    }
+
     org.list::&db,&params
     {
-        sql_list_unidad = "SELECT sys_pk, sys_guid, codigo, descripcion, superior FROM rh_unidad_org WHERE NOT IFNULL(sys_deleted,0)"
-        sql_list_puesto = "SELECT sys_pk, sys_guid, codigo, descripcion, ref_jefe FROM rh_puesto_org WHERE NOT IFNULL(sys_deleted,0)"
+        sql_organigrama = "
+        SELECT
+            u1.sys_pk,
+            u1.sys_guid,
+            u1.codigo,
+            u1.descripcion,
+            u2.sys_guid AS parent,
+            'unidad' AS tipo
+        FROM rh_unidad_org u1
+            LEFT JOIN rh_unidad_org u2 ON u2.sys_pk = u1.superior
+        WHERE NOT IFNULL(u1.sys_deleted,0)
 
-        ref list = record.create()
+        UNION
 
-        list<"contratos*"> : entity.list(db,params)
-        list<"unidades*"> : dbr.list(db,sql_list_unidad,@null)
-        list<"puestos*"> : dbr.list(db,sql_list_puesto,@null)
+        SELECT
+            p1.sys_pk,
+            p1.sys_guid,
+            p1.codigo,
+            p1.descripcion,
+            IFNULL(p2.sys_guid,pu.sys_guid) AS parent,
+            'puesto' AS tipo
+        FROM rh_puesto_org p1
+            INNER JOIN rh_unidad_org pu ON pu.sys_pk = p1.ref_unidad_org
+            LEFT JOIN rh_puesto_org p2 ON p2.sys_pk = p1.ref_jefe
+        WHERE NOT IFNULL(p1.sys_deleted,0)
+        "
 
-        return list
+        new data
+        {
+            @"organigrama*": dbr.list(db,sql_organigrama,@null)
+        }
+        if field.exist(params,"u") || field.exist(params,"p"){ data<"contratos*"> : org.obtenerContratos(db,params) }
+
+        return data
     }
 
     org.read::&db,&params
@@ -269,6 +304,7 @@ module ""
         do org.prepareView(db,params,data)
         return data
     }
+
     org.adjuntos::&db,&params,&data
     {
         ref contrato=dbr.rec(db,"select sys_pk,sys_guid from rh_contrato_empleado where sys_pk=@_entity_id",params)
@@ -290,6 +326,7 @@ module ""
         }
         return contrato
     }
+
     org.saveContrato::&db,&params,&data
     {
         if parse.bool(@@(data,"$onlyfile")) ||  @@(data,"$action")=="delete_file"{return org.adjuntos(db,params,data)}
@@ -449,30 +486,73 @@ module ""
         }
     }
 
+    org.recursiveDeletion::&db,id,key,parentkey
+    {
+        if not(isset("@_recursive_delete")) { @_recursive_delete = @false }
+        @start_transaction = @false
+        id >> params
+        
+        if not(@_recursive_delete) {
+            has_childs = dbr.num(db,ftext("select count(sys_pk) from #<@table_name> where #<parentkey> = @id"),params)
+            if has_childs { do rise_error(511,"No es posible eliminar el registro, el elemento seleccionado contiene anidaciones.") }
+
+            do dbr.delete(db,@table_name,ftext("#<key> = @id"),params)
+            return @null
+        }
+
+        if not(dbr.in_transaction(db)) {
+            do dbr.begin(db)
+            @start_transaction = @true
+        }
+
+        ref childs = dbr.list(db,ftext("select sys_pk from #<@table_name> where #<parentkey> = @id"),params)
+        for i = 0; i < list.count(childs)
+        {
+            ref item = list.obj(childs,i)
+            @_recursive_delete = @true
+            do org.recursiveDeletion(db,@@(item,"#sys_pk"))
+        }
+
+        do dbr.delete(db,@table_name,ftext("#<key> = @id"),params)
+        if @start_transaction { do dbr.commit(db) }
+        return @null
+
+        exception
+        {
+            do errordet(@false)
+            code = last_error_code()
+            error = last_error()
+
+            if contains_all_words(error,"DELETE Error,CONSTRAINT,FOREIGN KEY,REFERENCES") {
+                error = "No es posible eliminar el registro, otros registros son dependientes del elemento seleccionado."
+            }
+
+            if @start_transaction { do dbr.rollback(db) }
+            if isset("@@_action_context") { do dbr.apps.action.log() }
+            do rise_error(code,error)
+        }
+    }
+
     org.delete::&db,&params
     {
-        do errordet(@false)
-        _view = trim(@@(params,"$_view"))
-
-        switch _view
+        _entity_id = @@(params,"_entity_id")
+        
+        switch trim(@@(params,"$_view"))
         {
             case "unidad"
             {
                 @table_name = "rh_unidad_org"
-                return entity.delete(db,params)
-                break
+                return org.recursiveDeletion(db,_entity_id,"sys_pk","superior")
             }
             case "puesto"
             {
                 @table_name = "rh_puesto_org"
-                return entity.delete(db,params)
-                break
+                return org.recursiveDeletion(db,_entity_id,"sys_pk","ref_jefe")
             }
             case ""
             {
                 @table_name = "rh_contrato_empleado"
                 return entity.delete(db,params)
-                break
             }
         }
     }

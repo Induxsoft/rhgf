@@ -9,6 +9,17 @@ module ""
             point @list to org.buscarPuesto
             break
         }
+        case "buscar-empleado"
+        {
+            point @list to org.buscarEmpleado
+            break
+        }
+        case "obtener-contratos"
+        {
+            point @list to org.obtenerContratos
+            point @read to org.obtenerContratos
+            break
+        }
         case "unidad"
         {
             point @read to org.read

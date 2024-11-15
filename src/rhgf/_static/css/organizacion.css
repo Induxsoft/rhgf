@@ -38,7 +38,7 @@
     display: grid;
     grid-template-columns: auto 1fr;
 }
-#unidades_container {
+#organigrama_container {
     display: grid;
     grid-template-columns: 1fr auto;
     width: auto;
@@ -124,7 +124,7 @@
     #main_container {
         grid-template-columns: 100%;
     }
-    #unidades_container {
+    #organigrama_container {
         position: absolute;
         top: 0;
         left: 0;

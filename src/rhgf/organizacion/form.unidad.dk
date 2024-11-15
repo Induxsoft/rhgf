@@ -14,6 +14,12 @@ module "form.unidad.dk"
     ref dtunidad = ifnull(@("&./dtunidad"),record.create())
     ref listUnidades = ifnull(@("&./list_unidades"),list.create())
 
+    @_entities_type = @("$parameters/_entities_type")
+	@_entity_id = @("$parameters/_entity_id")
+	@is_new = (@_entity_id == "_new")
+
+    url_exit = @RH_ORGANIZACION + "?s="+@("$parameters/s")
+
     new sel_unidad
     {
         @"datatable*": listUnidades
@@ -27,9 +33,13 @@ module "form.unidad.dk"
         @"text_field": "text"
         @"selected": form("superior","nm",dtunidad)
     }
+    
+    if @is_new && @@(sel_unidad,"#selected")<1 && field.exist(@("&parameters"),"superior") {
+        sel_unidad<"selected"> : @("#parameters/superior")
+        url_exit = url_exit + "&u="+@("$parameters/superior")
+    }
 
-    form_title = "Nueva unidad"
-    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar unidad" }
+    form_title = ifstr(@is_new, "Nueva unidad", "Editar unidad")
 
     #$ div(class="container")
     {
@@ -40,9 +50,9 @@ module "form.unidad.dk"
             div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
             div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
             {
-                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
-                a(href="#<@RH_ORGANIZACION>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+                a(href="javascript.window.location.reload()" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                a(href="#<url_exit>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
             }
         }
 
@@ -58,14 +68,18 @@ module "form.unidad.dk"
 
                 div(class="row")
                 {
-                    div(class="col-lg-12")
+                    div(class="col-sm-3 col-md-4")
                     {
-                        label(class="form-label" "for"=""){$"Código:" sup{$"*"}}
-                        input(type="text" class="form-control form-control-sm rounded-0" name="codigo" value="#<form('codigo','tx',dtunidad)>" maxlength="32" required="")
-
-                        label(class="form-label" "for"=""){$"Descripción:" sup{$"*"}}
-                        input(type="text" class="form-control form-control-sm rounded-0" name="descripcion" value="#<form('descripcion','tx',dtunidad)>" maxlength="150" required="")
-
+                        label(class="form-label" "for"="codigo"){$"Código:" sup{$"*"}}
+                        input(type="text" class="form-control form-control-sm rounded-0" name="codigo" value="#<form('codigo','tx',dtunidad)>" id="codigo" maxlength="32" required="")
+                    }
+                    div(class="col-sm-9 col-md-8")
+                    {
+                        label(class="form-label" "for"="descripcion"){$"Descripción:" sup{$"*"}}
+                        input(type="text" class="form-control form-control-sm rounded-0" name="descripcion" value="#<form('descripcion','tx',dtunidad)>" id="descripcion" maxlength="150" required="")
+                    }
+                    div(class="col-12")
+                    {
                         div(class="form-check py-1") {
                             input(class="form-check-input" type="checkbox" name="" id="chq_depende" checked="")
                             label(class="form-check-label" "for"="chq_depende"){$"Depende de:"}

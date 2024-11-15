@@ -21,6 +21,12 @@ module "form.contrato.dk"
     ref listBancos = ifnull(@("&./list_bancos"),list.create())
     ref listTipoJornada = if(file.exists(@SAT_TIPO_JORNADA),from.json(file.rtext(@SAT_TIPO_JORNADA)),list.create())
 
+    @_entities_type = @("$parameters/_entities_type")
+	@_entity_id = @("$parameters/_entity_id")
+	@is_new = (@_entity_id == "_new")
+
+    url_exit = @RH_ORGANIZACION + "?s="+@("$parameters/s")
+
     new sel_tipo_contrato
     {
         @"datatable*": listTipoContrato
@@ -83,8 +89,7 @@ module "form.contrato.dk"
         @"selected": form("sat_tipojornada","tx",dtcontrato)
     }
 
-    form_title = "Nuevo contrato"
-    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar contrato" }
+    form_title = ifstr(@is_new, "Nuevo contrato", "Editar contrato")
 
     #$ div(class="container")
     {
@@ -95,9 +100,9 @@ module "form.contrato.dk"
             div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
             div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
             {
-                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
-                a(href="#<@RH_ORGANIZACION>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+                a(href="javascript:window.location.reload()" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                a(href="#<url_exit>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
             }
         }
 

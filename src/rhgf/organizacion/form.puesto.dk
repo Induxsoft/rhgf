@@ -18,6 +18,12 @@ module "form.puesto.dk"
     ref listEscolaridad = ifnull(@("&./list_escolaridad"),list.create())
     ref listSatRiesgoPuesto = if(file.exists(@SAT_RIESGO_PUESTO),from.json(file.rtext(@SAT_RIESGO_PUESTO)),list.create())
 
+    @_entities_type = @("$parameters/_entities_type")
+	@_entity_id = @("$parameters/_entity_id")
+	@is_new = (@_entity_id == "_new")
+
+    url_exit = @RH_ORGANIZACION + "?s="+@("$parameters/s")
+
     new sel_unidad
     {
         @"datatable*": listUnidades
@@ -78,8 +84,16 @@ module "form.puesto.dk"
         @"selected": form("escolaridad","nm",dtpuesto)
     }
 
-    form_title = "Nuevo puesto"
-    if @@(@("&parameters"),"$_entity_id") != "_new" { form_title = "Editar puesto" }
+    if @is_new && @@(sel_unidad,"#selected")<1 && field.exist(@("&parameters"),"unidad") {
+        sel_unidad<"selected"> : @("#parameters/unidad")
+        url_exit = url_exit + "&u="+@("$parameters/unidad")
+    }
+    else if @is_new && @@(sel_puesto,"#selected")<1 && field.exist(@("&parameters"),"puesto") {
+        sel_puesto<"selected"> : @("#parameters/puesto")
+        url_exit = url_exit + "&p="+@("$parameters/puesto")
+    }
+
+    form_title = ifstr(@is_new, "Nuevo puesto", "Editar puesto")
 
     #$ div(class="container")
     {
@@ -90,9 +104,9 @@ module "form.puesto.dk"
             div(class="col-4 d-flex align-items-center p-0") { h1(class="h5 text-primary tex-no-break m-0"){$"#<form_title>"} }
             div(class="col-8 d-flex justify-content-end align-items-center p-0 gap-2")
             {
-                a(href="./" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
                 button(type="button" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" id="btn_save"){$"#<@ICON_SAVE> Guardar"}
-                a(href="#<@RH_ORGANIZACION>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
+                a(href="javascript:window.location.reload()" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Refrescar"){$"#<@ICON_ARROW_CLOCKWISE>"}
+                a(href="#<url_exit>" class="btn btn-sm border-secondary induxsoft-corners btn-main-action" title="Salir"){$"#<@ICON_X_LG>"}
             }
         }
 
@@ -125,6 +139,13 @@ module "form.puesto.dk"
                     {
                         div(class="row")
                         {
+                            div(class="col-12")
+                            {
+                                label(class="form-label" "for"="sel_unidad"){$"Unidad organizacional:" sup{"*"}}
+                                ##
+                                do uie.dbSelect(sel_unidad)
+                                ##
+                            }
                             div(class="col-lg-4 col-md-4 col-sm-6")
                             {
                                 label(class="form-label" "for"="txt_codigo"){$"Código del puesto:" sup{"*"}}
@@ -134,13 +155,6 @@ module "form.puesto.dk"
                             {
                                 label(class="form-label" "for"="txt_descripcion"){$"Título del puesto:" sup{"*"}}
                                 input(class="form-control form-control-sm rounded-0" type="text" name="descripcion" value="#<form('descripcion','tx',dtpuesto)>" maxlength="150" id="txt_descripcion" required="")
-                            }
-                            div(class="col-12")
-                            {
-                                label(class="form-label" "for"="sel_unidad"){$"Unidad organizacional:" sup{"*"}}
-                                ##
-                                do uie.dbSelect(sel_unidad)
-                                ##
                             }
                             div(class="col-12")
                             {
