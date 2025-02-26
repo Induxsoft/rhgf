@@ -2,6 +2,8 @@
 #!
 program "instalador"
 {
+    #include "ddm.json.dkl"
+    #include "ddm.mysql.dkl"
     #include "functions.dkh"
     #include "serialize.dkh"
     #include "dbr.dkh"
