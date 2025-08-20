@@ -50,6 +50,7 @@ program "instalador"
         "rh_status_nomina.csv",
         "rh_tipo_concepto.csv",
         "rh_tipo_vivienda.csv",
+        "ctiposcategorias.csv",
         "categoria.csv",
         "cformaspago.csv",
         "cstatusadministrativos.csv",

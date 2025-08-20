@@ -1,16 +1,60 @@
 #include "ddm.dkh"
-
 model "rhgf"
 {
+    /** 
+    Gestión financiera de recursos humanos
+    =======================================================================
+    */
     #include "induxsoft.abstracts.ddm"
-    /* uod.rh_variable */
+
+    entity "ctiposcategorias" : "EnumModel" {}
+    entity "ctasasiva" : "EnumModel" {}
+    entity "cformaspago" : "EnumModel" {}
+    entity "cstatusadministrativos" : "EnumModel" {}
+    entity "cb_tipo_asiento_contable" : "EnumModel" {}
+    entity "rh_tipo_concepto" : "EnumModel" {}
+    entity "rh_sat_elemento" : "EnumModel" {}
+    entity "rh_status_nomina" : "EnumModel" {}
+    entity "rh_edo_civil" : "EnumModel" {}
+    entity "rh_tipo_vivienda" : "EnumModel" {}
+    entity "rh_nvl_escolaridad" : "EnumModel" {}
+    entity "rh_nvl_escolaridad" : "EnumModel" {}
+    entity "rh_status_contrato" : "EnumModel" {}
+    /* Frecuencia del periodo de asistencia
+     -1 - Ninguna
+     0 - Diario
+     1 - Semanal
+     2 - Decenal
+     3 - Catorcenal
+     4 - Quincenal
+     5 - Mensual
+     6 - Bimestral
+     7 - Unidad obra
+     8 - Comisión
+     9 - Precio alzado
+     99 - Otra periocidad
+    */
+    entity "rh_frec_periodo" : "EnumModel" 
+    { 
+        @"codigo_sat" string(5) unique
+        @"prefijo" string(3) // S-Semanal, Q-Quincenal, por ejemplo
+        @"dias" int // 0 - No hay periodo, 7-Semanal, 10-decenal, 14-catorcenal, 15-quincenal, 30-mensual y 60 bimestral
+    }
+    entity "rh_tipo_justificacion_motivo":"EnumModel"
+    {
+        /*
+        0-Vacaciones
+        1-Comisiones
+        2-Otros
+        */
+    }
+    
     entity "rh_variable" : "TableModel"
     {
         @"nombre" string(50) unique required
         @"formula" memo required
         @"notas" memo 
     }
-    /* uod.rh_detalle_nomina_concepto */
     entity "rh_detalle_nomina_concepto" : "TableModel"
     {
         @"ref_detalle_nomina" int ref:"rh_detalle_nomina" ["sys_pk"] required
@@ -18,15 +62,11 @@ model "rhgf"
         @"leyenda" string(1024) 
         @"importe" decimal(16,4) 
     }
-    /* uod.rh_tabla_calculo */
     entity "rh_tabla_calculo" : "TableModel"
     {
         @"nombre" string(50) unique required
         @"datos" memo 
     }
-
-   
-    /* uod.rh_tipo_contrato */
     entity "rh_tipo_contrato" : "TableModel"
     {
         @"nombre" string(50) unique required
@@ -34,19 +74,10 @@ model "rhgf"
         @"sat_tipocontrato" string(5) 
         @"ref_tipo_nominaordinaria" int ref:"rh_tipo_nomina" ["sys_pk"] 
     }
-    /* uod.rh_grupo_conceptos */
     entity "rh_grupo_conceptos" : "TableModel"
     {
         @"nombre" string(50) unique required
     }
-    /* uod.rh_tipo_concepto */
-    entity "rh_tipo_concepto" : "EnumModel" {}
-    /* uod.rh_sat_elemento */
-    entity "rh_sat_elemento" : "EnumModel" {}
-    /* uod.cb_tipo_asiento_contable */
-    entity "cb_tipo_asiento_contable" : "EnumModel" {}
-
-    /* uod.rh_tipo_nomina */
     entity "rh_tipo_nomina" : "TableModel"
     {
         @"nombre" string(50) unique required
@@ -58,7 +89,6 @@ model "rhgf"
         @"var_general" memo 
         @"var_empleado" memo 
     }
-    /* uod.rh_concepto_nomina */
     entity "rh_concepto_nomina" : "TableModel"
     {
         @"descripcion" string(150) required
@@ -77,10 +107,6 @@ model "rhgf"
         @"polizadetallada" bool 
         @"codigo" string(60) unique required
     }
-    /* uod.rh_status_nomina */
-    entity "rh_status_nomina" : "EnumModel" {}
-
-    /* uod.rh_nomina */
     entity "rh_nomina" : "TableModel"
     {
         @"inicio" date required
@@ -97,19 +123,12 @@ model "rhgf"
         @"error_log" memo 
         @"sat_entidad" string(5) 
     }
-
-    /* uod.rh_detalle_nomina */
     entity "rh_detalle_nomina" : "TableModel"
     {
         @"ref_nomina" int ref:"rh_nomina" ["sys_pk"] required
         @"ref_contrato" int ref:"rh_contrato_empleado" ["sys_pk"] required
         @"notas" memo 
     }
-
-    /* uod.rh_status_contrato */
-    entity "rh_status_contrato" : "EnumModel" {}
-
-    /* uod.rh_tipo_contrato */
     entity "rh_tipo_contrato" : "TableModel"
     {
         @"nombre" string(50) unique required
@@ -117,20 +136,11 @@ model "rhgf"
         @"sat_tipocontrato" string(5) 
         @"ref_tipo_nominaordinaria" int ref:"rh_tipo_nomina" ["sys_pk"] 
     }
-    /* uod.rh_edo_civil */
-    entity "rh_edo_civil" : "EnumModel" {}
-    /* uod.rh_tipo_vivienda */
-    entity "rh_tipo_vivienda" : "EnumModel" {}
-    /* uod.rh_nvl_escolaridad */
-    entity "rh_nvl_escolaridad" : "EnumModel" {}
-
-    /* uod.rh_categoria_empleado */
     entity "rh_categoria_empleado" : "TableModel"
     {
         @"nombre" string(50) unique required
         @"notas" memo 
     }
-    /* uod.rh_empleado_org */
     entity "rh_empleado_org" : "TableModel"
     {
         @"codigo" string(32) unique required
@@ -170,9 +180,6 @@ model "rhgf"
         @"ref_categoria" int ref:"rh_categoria_empleado" ["sys_pk"] 
         @"nss" string(50) 
     }
-    /* uod.rh_nvl_escolaridad */
-    entity "rh_nvl_escolaridad" : "EnumModel" {}
-    /* uod.rh_puesto_org */
     entity "rh_puesto_org" : "TableModel"
     {
         @"codigo" string(32) unique required
@@ -192,7 +199,6 @@ model "rhgf"
         @"link" string(1024) 
         @"smbofrecidos" decimal(8,2) 
     }
-    /* uod.rh_unidad_org */
     entity "rh_unidad_org" : "TableModel"
     {
         @"codigo" string(32) unique required
@@ -201,7 +207,6 @@ model "rhgf"
         @"notas" memo 
         @"link" string(1024) 
     }
-    /* uod.rh_contrato_empleado */
     entity "rh_contrato_empleado" : "TableModel"
     {
         @"status" int ref:"rh_status_contrato" ["id"] required
@@ -235,7 +240,6 @@ model "rhgf"
         @"asimiladosal" bool 
         @"ref_turno" ref:"rh_turno" 
     }
-    
     entity "ut_sat_banco" : "TableModel"
     {
         @"uf_cve" string(50) 
@@ -249,7 +253,6 @@ model "rhgf"
         @"notas" memo
         @"activo" bool
     }
-
     entity "rh_dia_inhabil" : "TableModel"
     {
         @"ref_rh_calendario" ref:"rh_calendario" required
@@ -267,24 +270,23 @@ model "rhgf"
             field "dia"
         }
     }
-
     entity "rh_acceso_evento":"TableModel"
     {
         @"codigo" string(15) unique required
         @"descripcion" string(50)
         @"salida" bool
     }
-        /*  
-        EN-Entrada, SN-Salida, SD-Salida descanso, RD-Regreso descanso, SP-Salida permiso,
-        SE-Salida emergencia, SC-Salida por comisión, RC-Regreso de comisión, SS-Salida no reportada
-        */
+    /*  
+    EN-Entrada, SN-Salida, SD-Salida descanso, RD-Regreso descanso, SP-Salida permiso,
+    SE-Salida emergencia, SC-Salida por comisión, RC-Regreso de comisión, SS-Salida no reportada
+    */
 
-    
-        /*
-        Si el úúltimo evento es una salida, solo permitir entradas, si el ultimo evento es una entrada, solo permitir salidas
-        Si no hay eventos del empleado, cualquier tipo de evento se puede agregar (entrada o salida)
-        select dia,hora, v.salida from rh_acceso_empleado e inner join rh_acceso_evento v on e.evento=v.sys_pk where empleado=@empleado order by dia desc, hora desc limit 1;
-        */
+
+    /*
+    Si el úúltimo evento es una salida, solo permitir entradas, si el ultimo evento es una entrada, solo permitir salidas
+    Si no hay eventos del empleado, cualquier tipo de evento se puede agregar (entrada o salida)
+    select dia,hora, v.salida from rh_acceso_empleado e inner join rh_acceso_evento v on e.evento=v.sys_pk where empleado=@empleado order by dia desc, hora desc limit 1;
+    */
     entity "rh_acceso_empleado" :"TableModel"
     {
         @"empleado" ref:"rh_empleado_org" required
@@ -305,9 +307,6 @@ model "rhgf"
             field "ref_turno"
         }
     }
-
-    
-
     entity "rh_descanso":"TableModel"
     {
         @"ref_turno" ref:"rh_turno" required
@@ -330,30 +329,6 @@ model "rhgf"
             field "min_horas"
         }
     }
-
-
-    /* Frecuencia del periodo de asistencia
-     -1 - Ninguna
-     0 - Diario
-     1 - Semanal
-     2 - Decenal
-     3 - Catorcenal
-     4 - Quincenal
-     5 - Mensual
-     6 - Bimestral
-     7 - Unidad obra
-     8 - Comisión
-     9 - Precio alzado
-     99 - Otra periocidad
-    */
-
-    entity "rh_frec_periodo" : "EnumModel" 
-    { 
-        @"codigo_sat" string(5) unique
-        @"prefijo" string(3) // S-Semanal, Q-Quincenal, por ejemplo
-        @"dias" int // 0 - No hay periodo, 7-Semanal, 10-decenal, 14-catorcenal, 15-quincenal, 30-mensual y 60 bimestral
-    }
-     /* uod.rh_tipo_nomina */
     entity "rh_tipo_nomina" : "TableModel"
     {
         @"nombre" string(50) unique required
@@ -385,7 +360,6 @@ model "rhgf"
         @"codigo" string(15) unique required
         @"descripcion" string(50) required
     }
-
     entity "rh_asistencia_incidencia" : "TableModel"
     {
         @"ref_asistencia" ref : "rh_asistencia" required
@@ -407,7 +381,6 @@ model "rhgf"
         @"cancelado" bool
         @"notas" memo
     }
-
     entity "rh_periodo_asistencia":"TableModel" //button
     {
         @"ref_rh_tipo_nomina" ref:"rh_tipo_nomina" required
@@ -416,15 +389,6 @@ model "rhgf"
         @"cierre" date //es el ultimo dia hasta que se cortan las asistencias
         @"inicio" date// inicio del periodo de pago 
         @"fin" date // es la finalizacion del periodo de pago
-    }
-
-    entity "rh_tipo_justificacion_motivo":"EnumModel"
-    {
-        /*
-        0-Vacaciones
-        1-Comisiones
-        2-Otros
-        */
     }
     //Vacaciones y Comisiones -> todo_dia,pagado
     entity "rh_tipo_justificacion":"TableModel"
@@ -520,26 +484,23 @@ model "rhgf"
         @"notas" memo
         @"justificacion" ref: "rh_justificacion"
     }
-
     entity "rh_detalle_grupo_conceptos" : "TableModel"
     {
         @"ref_grupo" ref:"rh_grupo_conceptos" required
         @"ref_concepto" ref:"rh_concepto_nomina" required
     }
-    
-    entity "ctasasiva" : "EnumModel" {}
-    entity "cformaspago" : "EnumModel" {}
-    entity "cstatusadministrativos" : "EnumModel" {}
-    
     entity "divisa" : "TableModel"
     {
         @"codigo" string(5) unique required
         @"descripcion" string(30) unique required
+        @"tcambio" decimal(18,8)
+        @"decimales" int
     }
     entity "tipoproveedor" : "TableModel"
     {
         @"codigo" string(15) unique required
         @"descripcion" string(50) unique required
+        @"notas" string(4096)
     }
     entity "proveedor" : "TableModel"
     {
@@ -551,13 +512,17 @@ model "rhgf"
         @"idivisa" ref:"divisa" required    
         @"tipo" ref:"tipoproveedor" required  
     }
-     entity "categoria" : "TableModel"
+    entity "categoria" : "TableModel"
     {
         @"codcuenta" string(50) unique
         @"codigo" string(5) unique required
         @"descripcion" string(50) unique required
+        @"pmensual" decimal(18,8)
+        @"tipo" int ref:"ctiposcategorias" ["id"]
+        @"padre" int ref:"categoria" ["sys_pk"]
+        @"uf_inhabilitado" bool
+        @"uf_fechainhabilitacion" datetime
     }
-    
     
     // Información de la aplicación
     entity "sys_app_catalog"
